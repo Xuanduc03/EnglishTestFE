@@ -18,24 +18,22 @@ import {
   TagsOutlined,
   GlobalOutlined,
 } from '@ant-design/icons';
-import type { MenuItem } from '../../../types/sidebar';
+import type { MenuProps } from 'antd';
 
-
-
+type MenuItem = Required<MenuProps>['items'][number];
 // Helper function to create menu items
 function getItem(
-  label: string,
-  key: string,
+  label: React.ReactNode,
+  key: React.Key,
   icon?: React.ReactNode,
   children?: MenuItem[],
-  permission?: string[]
 ): MenuItem {
   return {
     key,
-    label,
     icon,
     children,
-  };
+    label,
+  } as MenuItem;
 }
 
 // Menu items cho IELTS/TOEIC Admin
@@ -46,7 +44,6 @@ export const menuItems: MenuItem[] = [
     '/admin/dashboard',
     <HomeOutlined />,
     undefined,
-    ['view_dashboard']
   ),
 
   // ========== QUẢN LÝ ĐỀ THI ==========
@@ -56,14 +53,12 @@ export const menuItems: MenuItem[] = [
       '/admin/exams',
       <FileTextOutlined />,
       undefined,
-      ['view_exams']
     ),
     getItem(
       'Cấu trúc đề thi',
       '/admin/exams/section',
       <EditOutlined />,
       undefined,
-      ['manage_exams']
     ),
     getItem(
       'Đề thi theo kỳ',
@@ -73,7 +68,6 @@ export const menuItems: MenuItem[] = [
         getItem('TOEIC Tests', '/admin/exams/type/toeic', <SoundOutlined />),
         getItem('IELTS Tests', '/admin/exams/type/ielts', <ReadOutlined />),
       ],
-      ['view_exams']
     ),
   ]),
 
@@ -84,7 +78,6 @@ export const menuItems: MenuItem[] = [
       '/admin/questions',
       <BookOutlined />,
       undefined,
-      ['view_questions']
     ),
     // getItem(
     //   'TOEIC Questions',
@@ -193,42 +186,36 @@ export const menuItems: MenuItem[] = [
       '/admin/categories',
       <TagsOutlined />,
       undefined,
-      ['manage_categories']
     ),
     getItem(
       'Chứng chỉ',
       '/admin/categories/exam-types',
       <GlobalOutlined />,
       undefined,
-      ['view_categories']
     ),
     getItem(
       'Kỹ năng',
       '/admin/categories/skills',
       <SoundOutlined />,
       undefined,
-      ['view_categories']
     ),
     getItem(
       'Chủ đề',
       '/admin/categories/topics',
       <BookOutlined />,
       undefined,
-      ['view_categories']
     ),
     getItem(
       'Mức độ học tập',
       '/admin/categories/levels',
       <BarChartOutlined />,
       undefined,
-      ['view_categories']
     ),
     getItem(
       'Loại câu hỏi',
       '/admin/categories/question-types',
       <QuestionCircleOutlined />,
       undefined,
-      ['view_categories']
     ),
   ]),
 
@@ -271,28 +258,24 @@ export const menuItems: MenuItem[] = [
       '/admin/system/users',
       <UserOutlined />,
       undefined,
-      ['manage_users']
     ),
     getItem(
       'Vai trò & Quyền',
       '/admin/system/roles',
       <TeamOutlined />,
       undefined,
-      ['manage_roles']
     ),
     getItem(
       'Giáo viên',
       '/admin/system/teachers',
       <UserOutlined />,
       undefined,
-      ['manage_teachers']
     ),
     getItem(
       'Cấu hình',
       '/admin/system/settings',
       <SettingOutlined />,
       undefined,
-      ['manage_settings']
     ),
   ]),
 ];

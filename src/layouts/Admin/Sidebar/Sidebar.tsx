@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Layout, Menu, Divider } from 'antd';
-import type { MenuItem } from '../../../types/sidebar';
+import type { MenuProps } from 'antd';
 import { useSidebarStore } from '../../../stores/sidebar/sidebar';
 import "./Sidebar.scss";
-
+export type MenuItem = Required<MenuProps>['items'][number];
 const { Sider } = Layout;
 
 interface SidebarProps {

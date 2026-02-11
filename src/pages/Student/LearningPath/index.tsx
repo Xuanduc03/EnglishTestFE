@@ -554,7 +554,6 @@ const LearningPathPage: React.FC = () => {
                     color={phase.status === 'completed' ? 'green' : 
                            phase.status === 'in-progress' ? 'blue' : 'gray'}
                     className={`phase-item ${activePhase === phase.id ? 'active' : ''}`}
-                    onClick={() => setActivePhase(phase.id)}
                   >
                     <div className="phase-header">
                       <Badge 

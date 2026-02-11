@@ -1,14 +1,4 @@
 
-export interface MenuItem {
-  key: string;
-   icon?: React.ReactNode; 
-  children?: MenuItem[];
-  label: string;
-  type?: string;
-  disabled?: boolean;
-  onClick?: () => void;
-}
-
 export interface SidebarState {
   collapsed: boolean;
   selectedKeys: string[];
