@@ -35,7 +35,7 @@ import {
 import dayjs from 'dayjs';
 import type { UploadProps } from 'antd';
 import type { RcFile } from 'antd/es/upload';
-import "./profile.scss";
+import "./Profile.scss";
 import { ProfileService } from "./profile.service";
 import type { UserProfile, UpdateProfileRequest, ChangePasswordRequest } from "./profile.types";
 import { toast } from "react-toastify";
