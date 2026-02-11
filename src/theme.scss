@@ -1,0 +1,31 @@
+/* Biến mặc định (theme default) */
+:root {
+  --primary-color: #1e3a8a;
+  --text-color: #111827;
+  --header-bg: #ffffff;
+  --border-color: #e5e7eb;
+}
+
+/* Theme xanh lá */
+[data-theme='green'] {
+  --primary-color: #16a34a;
+  --text-color: #064e3b;
+  --header-bg: #f0fdf4;
+  --border-color: #bbf7d0;
+}
+
+/* Theme xanh dương nhạt */
+[data-theme='greenBlue'] {
+  --primary-color: #0284c7;
+  --text-color: #0c4a6e;
+  --header-bg: #f0f9ff;
+  --border-color: #bae6fd;
+}
+
+/* Theme tím hồng */
+[data-theme='purple'] {
+  --primary-color: #a21caf;
+  --text-color: #4a044e;
+  --header-bg: #fdf2f8;
+  --border-color: #f5d0fe;
+}

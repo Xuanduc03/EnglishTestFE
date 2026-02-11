@@ -1,0 +1,256 @@
+// Variables
+$primary-color: #1890ff;
+$success-color: #52c41a;
+$warning-color: #faad14;
+$error-color: #ff4d4f;
+$text-color: rgba(0, 0, 0, 0.85);
+$text-secondary: rgba(0, 0, 0, 0.45);
+$border-color: #f0f0f0;
+$background-light: #fafafa;
+$shadow-light: 0 2px 8px rgba(0, 0, 0, 0.08);
+$shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.12);
+
+// Layout
+.question-manager-layout {
+  min-height: 100vh;
+  background-color: #fff;
+
+  .ant-layout {
+    background: transparent;
+  }
+}
+
+// Search & Filter Section
+.search-filter-section {
+  background: white;
+  padding: 20px 0;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+
+  .container {
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  .filter-actions {
+    margin-top: 16px;
+    display: flex;
+    gap: 12px;
+
+    button {
+      border-radius: 6px;
+      font-weight: 500;
+    }
+  }
+}
+
+// Main Content - Flexbox Layout
+.main-content {
+  display: flex;
+  width: 100%;
+  min-height: calc(100vh - 200px); // Chiều cao linh hoạt
+  background: #f5f7fa;
+}
+
+// Category Sidebar - Flexible Width
+.category-sidebar {
+  flex: 0 0 300px; // ✅ flex-basis thay vì width cố định
+  background: white;
+  border-right: 1px solid $border-color;
+  overflow-y: auto;
+  box-shadow: $shadow-light;
+  transition: all 0.3s ease;
+
+  .ant-menu {
+    border-right: none;
+
+    .ant-menu-item {
+      margin: 4px 8px;
+      border-radius: 6px;
+
+      &:hover {
+        background-color: rgba($primary-color, 0.1);
+      }
+
+      &.ant-menu-item-selected {
+        background-color: rgba($primary-color, 0.15);
+        color: $primary-color;
+
+        &::after {
+          border-right: 3px solid $primary-color;
+        }
+      }
+    }
+  }
+}
+
+// Right Content - Take Remaining Space
+.right-content {
+  flex: 1; // ✅ Chiếm toàn bộ không gian còn lại
+  min-width: 0; // ✅ Quan trọng cho flexbox overflow
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+// Questions Table Section
+.questions-table-section {
+  flex: 1;
+  overflow-y: auto; // ✅ Scroll riêng cho table
+
+  .container {
+    margin: 0 auto;
+  }
+
+  .ant-card {
+    border-radius: 12px;
+    box-shadow: $shadow-light;
+    border: 1px solid $border-color;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    .ant-card-head {
+      border-bottom: 1px solid $border-color;
+      padding: 16px 24px;
+      flex-shrink: 0;
+
+      .ant-card-head-title {
+        font-size: 18px;
+        font-weight: 600;
+      }
+    }
+
+    .ant-card-body {
+      padding: 0;
+      flex: 1;
+      overflow: auto;
+    }
+  }
+
+  .ant-table {
+    .ant-table-thead > tr > th {
+      background: $background-light;
+      font-weight: 600;
+      color: $text-color;
+      padding: 16px;
+      border-bottom: 2px solid $border-color;
+      white-space: nowrap;
+    }
+
+    .ant-table-tbody > tr > td {
+      padding: 16px;
+      border-bottom: 1px solid $border-color;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: rgba($primary-color, 0.02);
+      }
+    }
+
+    .ant-table-row {
+      &:hover {
+        .question-content {
+          .content-text {
+            color: $primary-color;
+          }
+        }
+      }
+    }
+  }
+
+  .question-content {
+    .content-text {
+      font-size: 14px;
+      color: $text-color;
+      line-height: 1.5;
+      margin-bottom: 8px;
+      transition: color 0.3s ease;
+      word-break: break-word;
+    }
+
+    .question-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+
+      .ant-tag {
+        margin: 0;
+        font-size: 11px;
+        padding: 2px 8px;
+        border-radius: 12px;
+      }
+    }
+  }
+
+  .correct-rate {
+    .rate-value {
+      font-weight: 600;
+
+      &.high {
+        color: $success-color;
+      }
+
+      &.medium {
+        color: $warning-color;
+      }
+
+      &.low {
+        color: $error-color;
+      }
+    }
+  }
+
+  .ant-pagination {
+    margin: 24px;
+    padding: 0 16px;
+
+    .ant-pagination-total-text {
+      color: $text-secondary;
+      font-size: 14px;
+    }
+  }
+}
+
+
+// Animation
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stat-card,
+.distribution-card,
+.questions-table-section .ant-card {
+  animation: fadeIn 0.3s ease-out;
+}
+
+// Scrollbar Styling
+.category-sidebar,
+.questions-table-section {
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $background-light;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba($primary-color, 0.3);
+    border-radius: 3px;
+
+    &:hover {
+      background: rgba($primary-color, 0.5);
+    }
+  }
+}

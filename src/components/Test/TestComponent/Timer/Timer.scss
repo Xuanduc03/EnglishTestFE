@@ -1,0 +1,22 @@
+.timer-container {
+  background: #f3f4f6;
+  border-radius: 9999px;
+  padding: 8px 16px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  transition: all 0.3s ease;
+
+  &.warning {
+    background: #fee2e2;
+    color: #dc2626;
+    animation: vibrate 0.5s cubic-bezier(.36,.07,.19,.97) both;
+  }
+}
+
+@keyframes vibrate {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-3px, 0, 0); }
+  40%, 60% { transform: translate3d(3px, 0, 0); }
+}

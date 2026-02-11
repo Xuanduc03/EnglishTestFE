@@ -1,0 +1,38 @@
+.ant-form-item-control-input-content {
+  display: flex;
+  flex-direction: column;  // Đảm bảo label và input hiển thị theo cột
+  .ant-input{
+    font-size: 16px !important;
+    // margin-top: 4px !important;
+  }
+  .ant-select-selection-item{
+    font-size: 16px !important;
+  }
+  .edit-description{
+    font-size: 16px !important;
+  }
+}
+.clearContentIcon2{
+  position: absolute;
+  top: 9px;
+  right: 10px;
+}
+// dùng cho input tìm kiếm ở thêm mới người dùng
+.clearContentIcon3{
+  position: absolute;
+  top: 9px;
+  right: 35px;
+}
+
+.ant-form-item-label {
+  font-weight: bold;  // In đậm label
+}
+.form-item-custom{
+  margin-bottom: 16px !important;
+}
+.form-input{
+  border: 1px solid #9CA3AF;
+}
+.ant-input-affix-wrapper{
+  padding: 4px 11px;
+}

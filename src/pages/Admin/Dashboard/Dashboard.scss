@@ -1,0 +1,98 @@
+.admin-dashboard {
+  padding: 16px;
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+    p {
+      margin: 4px 0 0;
+      color: #64748b;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+  }
+
+  .kpi-card {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+
+    .kpi-icon {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      font-size: 20px;
+      flex: none;
+    }
+
+    .kpi-content {
+      flex: 1;
+
+      .kpi-title {
+        color: #64748b;
+        font-size: 13px;
+        margin-bottom: 2px;
+      }
+      .kpi-value {
+        line-height: 1;
+      }
+      .kpi-trend {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        margin-top: 6px;
+
+        &.up { color: #16a34a; }
+        &.down { color: #dc2626; }
+      }
+    }
+  }
+
+  .traffic {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .traffic-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      .traffic-label {
+        width: 180px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #0f172a;
+
+        .dot {
+          width: 10px;
+          height: 10px;
+          border-radius: 999px;
+        }
+      }
+
+      .traffic-progress { flex: 1; }
+    }
+  }
+
+  .activity.success { color: #16a34a; }
+  .activity.info { color: #2563eb; }
+  .activity.warning { color: #f59e0b; }
+}
+
+

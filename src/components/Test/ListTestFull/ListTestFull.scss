@@ -1,0 +1,365 @@
+// Tests Grid Section
+.tests-section {
+  padding: 2rem 0;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  min-height: 100vh;
+}
+
+.tests-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.tests-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+
+  @media (min-width: 640px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (min-width: 1280px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.test-card {
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  position: relative;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  }
+
+  // Free Test Gradient
+  &.free {
+    background: linear-gradient(135deg, #f59e0b, #ea580c);
+  }
+
+  // New Test Gradient
+  &.new {
+    background: linear-gradient(135deg, #60a5fa, #1d4ed8);
+  }
+
+  // Premium Test Gradient
+  &.premium {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  }
+
+  .card-badge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+    &.free {
+      background: #dc2626;
+      color: white;
+    }
+
+    &.new {
+      background: #ec4899;
+      color: white;
+    }
+
+    &.premium {
+      background: #f59e0b;
+      color: white;
+    }
+  }
+
+  .card-content {
+    padding: 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    color: white;
+  }
+
+  .test-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .score-section {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+
+    .score-text {
+      font-size: 1.125rem;
+      font-weight: 700;
+      margin: 0;
+
+      &.no-score {
+        opacity: 0.9;
+      }
+    }
+
+    .score-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-top: 0.25rem;
+    }
+  }
+
+  .test-info {
+    margin-bottom: 1.5rem;
+    flex: 1;
+
+    .info-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      font-size: 0.9rem;
+      opacity: 0.95;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .info-icon {
+        margin-right: 0.75rem;
+        font-size: 1rem;
+        width: 20px;
+        text-align: center;
+      }
+
+      .info-text {
+        font-weight: 500;
+      }
+    }
+  }
+
+  .action-button {
+    width: 100%;
+    background: white;
+    border: none;
+    border-radius: 0.75rem;
+    padding: 0.875rem 1rem;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    // Button colors based on test type
+    .free & {
+      color: #ea580c;
+    }
+
+    .new & {
+      color: #1d4ed8;
+    }
+
+    .premium & {
+      color: #7c3aed;
+    }
+  }
+}
+
+// Section Header
+.section-header {
+  text-align: center;
+  margin-bottom: 3rem;
+
+  .section-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #1f2937;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .section-subtitle {
+    font-size: 1.125rem;
+    color: #6b7280;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+}
+
+// Loading States
+.tests-loading {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+
+  .test-card-skeleton {
+    border-radius: 1rem;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    min-height: 320px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+// Empty & Error States
+.tests-empty {
+  text-align: center;
+  padding: 3rem;
+  color: #6b7280;
+
+  .empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+
+  .empty-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #374151;
+  }
+
+  .empty-description {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+  }
+
+  .retry-button {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+    border: none;
+    border-radius: 0.75rem;
+    padding: 0.875rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .tests-section {
+    padding: 1rem 0;
+  }
+
+  .tests-container {
+    padding: 0 0.75rem;
+  }
+
+  .tests-grid {
+    gap: 1rem;
+  }
+
+  .test-card {
+    min-height: 280px;
+
+    .card-content {
+      padding: 1.25rem;
+    }
+
+    .test-title {
+      font-size: 1.25rem;
+    }
+
+    .score-section {
+      padding: 0.75rem;
+
+      .score-text {
+        font-size: 1rem;
+      }
+
+      .score-value {
+        font-size: 1.25rem;
+      }
+    }
+  }
+
+  .section-header {
+    margin-bottom: 2rem;
+
+    .section-title {
+      font-size: 2rem;
+    }
+
+    .section-subtitle {
+      font-size: 1rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .tests-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .test-card {
+    min-height: 260px;
+
+    .card-content {
+      padding: 1rem;
+    }
+  }
+
+  .tests-empty {
+    padding: 2rem 1rem;
+
+    .empty-icon {
+      font-size: 3rem;
+    }
+
+    .empty-title {
+      font-size: 1.25rem;
+    }
+  }
+}

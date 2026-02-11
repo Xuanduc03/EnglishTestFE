@@ -1,0 +1,15 @@
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  
+  .page-content {
+    background: #fafafa;
+    padding: 24px;
+    border-radius: 8px;
+    
+    @media (max-width: 768px) {
+      padding: 16px;
+    }
+  }
+}

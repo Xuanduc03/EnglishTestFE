@@ -1,0 +1,240 @@
+// CrudPage.scss
+.crud-page {
+  padding: 16px;
+  background-color: #f8fafc;
+  min-height: 100vh;
+
+  // Header section
+  .crud-header-section {
+    margin-bottom: 24px;
+  }
+
+  // Stats section
+  .stats-section {
+    margin-bottom: 24px;
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      
+      @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+      }
+    }
+  }
+
+  // Filter section
+  .filter-section {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e5e7eb;
+    transition: box-shadow 0.2s ease;
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .filter-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+
+      .filter-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0;
+      }
+    }
+
+    .filter-content {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: flex-end;
+
+      .filter-item {
+        flex: 1;
+        min-width: 200px;
+
+        @media (max-width: 768px) {
+          min-width: 100%;
+        }
+      }
+
+      .filter-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+    }
+  }
+
+  // View mode switcher
+  .view-mode-switcher {
+    background: #f1f5f9;
+    padding: 4px;
+    border-radius: 8px;
+    display: inline-flex;
+    gap: 4px;
+    border: 1px solid #e2e8f0;
+
+    .view-mode-btn {
+      background: transparent;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      color: #64748b;
+
+      &:hover {
+        color: #475569;
+        background: rgba(255, 255, 255, 0.5);
+      }
+
+      &.active {
+        background: #ffffff;
+        color: #3b82f6;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .view-icon {
+        font-size: 16px;
+      }
+    }
+  }
+
+  // Content section
+  .content-section {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+    transition: box-shadow 0.2s ease;
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+  }
+
+  // Action buttons
+  .action-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+
+    .action-btn {
+      padding: 6px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:hover {
+        background: #f8fafc;
+        border-color: #e2e8f0;
+      }
+
+      &.edit-btn {
+        color: #3b82f6;
+
+        &:hover {
+          background: rgba(59, 130, 246, 0.1);
+          border-color: rgba(59, 130, 246, 0.2);
+        }
+      }
+
+      &.delete-btn {
+        color: #ef4444;
+
+        &:hover {
+          background: rgba(239, 68, 68, 0.1);
+          border-color: rgba(239, 68, 68, 0.2);
+        }
+      }
+    }
+  }
+
+  // Loading state
+  .loading-overlay {
+    position: relative;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(2px);
+      z-index: 1;
+    }
+
+    .loading-spinner {
+      position: relative;
+      z-index: 2;
+    }
+  }
+
+  // Empty state
+  .empty-state {
+    text-align: center;
+    padding: 48px 20px;
+
+    .empty-icon {
+      font-size: 48px;
+      color: #cbd5e1;
+      margin-bottom: 16px;
+    }
+
+    .empty-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #64748b;
+      margin-bottom: 8px;
+    }
+
+    .empty-description {
+      color: #94a3b8;
+      font-size: 14px;
+    }
+  }
+
+  // Responsive adjustments
+  @media (max-width: 768px) {
+    padding: 12px;
+
+    .filter-section {
+      padding: 16px;
+    }
+
+    .content-section {
+      padding: 16px;
+    }
+
+    .action-buttons {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+  }
+}

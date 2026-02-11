@@ -1,0 +1,396 @@
+.admin-sidebar {
+  background: #001529 !important;
+  height: 100vh;
+  position: fixed !important;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 100;
+  overflow: auto;
+  transition: all 0.2s ease;
+  box-shadow: 2px 0 8px 0 rgba(29, 35, 41, 0.05);
+
+  &.collapsed {
+    box-shadow: 2px 0 8px 0 rgba(29, 35, 41, 0.1);
+  }
+
+  &.mobile-sidebar {
+    position: relative !important;
+    height: 100%;
+  }
+
+  // Header & Logo
+  .sidebar-header {
+    padding: 0;
+    margin: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+    .sidebar-logo {
+      background-color: #143b64;
+      padding: 16px 24px;
+      transition: all 0.2s ease;
+
+      &.logo-collapsed {
+        padding: 16px 8px;
+      }
+
+      .logo-mini {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        .logo-icon {
+          width: 36px;
+          height: 36px;
+          background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-weight: bold;
+          font-size: 14px;
+        }
+      }
+
+      .logo-full {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        .logo-icon {
+          width: 40px;
+          height: 40px;
+          background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-weight: bold;
+          font-size: 16px;
+        }
+
+        .logo-text {
+          display: flex;
+          flex-direction: column;
+          line-height: 1.2;
+
+          .logo-title {
+            margin: 0;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+          }
+
+          .logo-subtitle {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.65);
+          }
+        }
+      }
+    }
+  }
+
+  // Stats Section
+  .sidebar-stats {
+    padding: 16px 24px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    margin: 16px;
+    border-radius: 8px;
+
+    .stat-item {
+      text-align: center;
+
+      .stat-value {
+        font-size: 16px;
+        font-weight: 600;
+        color: white;
+        margin-bottom: 4px;
+      }
+
+      .stat-label {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.65);
+      }
+    }
+  }
+
+  // Divider
+  .sidebar-divider {
+    margin: 8px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: transparent;
+  }
+
+  // Menu
+  .sidebar-menu {
+    background: transparent !important;
+    border-right: none !important;
+    padding: 8px 0;
+    transition: all 0.2s ease;
+
+    .ant-menu-item {
+      display: flex;
+      height: 48px;
+      line-height: 48px;
+      margin: 0;
+      padding-left: 24px !important;
+      border-radius: 0;
+      transition: all 0.2s ease;
+      margin-bottom: 4px;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.1) !important;
+      }
+
+      &.ant-menu-item-selected {
+        background: linear-gradient(90deg, #1890ff 0%, rgba(24, 144, 255, 0.8) 100%) !important;
+        color: white !important;
+        border-right: 3px solid #52c41a;
+
+        &::after {
+          display: none;
+        }
+      }
+
+      .ant-menu-item-icon {
+        font-size: 16px;
+        min-width: 20px;
+      }
+
+      .ant-menu-title-content {
+        font-weight: 500;
+        font-size: 14px;
+        transition: opacity 0.2s;
+      }
+    }
+
+    .ant-menu-submenu {
+      .ant-menu-submenu-title {
+        height: 48px;
+        line-height: 48px;
+        margin: 0;
+        padding-left: 24px !important;
+        border-radius: 0;
+        transition: all 0.2s ease;
+        margin-bottom: 4px;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        .ant-menu-submenu-arrow {
+          color: rgba(255, 255, 255, 0.65);
+          transition: all 0.2s;
+        }
+      }
+
+      .ant-menu {
+        background: rgba(0, 0, 0, 0.2) !important;
+        padding-left: 8px;
+
+        .ant-menu-item {
+          padding-left: 40px !important;
+          height: 40px;
+          line-height: 40px;
+
+          &:hover {
+            background: rgba(255, 255, 255, 0.05) !important;
+          }
+
+          &.ant-menu-item-selected {
+            background: rgba(24, 144, 255, 0.2) !important;
+            border-right: 2px solid #1890ff;
+          }
+        }
+      }
+    }
+  }
+
+  // Collapsed menu items
+  &.collapsed {
+    .sidebar-menu {
+      .ant-menu-item {
+        padding-left: 0 !important;
+        display: flex;
+        justify-content: center;
+
+        .ant-menu-item-icon {
+          margin-right: 0;
+          font-size: 18px;
+        }
+
+        .ant-menu-title-content {
+          display: none;
+        }
+      }
+
+      .ant-menu-submenu {
+        .ant-menu-submenu-title {
+          padding-left: 0 !important;
+          display: flex;
+          justify-content: center;
+
+          .ant-menu-submenu-arrow {
+            display: none;
+          }
+
+          .ant-menu-item-icon {
+            margin-right: 0;
+            font-size: 18px;
+          }
+
+          .ant-menu-title-content {
+            display: none;
+          }
+        }
+      }
+    }
+  }
+
+  // Footer
+  .sidebar-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.2);
+
+    .footer-expanded {
+      .footer-user {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+
+        .ant-avatar {
+          border: 2px solid #1890ff;
+        }
+
+        .user-info {
+          flex: 1;
+
+          .user-name {
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 2px;
+          }
+
+          .user-role {
+            color: rgba(255, 255, 255, 0.65);
+            font-size: 12px;
+          }
+        }
+
+        .notification-badge {
+          cursor: pointer;
+
+          .ant-badge-count {
+            box-shadow: none;
+            font-size: 10px;
+            min-width: 16px;
+            height: 16px;
+            line-height: 16px;
+          }
+
+          svg {
+            color: rgba(255, 255, 255, 0.65);
+            font-size: 16px;
+          }
+        }
+      }
+
+      .footer-actions {
+        display: flex;
+        justify-content: space-around;
+        padding: 8px 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+
+        svg {
+          color: rgba(255, 255, 255, 0.65);
+          font-size: 16px;
+          cursor: pointer;
+          transition: color 0.2s;
+
+          &:hover {
+            color: #1890ff;
+          }
+        }
+      }
+    }
+
+    .footer-collapsed {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+
+      .footer-icon {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        color: rgba(255, 255, 255, 0.65);
+        cursor: pointer;
+        transition: all 0.2s;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.1);
+          color: #1890ff;
+        }
+
+        svg {
+          font-size: 16px;
+        }
+      }
+
+      .ant-badge {
+        .footer-icon {
+          position: relative;
+        }
+      }
+    }
+  }
+
+  // Scrollbar styling
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+  }
+}
+
+// Mobile adjustments
+@media (max-width: 991px) {
+  .admin-sidebar:not(.mobile-sidebar) {
+    display: none;
+  }
+}
+
+// Tooltip adjustments for collapsed sidebar
+.ant-tooltip {
+  .ant-tooltip-inner {
+    background: rgba(0, 0, 0, 0.85);
+    font-size: 12px;
+  }
+}

@@ -1,0 +1,107 @@
+// SimpleProfile.scss
+.simple-profile-modal {
+  .ant-modal-body {
+    padding: 0;
+  }
+}
+
+.simple-profile {
+  padding: 0;
+  
+  .profile-header {
+    padding: 20px 24px;
+    text-align: center;
+    background: #f8f9fa;
+    
+    .greeting {
+      display: block;
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 4px;
+    }
+    
+    .user-group {
+      display: block;
+      font-size: 18px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 4px;
+    }
+    
+    .last-login {
+      display: block;
+      font-size: 12px;
+      color: #999;
+    }
+  }
+  
+  .divider {
+    height: 1px;
+    background: #e5e7eb;
+    margin: 0;
+  }
+  
+  .profile-info {
+    padding: 20px 24px;
+    
+    .info-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+      
+      .label {
+        font-weight: 500;
+        color: #374151;
+        flex: 1;
+        
+        .required {
+          color: #ef4444;
+          margin-left: 4px;
+        }
+      }
+      
+      .value {
+        flex: 2;
+        text-align: right;
+        color: #6b7280;
+      }
+    }
+  }
+  
+  .profile-actions {
+    padding: 16px 0;
+    
+    .action-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 24px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      
+      &:hover {
+        background-color: #f3f4f6;
+      }
+      
+      .action-icon {
+        margin-right: 12px;
+        display: flex;
+        align-items: center;
+      }
+      
+      .action-title {
+        flex: 1;
+        font-weight: 500;
+        color: #374151;
+      }
+      
+      .action-arrow {
+        color: #9ca3af;
+      }
+    }
+  }
+}

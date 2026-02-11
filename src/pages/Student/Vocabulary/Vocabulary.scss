@@ -1,0 +1,16 @@
+.vocab-layout {
+  background: #f9fafc;
+  min-height: 100vh;
+
+
+  .vocab-tabs {
+    background: #fff;
+    .ant-tabs-nav {
+      margin: 0;
+    }
+  }
+
+  .vocab-content {
+    padding: 24px;
+  }
+}
