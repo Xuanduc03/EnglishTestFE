@@ -1,557 +1,254 @@
-.app-header {
-  background: #ffffff !important;
-  padding: 0 24px !important;
-  height: 70px !important;
-  line-height: 70px !important;
-  transition: all 0.3s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  position: fixed;
+/* Header.scss */
+
+.modern-header {
+  position: sticky;
   top: 0;
-  width: 100%;
   z-index: 1000;
-  border-bottom: 1px solid #e8e8e8;
+  background: rgba(255, 255, 255, 0.9) !important;
+  /* Đè màu đen mặc định của Layout.Header */
+  backdrop-filter: blur(12px);
+  /* Hiệu ứng kính mờ */
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-light, #e2e8f0);
+  height: 72px !important;
+  line-height: normal !important;
+  padding: 0 !important;
+  transition: all 0.3s ease;
 
   &.scrolled {
-    background: #ffffff !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    
-    .logo-title {
-      color: #262626 !important;
-    }
-    
-    .logo-subtitle {
-      color: #8c8c8c !important;
-    }
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   }
 
   .header-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    max-width: 1400px;
-    margin: 0 auto;
-    height: 100%;
   }
 
-  // Logo Section
-  .logo-section {
-    flex: 0 0 200px;
-    
-    .logo {
+  /* 1. LOGO */
+  .header-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    text-decoration: none;
+
+    .logo-mark {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #4f46e5, #ec4899);
+      border-radius: 10px;
       display: flex;
       align-items: center;
-      cursor: pointer;
-      gap: 12px;
-      
-      .logo-icon {
-        font-size: 24px;
-        background: #f5f5f5;
-        width: 40px;
-        height: 40px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #262626;
+      justify-content: center;
+      color: white;
+      font-weight: 900;
+      font-size: 20px;
+    }
+
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+
+      strong {
+        color: #0f172a;
+        font-size: 18px;
+        font-weight: 800;
+        line-height: 1.1;
       }
-      
-      .logo-text {
-        .logo-title {
-          margin: 0;
-          color: #262626;
-          font-weight: 600;
-          font-size: 18px;
-          line-height: 1.2;
-        }
-        
-        .logo-subtitle {
-          font-size: 12px;
-          color: #8c8c8c;
-          line-height: 1;
-          display: block;
-        }
+
+      span {
+        color: #64748b;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
       }
     }
   }
 
-  // Navigation Section
-  .nav-section {
-    flex: 1;
+  /* 2. NAVIGATION */
+  .header-nav {
     display: flex;
-    justify-content: center;
-    
-    .main-menu {
-      background: transparent !important;
-      border-bottom: none !important;
-      line-height: 70px;
-      height: 70px;
-      
-      .ant-menu-item {
-        height: 70px;
-        line-height: 70px;
-        padding: 0 20px;
-        color: #595959;
-        font-weight: 500;
-        border-bottom: 2px solid transparent;
-        transition: all 0.3s ease;
-        
-        &:hover {
-          color: #1890ff !important;
-          border-bottom-color: #1890ff;
-          background: transparent !important;
-        }
-        
-        &.ant-menu-item-selected {
-          color: #1890ff !important;
-          border-bottom-color: #1890ff;
-          font-weight: 600;
-        }
+    gap: 8px;
+    align-items: center;
+
+    .nav-item {
+      color: #64748b;
+      font-size: 15px;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 100px;
+      /* Hình viên thuốc */
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        color: #0f172a;
+        background: #f1f5f9;
       }
-      
-      .ant-menu-submenu {
-        height: 70px;
-        line-height: 70px;
-        color: #595959;
-        
-        .ant-menu-submenu-title {
-          height: 70px;
-          line-height: 70px;
-          padding: 0 5px;
-          
-          &:hover {
-            color: #1890ff !important;
-          }
-        }
+
+      &.active {
+        color: #4f46e5;
+        background: #e0e7ff;
+        /* Nền xanh nhạt */
+        font-weight: 700;
       }
     }
   }
 
-  // Actions Section
-  .actions-section {
-    flex: 0 0 auto;
+  /* 3. UTILITIES */
+  .header-utils {
     display: flex;
     align-items: center;
     gap: 16px;
-    
-    .mobile-search-btn {
-      display: none;
-      color: #595959;
-      font-size: 20px;
-      width: 40px;
-      height: 40px;
-      
-      &:hover {
-        background: #f5f5f5;
+
+    /* Thanh Search biết co dãn */
+    .search-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+      background: #f1f5f9;
+      border-radius: 100px;
+      padding-left: 12px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      width: 240px;
+      border: 1px solid transparent;
+
+      .search-icon {
+        color: #94a3b8;
+        font-size: 16px;
       }
-    }
-    
-    .search-bar {
-      .search-input {
-        width: 240px;
-        border-radius: 6px;
-        border: 1px solid #d9d9d9;
+
+      .ant-input {
+        background: transparent;
+        box-shadow: none;
+        font-size: 14px;
+      }
+
+      &.focused {
         background: #ffffff;
-        color: #262626;
-        
-        .ant-input {
-          color: #262626;
-          
-          &::placeholder {
-            color: #bfbfbf;
-          }
-        }
-        
-        .ant-input-prefix {
-          color: #bfbfbf;
-        }
-        
-        &:hover {
-          border-color: #40a9ff;
-        }
-        
-        &:focus {
-          border-color: #1890ff;
-          box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
-        }
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 3px #e0e7ff;
+        width: 300px;
+        /* Nở to ra khi focus */
       }
     }
-    
-    .create-btn {
-      border-radius: 6px;
-      background: #1890ff;
-      border: none;
-      height: 36px;
-      font-weight: 500;
-      
+
+    /* Nút Premium */
+    .btn-premium {
+      background: #fffbeb;
+      color: #b45309;
+      border: 1px solid #fde68a;
+      padding: 8px 16px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s;
+      display: flex;
+      align-items: center;
+
       &:hover {
-        background: #40a9ff;
+        background: #fef3c7;
+        border-color: #fcd34d;
       }
     }
-    
-    .notification-btn {
-      color: #595959;
-      font-size: 20px;
+
+    /* Nút icon tròn */
+    .btn-icon {
+      background: transparent;
+      border: none;
       width: 40px;
       height: 40px;
-      
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: #64748b;
+      cursor: pointer;
+      transition: 0.2s;
+
       &:hover {
-        background: #f5f5f5;
+        background: #f1f5f9;
+        color: #0f172a;
       }
     }
-    
+
+    /* Avatar xịn */
     .user-profile {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 6px;
+      padding: 4px 8px 4px 4px;
+      border-radius: 100px;
       cursor: pointer;
-      padding: 0px 12px;
-      border-radius: 6px;
-      background: #ffffff;
-      transition: all 0.3s ease;
-      border: 1px solid #f0f0f0;
-      
+      transition: 0.2s;
+      border: 1px solid transparent;
+
       &:hover {
-        background: #fafafa;
-        border-color: #d9d9d9;
+        background: #f8fafc;
+        border-color: #e2e8f0;
       }
-      
-      .user-avatar {
-        border: 1px solid #d9d9d9;
+
+      .avatar-img {
+        border: 2px solid white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
-      
-      .user-info {
-        display: flex;
-        flex-direction: column;
-        
-        .user-name {
-          color: #262626;
-          font-size: 14px;
-          line-height: 1.2;
-        }
-        
-        .user-stats {
-          display: flex;
-          gap: 8px;
-          font-size: 11px;
-          color: #8c8c8c;
-          
-          .stat-item {
-            display: flex;
-            align-items: center;
-            gap: 3px;
-          }
-        }
-      }
-      
-      .dropdown-arrow {
-        color: #8c8c8c;
-        font-size: 12px;
+
+      .arrow-down {
+        font-size: 10px;
+        color: #94a3b8;
+        font-weight: bold;
       }
     }
-    
-    .auth-buttons {
-      .login-btn {
-        color: #595959;
-        font-weight: 500;
-        
-        &:hover {
-          color: #1890ff !important;
-        }
-      }
-      
-      .register-btn {
-        border-radius: 6px;
-        background: #1890ff;
-        border: none;
-        height: 36px;
-        font-weight: 500;
-        
-        &:hover {
-          background: #40a9ff;
-        }
-      }
+
+    /* Auth buttons */
+    .login-text {
+      font-weight: 600;
+      color: #64748b;
     }
-    
-    .mobile-menu-btn {
-      display: none;
-      color: #595959;
-      font-size: 20px;
-      width: 40px;
-      height: 40px;
-      
-      &:hover {
-        background: #f5f5f5;
-      }
+
+    .register-btn {
+      border-radius: 100px;
+      font-weight: 600;
+      padding: 0 20px;
     }
   }
-}
 
-// Progress Bar (removed if not needed)
+  /* Ẩn hiện theo Responsive */
+  .desktop-only {
+    display: flex;
+  }
 
-// Notification Dropdown
-.notification-dropdown-container {
-  .notification-dropdown {
-    width: 320px;
-    max-height: 400px;
-    overflow-y: auto;
-    background: #ffffff;
-    border: 1px solid #f0f0f0;
-    border-radius: 8px;
-    
-    .notification-header {
+  .mobile-only {
+    display: none;
+  }
+
+  @media (max-width: 992px) {
+    .desktop-only {
+      display: none !important;
+    }
+
+    .mobile-only {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 16px;
-      border-bottom: 1px solid #f0f0f0;
-    }
-    
-    .notification-list {
-      padding: 0 8px;
-      
-      .notification-item {
-        display: flex;
-        gap: 12px;
-        padding: 12px;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: background 0.2s;
-        
-        &:hover {
-          background: #fafafa;
-        }
-        
-        &.unread {
-          background: #f0f7ff;
-          
-          &:hover {
-            background: #e6f7ff;
-          }
-        }
-        
-        .notification-icon {
-          font-size: 18px;
-          margin-top: 2px;
-        }
-        
-        .notification-content {
-          flex: 1;
-          
-          h4 {
-            margin: 0 0 4px 0;
-            font-size: 14px;
-            font-weight: 600;
-            color: #262626;
-          }
-          
-          p {
-            margin: 0 0 4px 0;
-            font-size: 13px;
-            color: #595959;
-          }
-          
-          .notification-time {
-            font-size: 11px;
-            color: #8c8c8c;
-          }
-        }
-      }
     }
   }
 }
 
-// Drawer Custom Styles
-.ant-drawer {
-  .drawer-header {
-    padding: 16px;
-    border-bottom: 1px solid #f0f0f0;
-    
-    .drawer-user {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      
-      .drawer-user-info {
-        .ant-typography {
-          margin: 0;
-          color: #262626;
-        }
-        
-        .ant-typography-secondary {
-          color: #8c8c8c;
-        }
-      }
-    }
-    
-    .drawer-auth {
-      .ant-typography {
-        margin: 0 0 16px 0;
-        color: #262626;
-      }
-      
-      button {
-        border-radius: 6px;
-      }
-    }
-  }
-  
-  .ant-menu {
-    border-right: none;
-    
-    .ant-menu-item {
-      height: 48px;
-      line-height: 48px;
-      margin: 2px 8px;
-      border-radius: 6px;
-      color: #262626;
-      
-      &:hover {
-        background: #f5f5f5;
-      }
-      
-      &.ant-menu-item-selected {
-        background: #e6f7ff;
-        color: #1890ff;
-      }
-    }
-  }
-}
+/* Đè CSS Dropdown của Ant Design để nó không bị vuông vức */
+.ant-dropdown-menu {
+  border-radius: 16px !important;
+  padding: 8px !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
 
-// Search Suggestions
-.search-suggestions {
-  margin-top: 16px;
-  
-  .ant-typography-secondary {
-    color: #8c8c8c;
-    display: block;
-    margin-bottom: 8px;
-  }
-  
-  .suggestions-tags {
-    margin-top: 8px;
-    
-    .ant-tag {
-      cursor: pointer;
-      padding: 4px 12px;
-      border-radius: 4px;
-      background: #fafafa;
-      border: 1px solid #f0f0f0;
-      color: #595959;
-      transition: all 0.2s;
-      
-      &:hover {
-        background: #f5f5f5;
-        border-color: #d9d9d9;
-      }
-    }
-  }
-}
-
-// Responsive Styles
-@media (max-width: 1200px) {
-  .app-header {
-    padding: 0 16px !important;
-    
-    .logo-section {
-      flex: 0 0 180px;
-    }
-    
-    .nav-section {
-      display: none;
-    }
-    
-    .actions-section {
-      .search-bar {
-        .search-input {
-          width: 200px;
-        }
-      }
-    }
-  }
-}
-
-@media (max-width: 768px) {
-  .app-header {
-    height: 60px !important;
-    line-height: 60px !important;
-    
-    .header-container {
-      justify-content: space-between;
-    }
-    
-    .logo-section {
-      flex: 0 0 auto;
-      
-      .logo {
-        .logo-icon {
-          width: 36px;
-          height: 36px;
-          font-size: 20px;
-        }
-        
-        .logo-text {
-          display: none;
-        }
-      }
-    }
-    
-    .actions-section {
-      .search-bar {
-        display: none;
-      }
-      
-      .mobile-search-btn {
-        display: block;
-      }
-      
-      .create-btn {
-        display: none;
-      }
-      
-      .user-profile {
-        padding: 4px 8px;
-        
-        .user-info {
-          display: none;
-        }
-        
-        .dropdown-arrow {
-          display: none;
-        }
-      }
-      
-      .auth-buttons {
-        display: none;
-      }
-      
-      .mobile-menu-btn {
-        display: block;
-      }
-    }
-  }
-}
-
-@media (max-width: 480px) {
-  .app-header {
-    padding: 0 12px !important;
-    
-    .actions-section {
-      gap: 8px;
-      
-      .notification-btn, .mobile-search-btn, .mobile-menu-btn {
-        width: 36px;
-        height: 36px;
-      }
-      
-      .user-profile {
-        padding: 2px 6px;
-        
-        .user-avatar {
-          width: 28px;
-          height: 28px;
-          line-height: 28px;
-        }
-      }
-    }
+  .ant-dropdown-menu-item {
+    border-radius: 8px !important;
+    padding: 10px 16px !important;
+    font-weight: 500;
   }
 }

@@ -62,12 +62,13 @@ export const ExamService = {
     return await api.post(`/api/exams/${id}/publish`);
   },
 
-  archive: async (id: string) => {
-    return await api.post(`/api/exams/${id}/archive`);
+   // PATCH /api/exams/{id}/status
+  changeStatus: async (id: string, newStatus: number, reason?: string) => {
+    return await api.patch(`/api/exams/${id}/status`, { newStatus, reason });
   },
 
   duplicate: async (id: string, newCode: string, newTitle: string) => {
-    return await api.post(`/api/exams/${id}/duplicate`, {
+    return await api.post(`/api/exams/${id}/status`, {
       newCode,
       newTitle
     });

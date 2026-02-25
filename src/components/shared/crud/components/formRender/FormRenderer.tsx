@@ -6,27 +6,21 @@ import { useEffect, useState } from "react";
 const DependencySelect = ({ field }: { field: FormFieldConfig }) => {
   const form = Form.useFormInstance(); // Lấy instance form hiện tại
 
-  // Hook này sẽ re-render component mỗi khi field 'dependency' thay đổi
   const dependencyValue = Form.useWatch(field.dependency!, form);
 
   const [options, setOptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Nếu field cha chưa có giá trị -> Reset options và value
     if (!dependencyValue) {
       setOptions([]);
-      form.setFieldValue(field.name, undefined); // Reset giá trị ô hiện tại
+      form.setFieldValue(field.name, undefined); 
       return;
     }
 
-    // Nếu có giá trị field cha và có hàm API
     if (field.api) {
       setLoading(true);
-      // Reset giá trị cũ để user phải chọn lại
       form.setFieldValue(field.name, undefined);
-
-      // Gọi API với tham số là giá trị của field cha
       field.api(dependencyValue)
         .then((data) => {
           setOptions(data);
@@ -64,8 +58,10 @@ export const FormRenderer = ({ fields }: { fields: FormFieldConfig[] }) => {
 
   // Render từng kiểu field
   const renderField = (f: FormFieldConfig) => {
-
-    if (f.dependency) {
+    if (f.type === 'custom' && f.renderInput) {
+      return f.renderInput({});
+    }
+    if (f.dependency && f.type === 'select') {
       return <DependencySelect field={f} />;
     }
 
@@ -90,11 +86,10 @@ export const FormRenderer = ({ fields }: { fields: FormFieldConfig[] }) => {
             options={f.options ?? optionsMap[f.name]}
             allowClear
             showSearch
+            placeholder={f.placeholder}
+            disabled={f.disabled}
             filterOption={(input, option) =>
-              (option?.label ?? '')
-                .toString()
-                .toLowerCase()
-                .includes(input.toLowerCase())
+              (option?.label ?? '').toString().toLowerCase().includes(input.toLowerCase())
             }
           />
         );
@@ -105,7 +100,7 @@ export const FormRenderer = ({ fields }: { fields: FormFieldConfig[] }) => {
   };
 
   return (
-    <Row gutter={[0, 16]}>
+    <Row gutter={[16, 0]}>
       {fields.map(f => {
         if (f.hidden) return null;
 
@@ -115,12 +110,12 @@ export const FormRenderer = ({ fields }: { fields: FormFieldConfig[] }) => {
 
         return (
           <Col span={24} key={f.name}>
-            <Form.Item
+           <Form.Item
               name={f.name}
               label={f.label}
               rules={rules}
-              valuePropName={f.type === 'switch' ? 'checked' : 'value'}
-              style={{ marginBottom: 0 }}
+              dependencies={f.dependencies} // Antd dependencies (để re-render khi field khác đổi)
+              initialValue={f.defaultValue}
             >
               {renderField(f)}
             </Form.Item>

@@ -33,7 +33,6 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
       <Header />
       <Content 
         style={{ 
-          marginTop: "70px",
           minHeight: "calc(100vh - 70px)",
           padding: "24px",
           backgroundColor: "#f8fafc"

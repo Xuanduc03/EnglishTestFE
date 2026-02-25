@@ -11,6 +11,7 @@ import type {
   PracticeHistoryDto,
   PaginatedResult,
   PracticeStatistics,
+  SubmitPracticeRequest,
 } from '../Types/practice.type';
 
 export const PracticeService = {
@@ -27,31 +28,23 @@ export const PracticeService = {
     return res.data?.data || res.data;
   },
 
+
   // ============================================
-  // 2. SUBMIT ANSWER
+  // 2. SUBMIT PRACTICE SESSION (gộp toàn bộ answers 1 lần)
   // ============================================
 
   /**
-   * Submit câu trả lời cho 1 question
-   * POST /api/practice/answer
-   */
-  submitAnswer: async (request: SubmitPracticeAnswerRequest): Promise<SubmitAnswerResult> => {
-    const res = await api.post('/api/practice/answer', request);
-    return res.data?.data || res.data;
-  },
-
-  // ============================================
-  // 3. SUBMIT PRACTICE SESSION
-  // ============================================
-
-  /**
-   * Submit toàn bộ practice session
+   * Submit toàn bộ practice session cùng tất cả câu trả lời
    * POST /api/practice/{sessionId}/submit
    */
-  submitPractice: async (sessionId: string): Promise<PracticeResultDto> => {
-    const res = await api.post(`/api/practice/${sessionId}/submit`);
+  submitPractice: async (request: SubmitPracticeRequest): Promise<PracticeResultDto> => {
+    const res = await api.post(`/api/practice/${request.sessionId}/submit`, {
+      answers: request.answers,
+      totalTimeSeconds: request.totalTimeSeconds,
+    });
     return res.data?.data || res.data;
   },
+
 
   // ============================================
   // 4. GET PRACTICE RESULT

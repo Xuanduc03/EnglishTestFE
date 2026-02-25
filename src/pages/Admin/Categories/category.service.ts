@@ -92,6 +92,6 @@ export const categorieservice: ICrudService<CategoryDto> & {
 
     getSelectCategory: async (codeType?: string) => {
         const res = await api.get('/api/categories/select', { params: { codeType } });
-        return res.data?.data || [];
+        return res.data.data || [];
     }
 };

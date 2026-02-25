@@ -1,5 +1,5 @@
-import React from 'react';
-import { FlagFilled, CheckCircleFilled } from '@ant-design/icons';
+import React, { useState } from 'react';
+import { FlagFilled, MenuOutlined, RedoOutlined } from '@ant-design/icons';
 import './QuestionNavigator.scss';
 import type { PracticeSessionDto } from '../Types/practice.type';
 
@@ -18,6 +18,8 @@ const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
   markedForReview,
   onNavigate
 }) => {
+  const [isOpen, setIsOpen] = useState(true);
+
   // Build flat list of questions with metadata
   const questionList = (() => {
     const list: Array<{
@@ -25,6 +27,7 @@ const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
       questionId: string;
       questionNumber: number;
       partName: string;
+      partId: string;
       partNumber: number;
     }> = [];
 
@@ -38,6 +41,7 @@ const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
           questionId: question.questionId,
           questionNumber: globalQuestionNumber,
           partName: part.partName,
+          partId: part.partId,
           partNumber: part.partNumber
         });
         globalIndex++;
@@ -48,112 +52,80 @@ const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
     return list;
   })();
 
-  // Group by parts for display
-  const questionsByPart = (() => {
-    const grouped: Record<string, typeof questionList> = {};
-    
-    questionList.forEach(q => {
-      if (!grouped[q.partName]) {
-        grouped[q.partName] = [];
-      }
-      grouped[q.partName].push(q);
-    });
-
-    return grouped;
-  })();
-
   // Get question status
   const getQuestionStatus = (questionId: string) => {
     const isAnswered = answers.has(questionId);
     const isMarked = markedForReview.has(questionId);
-
     return { isAnswered, isMarked };
   };
 
   // Calculate stats
-  const stats = {
-    total: questionList.length,
-    answered: Array.from(answers.keys()).length,
-    marked: markedForReview.size
+  const total = questionList.length;
+  const answered = answers.size;
+  const unanswered = total - answered;
+  const marked = markedForReview.size;
+
+  const handleRestart = () => {
+    // TODO: implement restart logic later
+    console.log('Restart clicked');
   };
 
   return (
-    <div className="question-navigator">
+    <div className={`question-navigator ${isOpen ? 'open' : 'closed'}`}>
       <div className="navigator-header">
-        <h3>Câu hỏi</h3>
-        <div className="stats">
-          <div className="stat">
-            <CheckCircleFilled style={{ color: '#52c41a' }} />
-            <span>{stats.answered}/{stats.total}</span>
-          </div>
-          {stats.marked > 0 && (
-            <div className="stat">
-              <FlagFilled style={{ color: '#faad14' }} />
-              <span>{stats.marked}</span>
-            </div>
-          )}
+        <span className="title">Câu hỏi 1-{total}</span>
+        <div className="header-actions">
+          <button className="restart-btn" onClick={handleRestart}>
+            <RedoOutlined /> Restart
+          </button>
+          <button className="toggle-btn" onClick={() => setIsOpen(!isOpen)}>
+            <MenuOutlined />
+          </button>
         </div>
       </div>
 
-      <div className="navigator-content">
-        {/* Legend */}
-        <div className="legend">
-          <div className="legend-item">
-            <span className="dot answered"></span>
-            <span>Đã trả lời</span>
-          </div>
-          <div className="legend-item">
-            <span className="dot current"></span>
-            <span>Đang làm</span>
-          </div>
-          <div className="legend-item">
-            <span className="dot unanswered"></span>
-            <span>Chưa làm</span>
-          </div>
-          <div className="legend-item">
-            <FlagFilled style={{ color: '#faad14', fontSize: 12 }} />
-            <span>Đánh dấu</span>
-          </div>
-        </div>
-
-        {/* Questions grouped by part */}
-        {session.parts.map(part => {
-          const partQuestions = questionsByPart[part.partName] || [];
-          
-          return (
-            <div key={part.partId} className="part-section">
-              <div className="part-header">
-                <span className="part-name">{part.partName}</span>
-                <span className="part-count">({partQuestions.length})</span>
-              </div>
-
-              <div className="question-grid">
-                {partQuestions.map(q => {
-                  const { isAnswered, isMarked } = getQuestionStatus(q.questionId);
-                  const isCurrent = q.index === currentIndex;
-
-                  return (
-                    <button
-                      key={q.index}
-                      className={`
-                        question-btn
-                        ${isCurrent ? 'current' : ''}
-                        ${isAnswered ? 'answered' : 'unanswered'}
-                      `}
-                      onClick={() => onNavigate(q.index)}
-                    >
-                      <span className="question-num">{q.questionNumber}</span>
-                      {isMarked && (
-                        <FlagFilled className="flag-icon" />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
+      {isOpen && (
+        <>
+          <div className="stats">
+            <div className="stat correct">
+              <span className="stat-value">{answered}</span> Đúng
+              <span className="stat-total">/{total}</span>
             </div>
-          );
-        })}
-      </div>
+            <div className="stat incorrect">
+              <span className="stat-value">0</span> Sai
+              <span className="stat-total">/{total}</span>
+            </div>
+            <div className="stat unanswered">
+              <span className="stat-value">{unanswered}</span> Chưa trả lời
+              <span className="stat-total">/{total}</span>
+            </div>
+          </div>
+
+          <div className="question-row">
+            {questionList.map(q => {
+              const { isAnswered, isMarked } = getQuestionStatus(q.questionId);
+              const isCurrent = q.index === currentIndex;
+
+              return (
+                <button
+                  key={q.index}
+                  className={`
+                    question-btn
+                    ${isCurrent ? 'current' : ''}
+                    ${isAnswered ? 'answered' : 'unanswered'}
+                    ${isMarked ? 'marked' : ''}
+                  `}
+                  onClick={() => onNavigate(q.index)}
+                  title={`Câu ${q.questionNumber}${isMarked ? ' (Đánh dấu)' : ''}${isAnswered ? ' (Đã trả lời)' : ''}`}
+                >
+                  <span className="question-num">{q.questionNumber}</span>
+                  {isMarked && <FlagFilled className="flag-icon" />}
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
     </div>
   );
 };

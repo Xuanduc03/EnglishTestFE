@@ -5,6 +5,7 @@ import type { EditorProps } from "../editor.type";
 import { BaseQuestionForm } from "../Shared/BaseQuestionForm";
 import AnswerRow from "../../AnswerRow/AnswerRow";
 import { toast } from "react-toastify";
+import MediaFileInput from "../Shared/MediaFileInput";
 
 export const ToeicPart2Editor: React.FC<EditorProps> = ({ categories = [],
     difficulties = [],
@@ -15,11 +16,10 @@ export const ToeicPart2Editor: React.FC<EditorProps> = ({ categories = [],
     const [content, setContent] = useState("");
     const [shuffle, setShuffle] = useState(false);
     const [explanation, setExplanation] = useState("");
+    const [existingAudioUrl, setExistingAudioUrl] = useState<string | null>();
     const [tags, setTags] = useState("toeic,part2,listening");
 
     const [audioFile, setAudioFile] = useState<File | null>(null);
-    const [audioUrl, setAudioUrl] = useState("");
-    const audioInputRef = useRef<HTMLInputElement | null>(null);
 
     // Part 2 có 3 đáp án
     const [answers, setAnswers] = useState([
@@ -42,6 +42,16 @@ export const ToeicPart2Editor: React.FC<EditorProps> = ({ categories = [],
             setExplanation(data.explanation || "");
             setShuffle(data.shuffleAnswers || false);
 
+            if (Array.isArray(data.media)) {
+                const audioMedia = data.media.find((m: any) =>
+                    (m.mediaType && m.mediaType.toLowerCase() === 'audio') ||
+                    (m.type && m.type.toLowerCase() === 'audio')
+                );
+                if (audioMedia) {
+                    setExistingAudioUrl(audioMedia.url);
+                }
+            }
+
             // Load answers
             if (data.answers && data.answers.length > 0) {
                 setAnswers(data.answers.map(a => ({
@@ -58,7 +68,8 @@ export const ToeicPart2Editor: React.FC<EditorProps> = ({ categories = [],
     }, [initialData, isEdit]);
 
     const validate = (): string | null => {
-        if (!audioFile && !audioUrl) {
+        const hasAudio = audioFile || existingAudioUrl;
+        if (!hasAudio) {
             return ("Part 2 yêu cầu có Audio");
         }
 
@@ -78,14 +89,16 @@ export const ToeicPart2Editor: React.FC<EditorProps> = ({ categories = [],
     const handleSubmit = async () => {
         const error = validate();
         if (error) {
-            toast.error(error);
+            toast.error(error, {
+                toastId: "part2-audio-error"
+            });;
             return;
         }
 
         setSaving(true);
         try {
             const formData = new FormData();
-            
+
             // 1. Basic Info
             formData.append("Id", initialData?.data?.id || ""); // ✅ Quan trọng cho Update
             formData.append("CategoryId", categoryId);
@@ -107,12 +120,14 @@ export const ToeicPart2Editor: React.FC<EditorProps> = ({ categories = [],
             // 3. Audio File
             if (audioFile) {
                 formData.append("AudioFile", audioFile, audioFile.name);
+            } else if (existingAudioUrl) {
+                formData.append("AudioUrl", existingAudioUrl);
             }
 
             // 4. Answers
             answers.forEach((a, idx) => {
                 formData.append(`Answers[${idx}].Content`, a.Content);
-                formData.append(`Answers[${idx}].IsCorrect`, String(a.IsCorrect)); 
+                formData.append(`Answers[${idx}].IsCorrect`, String(a.IsCorrect));
                 formData.append(`Answers[${idx}].OrderIndex`, String(a.OrderIndex));
             });
 
@@ -167,43 +182,14 @@ export const ToeicPart2Editor: React.FC<EditorProps> = ({ categories = [],
                     showContent={false}
                 />
 
-                <div className="form-group">
-                    <label className="form-label">
-                        Question Audio <span className="required">*</span>
-                    </label>
-                    <div className="file-upload-box">
-                        <button
-                            type="button"
-                            className="btn btn-default"
-                            onClick={() => audioInputRef.current?.click()}
-                        >
-                            <i className="fa-solid fa-music"></i> Chọn Audio
-                        </button>
-                        <input
-                            ref={audioInputRef}
-                            type="file"
-                            accept="audio/*"
-                            hidden
-                            onChange={(e) => setAudioFile(e.target.files?.[0] || null)}
-                        />
-                        {audioFile && <span className="file-name">✓ {audioFile.name}</span>}
-
-                        {/* ✅ Show existing media */}
-                        {isEdit && !audioFile && initialData?.mode === 'single' && initialData.data.media?.find(m => m.type === 'audio') && (
-                            <div className="existing-media">
-                                <audio controls src={initialData.data.media.find(m => m.type === 'audio')?.url} />
-                                <small>Audio hiện tại (upload mới để thay đổi)</small>
-                            </div>
-                        )}
-                        <input
-                            type="text"
-                            className="form-control mt-2"
-                            placeholder="Hoặc dán Audio URL"
-                            value={audioUrl}
-                            onChange={(e) => setAudioUrl(e.target.value)}
-                        />
-                    </div>
-                </div>
+                <MediaFileInput
+                    label="Question Audio"
+                    required
+                    accept="audio/*"
+                    existingUrl={existingAudioUrl}
+                    file={audioFile}
+                    setFile={setAudioFile}
+                />
 
                 <div className="form-group">
                     <label className="form-label">
@@ -215,7 +201,6 @@ export const ToeicPart2Editor: React.FC<EditorProps> = ({ categories = [],
                                 <th style={{ width: 60 }}>STT</th>
                                 <th>Nội dung</th>
                                 <th style={{ width: 100 }}>Đúng</th>
-                                <th style={{ width: 80 }}>Xóa</th>
                             </tr>
                         </thead>
                         <tbody>

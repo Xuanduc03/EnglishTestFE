@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import "./AnswerRow.scss";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -13,7 +13,7 @@ type Props = {
   isSelected?: boolean;
   onSelect: () => void;
   onRemove?: () => void;
-questionIndex: number;
+  questionIndex: number;
   canRemove: boolean;
 };
 
@@ -25,68 +25,91 @@ const AnswerRow: React.FC<Props> = ({
   onSelect,
   onRemove,
   questionIndex,
-  canRemove
+  canRemove,
 }) => {
+  // Dùng ref để track nội dung đang được chính editor emit ra
+  // tránh vòng lặp: onChange → re-render → useEffect → setContent → onChange...
+  const isInternalUpdate = useRef(false);
 
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({
-        heading: { levels: [3] },
-      }),
+      StarterKit.configure({ heading: { levels: [3] } }),
       Underline,
       Image,
     ],
+    // Chỉ set content lần đầu khởi tạo, không re-init khi answer.Content thay đổi
     content: answer.Content || `<p>(${String.fromCharCode(65 + index)}) </p>`,
     onUpdate: ({ editor }) => {
-      const html = editor.getHTML();
-      onChange({ ...answer, Content: html });
+      isInternalUpdate.current = true;
+      onChange({ ...answer, Content: editor.getHTML() });
     },
   });
 
+  // Chỉ sync ngược từ ngoài vào nếu KHÔNG phải do chính editor vừa emit
   useEffect(() => {
-    if (editor && answer.Content !== editor.getHTML()) {
-      editor.commands.setContent(answer.Content || "", {
-        emitUpdate: false,
-      });
+    if (!editor) return;
+    if (isInternalUpdate.current) {
+      // Reset flag, bỏ qua lần này
+      isInternalUpdate.current = false;
+      return;
     }
-  }, [answer.Content, editor]);
+    // Nội dung thay đổi từ bên ngoài (ví dụ: load initialData)
+    if (answer.Content !== editor.getHTML()) {
+      editor.commands.setContent(answer.Content || "", { emitUpdate: false });
+    }
+  }, [answer.Content]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!editor) return null;
 
-
   return (
     <tr>
+      {/* CỘT STT */}
       <td className="stt-col" style={{ paddingTop: 12 }}>
-        <div className="answer__content" style={{
-          backgroundColor: isSelected ? '#1890ff': '#f0f0f0',
-        color: isSelected ? '#fff': '#333'
-        }}>
+        <div
+          className="answer__content"
+          style={{
+            backgroundColor: isSelected ? "#1890ff" : "#f0f0f0",
+            color: isSelected ? "#fff" : "#333",
+          }}
+        >
           {String.fromCharCode(65 + index)}
         </div>
       </td>
+
       {/* CỘT NỘI DUNG */}
       <td>
         <div
           className="rich-editor-container"
-          style={{
-            borderColor: isSelected ? "#1890ff" : "#d9d9d9",
-          }}
+          style={{ borderColor: isSelected ? "#1890ff" : "#d9d9d9" }}
         >
-          {/* TOOLBAR */}
+          {/* TOOLBAR — đồng bộ với RichTextEditor base */}
           <div className="editor-toolbar">
-            <button onClick={() => editor.chain().focus().toggleBold().run()}>
+            <button
+              title="Bold"
+              className={editor.isActive("bold") ? "is-active" : ""}
+              onClick={() => editor.chain().focus().toggleBold().run()}
+            >
               <strong>B</strong>
             </button>
-            <button onClick={() => editor.chain().focus().toggleItalic().run()}>
+            <button
+              title="Italic"
+              className={editor.isActive("italic") ? "is-active" : ""}
+              onClick={() => editor.chain().focus().toggleItalic().run()}
+            >
               <em>I</em>
             </button>
-            <button onClick={() => editor.chain().focus().toggleUnderline().run()}>
+            <button
+              title="Underline"
+              className={editor.isActive("underline") ? "is-active" : ""}
+              onClick={() => editor.chain().focus().toggleUnderline().run()}
+            >
               <u>U</u>
             </button>
 
-            <span>|</span>
+            <span className="separator" />
 
             <button
+              title="Chèn ảnh"
               onClick={() => {
                 const url = prompt("Nhập URL hình ảnh");
                 if (url) editor.chain().focus().setImage({ src: url }).run();
@@ -95,17 +118,25 @@ const AnswerRow: React.FC<Props> = ({
               🖼️
             </button>
 
-            <span>|</span>
+            <span className="separator" />
 
-            <button onClick={() => editor.chain().focus().setParagraph().run()}>
+            <button
+              title="Paragraph"
+              className={editor.isActive("paragraph") ? "is-active" : ""}
+              onClick={() => editor.chain().focus().setParagraph().run()}
+            >
               ¶
             </button>
-            <button onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}>
+            <button
+              title="Heading 3"
+              className={editor.isActive("heading", { level: 3 }) ? "is-active" : ""}
+              onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+            >
               H
             </button>
           </div>
 
-          {/* EDITOR */}
+          {/* EDITOR CONTENT */}
           <EditorContent
             editor={editor}
             className={`editor-content ${isSelected ? "active" : ""}`}
@@ -113,7 +144,7 @@ const AnswerRow: React.FC<Props> = ({
         </div>
       </td>
 
-      {/* CỘT ĐÁP ÁN ĐÚNG */}
+      {/* CỘT ĐÁNH DẤU ĐÚNG */}
       <td className="correct-col" style={{ paddingTop: 12, textAlign: "center" }}>
         <input
           type="radio"

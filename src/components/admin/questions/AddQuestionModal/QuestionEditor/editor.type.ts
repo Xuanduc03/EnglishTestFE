@@ -39,8 +39,8 @@ export type EditorSubmitPayload =
 
 // Props truyền vào từng editor
 export type EditorProps = {
-  categories?: Array<{ id: string; name: string }>; // ✅ Add optional
-  difficulties?: Array<{ id: string; name: string }>; // ✅ Add optional
+  categories?: Array<{ id: string; name: string }>;
+  difficulties?: Array<{ id: string; name: string }>; 
   onSave: (data: EditorSubmitPayload) => Promise<void>;
   onCancel: () => void;
   saving?: boolean;
@@ -69,10 +69,9 @@ export interface EditorFormData {
   data: {
     id?: string;
     categoryId: string;
-
+    difficultyId: string;
     content: string;
     questionType: string;
-    difficultyId: string;
     defaultScore: number;
     shuffleAnswers: boolean;
     explanation?: string;

@@ -1,16 +1,81 @@
 .vocab-layout {
-  background: #f9fafc;
+  background-color: #f5f7fa; // nền xám nhạt giống login
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 
-
+  // Custom Tabs
   .vocab-tabs {
-    background: #fff;
+    background: white;
+    padding: 0 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 24px;
+
     .ant-tabs-nav {
       margin: 0;
+
+      &::before {
+        border-bottom: none !important; // bỏ gạch chân mặc định
+      }
+    }
+
+    .ant-tabs-tab {
+      padding: 16px 20px;
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 500;
+      color: #64748b;
+      transition: all 0.2s ease;
+      border-radius: 30px 30px 0 0;
+
+      &:hover {
+        color: #3b82f6;
+        background: #f1f5f9;
+      }
+
+      &.ant-tabs-tab-active {
+        .ant-tabs-tab-btn {
+          color: #3b82f6;
+          font-weight: 600;
+        }
+      }
+    }
+
+    .ant-tabs-ink-bar {
+      background: #3b82f6;
+      height: 3px;
+      border-radius: 3px 3px 0 0;
     }
   }
 
+  // Nội dung chính (dạng card)
   .vocab-content {
-    padding: 24px;
+    flex: 1;
+    padding: 0 24px 24px;
+    max-width: 1400px;
+    width: 100%;
+    margin: 0 auto;
+
+    // Outlet sẽ được render trong div này, nhưng các component con có thể tự định nghĩa card
+    // Để đảm bảo đồng bộ, chúng ta có thể thêm card wrapper nếu cần
+    // Nhưng để linh hoạt, không thêm cứng ở đây, component con tự quyết định
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .vocab-layout {
+    .vocab-tabs {
+      padding: 0 16px;
+
+      .ant-tabs-tab {
+        padding: 12px 16px;
+        font-size: 0.95rem;
+      }
+    }
+
+    .vocab-content {
+      padding: 0 16px 16px;
+    }
   }
 }

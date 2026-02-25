@@ -120,17 +120,17 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, height
 
     const editor = useEditor({
         extensions: [
-            StarterKit,
-            Underline,
-            Highlight,
-            Image,
+            StarterKit.configure(),
+            Underline.configure(), 
+            Highlight.configure(), 
+            Image.configure(),     
             TextAlign.configure({ types: ['heading', 'paragraph'] }),
             Table.configure({ resizable: true }),
-            TableRow,
-            TableHeader,
-            TableCell,
+            TableRow.configure(),  
+            TableHeader.configure(),
+            TableCell.configure(), 
         ],
-        content: formatContent(value),
+        content: value,
         onUpdate: ({ editor }) => {
             onChange(editor.getHTML())
         },
@@ -138,13 +138,11 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, height
 
     useEffect(() => {
         if (editor && value !== editor.getHTML()) {
-            // Chỉ update nếu nội dung thực sự khác nhau (để tránh con trỏ nhảy lung tung)
-            editor.commands.setContent(formatContent(value) || "");
+            editor.commands.setContent(value || "");
         }
     }, [value, editor]);
 
     const containerStyle: React.CSSProperties = {
-        // Nếu có props height thì ưu tiên dùng, nếu không thì dùng min/max
         height: height ? (typeof height === 'number' ? `${height}px` : height) : 'auto',
         minHeight: typeof minHeight === 'number' ? `${minHeight}px` : minHeight,
         maxHeight: maxHeight ? (typeof maxHeight === 'number' ? `${maxHeight}px` : maxHeight) : 'none',

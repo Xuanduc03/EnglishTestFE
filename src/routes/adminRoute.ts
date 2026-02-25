@@ -8,6 +8,7 @@ import { ExamTypeManager, LevelManager, QuestionTypeManager, SkillManager, Topic
 import QuestionManager from "../pages/Admin/Questions/QuestionManager";
 import ExamPage from "../pages/Admin/Exams/ExamManagerPage";
 import ExamStructurePage from "../pages/Admin/Exams/ExamStructure";
+import ScoreTablesPage from "../pages/Admin/ScoreTables";
 
 const AdminRoute: IRoute[] = [
   { path: "/admin", component: Dashboard, layout: AdminLayout },
@@ -16,7 +17,7 @@ const AdminRoute: IRoute[] = [
   //  // Exams
   { path: '/admin/exams', component: ExamPage, layout: AdminLayout },
   { path: '/admin/exams/:id/structure', component: ExamStructurePage, layout: AdminLayout },
-  // { path: '/admin/exams/toeic', component: TOEICExams },
+  { path: '/admin/exams/score', component: ScoreTablesPage, layout: AdminLayout },
   // { path: '/admin/exams/ielts', component: IELTSExams },
 
   // // Questions

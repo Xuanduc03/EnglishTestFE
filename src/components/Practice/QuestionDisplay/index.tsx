@@ -1,209 +1,251 @@
-import React from 'react';
-import { Radio, Space, Card } from 'antd';
-import { AudioOutlined, PictureOutlined } from '@ant-design/icons';
-import './QuestionDisplay.scss';
-import type { PracticeQuestionDto } from '../Types/practice.type';
+import React, { useState } from "react";
+import { FlagFilled } from "@ant-design/icons";
+import type { PracticeQuestionDto } from "../Types/practice.type";
+import "./QuestionDisplay.scss";
 
 interface QuestionDisplayProps {
-  question: PracticeQuestionDto;
-  questionNumber: number;
-  selectedAnswerId?: string;
-  isMarkedForReview: boolean;
-  onSelectAnswer: (answerId: string) => void;
-  onMarkForReview: () => void;
+  questions: PracticeQuestionDto[];
+  partNumber: number;
+  answersMap: Map<string, string>;
+  markedSet: Set<string>;
+  onSelectAnswer: (questionId: string, answerId: string) => void;
+  onMarkForReview: (questionId: string) => void;
 }
 
 const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
-  question,
-  questionNumber,
-  selectedAnswerId,
-  onSelectAnswer
+  questions,
+  partNumber,
+  answersMap,
+  markedSet,
+  onSelectAnswer,
+  onMarkForReview,
 }) => {
-  // ============================================
-  // RENDER GROUP CONTENT (Part 3,4,6,7)
-  // ============================================
+  const [showExplanation, setShowExplanation] = useState<Record<string, boolean>>({});
 
+  if (!questions || questions.length === 0) return null;
+
+  const groupData = questions[0];
+  const isGroupLayout = !!groupData.groupId;
+  const isBlindListening = partNumber === 1 || partNumber === 2;
+
+  // ── Helper: Audio Player ──────────────────────────
+  const renderAudioPlayer = (url: string, key?: string) => (
+    <div className="qd-audio-player" key={key}>
+      <audio controls src={url} preload="metadata">
+        Trình duyệt của bạn không hỗ trợ file âm thanh này.
+      </audio>
+    </div>
+  );
+
+  // ── CỘT TRÁI (layout-split): Đoạn văn / Audio nhóm ─────
   const renderGroupContent = () => {
-    if (!question.groupId) return null;
-
-    // Part 7 Multiple Passages
-    if (question.passages && question.passages.length > 0) {
-      return (
-        <div className="group-content passages">
-          {question.passages.map((passage, index) => (
-            <Card
-              key={passage.id}
-              className="passage-card"
-              title={passage.title || `Passage ${index + 1}`}
-              size="small"
-            >
-              <div 
-                className="passage-content"
-                dangerouslySetInnerHTML={{ __html: passage.content }}
-              />
-            </Card>
-          ))}
-        </div>
-      );
-    }
-
-    // Part 3,4 - Audio
-    if (question.groupMedia && question.groupMedia.length > 0) {
-      return (
-        <div className="group-content audio">
-          {question.groupMedia.map(media => (
-            <div key={media.id} className="audio-player">
-              <AudioOutlined className="audio-icon" />
-              <audio controls src={media.url}>
-                Your browser does not support the audio element.
-              </audio>
-              {question.groupContent && (
-                <details className="transcript">
-                  <summary>Xem transcript</summary>
-                  <p>{question.groupContent}</p>
-                </details>
-              )}
-            </div>
-          ))}
-        </div>
-      );
-    }
-
-    // Part 6 - Text passage
-    if (question.groupContent) {
-      return (
-        <div className="group-content passage">
-          <Card className="passage-card" size="small">
-            <div 
-              className="passage-content"
-              dangerouslySetInnerHTML={{ __html: question.groupContent }}
-            />
-          </Card>
-        </div>
-      );
-    }
-
-    return null;
-  };
-
-  // ============================================
-  // RENDER QUESTION MEDIA (Part 1,2)
-  // ============================================
-
-  const renderQuestionMedia = () => {
-    if (!question.media || question.media.length === 0) return null;
+    if (!groupData.groupId) return null;
 
     return (
-      <div className="question-media">
-        {question.media.map(media => {
-          if (media.type === 'image') {
-            return (
-              <div key={media.id} className="media-image">
-                <img src={media.url} alt={media.description || 'Question image'} />
+      <div className="qd-group-content">
+        {/* Part 7: Multiple Passages */}
+        {groupData.passages && groupData.passages.length > 0 && (
+          <div className="qd-passages">
+            {groupData.passages.map((passage) => (
+              <div key={passage.id} className="qd-passage-card">
+                {passage.title && (
+                  <div className="qd-passage-title">{passage.title}</div>
+                )}
+                <div className="qd-passage-body" dangerouslySetInnerHTML={{ __html: passage.content }} />
               </div>
-            );
-          }
+            ))}
+          </div>
+        )}
 
-          if (media.type === 'audio') {
-            return (
-              <div key={media.id} className="media-audio">
-                <AudioOutlined className="audio-icon" />
-                <audio controls src={media.url}>
-                  Your browser does not support the audio element.
-                </audio>
-              </div>
-            );
-          }
+        {/* Part 3, 4: Group Audio & Transcript */}
+        {groupData.groupMedia && groupData.groupMedia.length > 0 && (
+          <div className="qd-group-media">
+            {groupData.groupMedia.map((media) => renderAudioPlayer(media.url, media.id))}
+            {groupData.groupContent && (
+              <details className="qd-transcript">
+                <summary>Xem transcript</summary>
+                <div dangerouslySetInnerHTML={{ __html: groupData.groupContent }} />
+              </details>
+            )}
+          </div>
+        )}
 
-          return null;
-        })}
+        {/* Part 6: Text passage */}
+        {groupData.groupContent && (!groupData.groupMedia || groupData.groupMedia.length === 0) && (
+          <div className="qd-passage-card">
+            <div className="qd-passage-body" dangerouslySetInnerHTML={{ __html: groupData.groupContent }} />
+          </div>
+        )}
       </div>
     );
   };
 
-  // ============================================
-  // RENDER GROUP INFO
-  // ============================================
+  // ── Render từng câu hỏi ───────────────────────────
+  const renderQuestion = (q: PracticeQuestionDto) => {
+    const selectedAnswerId = answersMap.get(q.questionId);
+    const hasAnswered = !!selectedAnswerId;
+    const isMarked = markedSet.has(q.questionId);
 
-  const renderGroupInfo = () => {
-    if (!question.groupId || !question.totalQuestionsInGroup) return null;
+    const sortedAnswers = [...q.answers].sort((a, b) => a.orderIndex - b.orderIndex);
+    const correctIndex = sortedAnswers.findIndex((a) => a.isCorrect);
+    const correctLetter = correctIndex >= 0 ? String.fromCharCode(65 + correctIndex) : "";
+
+    const getAnswerState = (answerId: string, isCorrect: boolean) => {
+      if (!hasAnswered) return "default";
+      if (answerId === selectedAnswerId) return isCorrect ? "correct" : "wrong";
+      if (isCorrect) return "correct";
+      return "default";
+    };
 
     return (
-      <div className="group-info">
-        <span className="group-badge">
-          Question {question.questionIndexInGroup} of {question.totalQuestionsInGroup}
-        </span>
-      </div>
-    );
-  };
+      <div key={q.questionId} className="qd-single-question">
 
-  // ============================================
-  // MAIN RENDER
-  // ============================================
-
-  return (
-    <div className="question-display">
-      {/* Question Number */}
-      <div className="question-header">
-        <h3 className="question-number">
-          Question {questionNumber}
-          {question.groupId && ` (${question.questionIndexInGroup}/${question.totalQuestionsInGroup})`}
-        </h3>
-        {renderGroupInfo()}
-      </div>
-
-      {/* Group Content (Passage/Audio) */}
-      {renderGroupContent()}
-
-      {/* Question Content */}
-      <div className="question-content">
-        {/* Question Media (Image/Audio for Part 1,2) */}
-        {renderQuestionMedia()}
-
-        {/* Question Text */}
-        <div 
-          className="question-text"
-          dangerouslySetInnerHTML={{ __html: question.content }}
-        />
-
-        {/* Answer Options */}
-        <div className="answer-options">
-          <Radio.Group
-            value={selectedAnswerId}
-            onChange={(e) => onSelectAnswer(e.target.value)}
+        {/* Header: số câu + flag — full width */}
+        <div className="qd-header">
+          <span className="qd-question-number">
+            Câu {q.questionNumber}
+            {q.totalQuestionsInGroup && (
+              <span className="qd-group-badge">
+                {q.questionIndexInGroup}/{q.totalQuestionsInGroup}
+              </span>
+            )}
+          </span>
+          <button
+            className={`qd-flag-btn ${isMarked ? "active" : ""}`}
+            onClick={() => onMarkForReview(q.questionId)}
+            title={isMarked ? "Bỏ đánh dấu" : "Đánh dấu xem lại"}
           >
-            <Space direction="vertical" style={{ width: '100%' }}>
-              {question.answers
-                .sort((a, b) => a.orderIndex - b.orderIndex)
-                .map(answer => (
-                  <Radio
+            <FlagFilled />
+          </button>
+        </div>
+
+        {/* Body: 2 cột — Trái: câu hỏi/media | Phải: đáp án */}
+        <div className="qd-body">
+
+          {/* CỘT TRÁI: Media + Nội dung câu hỏi */}
+          <div className="qd-body__left">
+            {(q.hasImage || q.hasAudio) && (
+              <div className="qd-question-media">
+                {q.hasImage && q.imageUrl && (
+                  <img src={q.imageUrl} alt="illustration" className="qd-media-image" />
+                )}
+                {q.hasAudio && q.audioUrl && (
+                  <div className="qd-audio-container">
+                    <audio controls src={q.audioUrl} preload="auto">
+                      Trình duyệt không hỗ trợ audio.
+                    </audio>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {q.content && (
+              <div className="qd-question-text" dangerouslySetInnerHTML={{ __html: q.content }} />
+            )}
+          </div>
+
+          {/* CỘT PHẢI: Đáp án + Result panel */}
+          <div className="qd-body__right">
+            <div className="qd-answers">
+              {sortedAnswers.map((answer, index) => {
+                const state = getAnswerState(answer.id, answer.isCorrect);
+                const letterLabel = String.fromCharCode(65 + index);
+
+                return (
+                  <div
                     key={answer.id}
-                    value={answer.id}
-                    className="answer-option"
+                    className={`qd-answer-row qd-answer-row--${state} ${isBlindListening ? "qd-blind-row" : ""}`}
+                    onClick={() => !hasAnswered && onSelectAnswer(q.questionId, answer.id)}
                   >
-                    <div className="answer-content">
-                      <span className="answer-label">{answer.answerLabel}.</span>
-                      
-                      {/* Answer with audio (Part 2) */}
-                      {answer.media && answer.media.length > 0 ? (
-                        <div className="answer-media">
-                          {answer.media.map(media => (
-                            <audio key={media.id} controls src={media.url}>
-                              Your browser does not support the audio element.
-                            </audio>
-                          ))}
-                          <span className="answer-text">{answer.content}</span>
-                        </div>
-                      ) : (
-                        <span className="answer-text">{answer.content}</span>
-                      )}
+                    <div className="qd-answer-left">
+                      <span className={`qd-answer-radio qd-answer-radio--${state}`}>
+                        {state === "correct" && hasAnswered && (
+                          <span className="qd-icon qd-icon--correct">✓</span>
+                        )}
+                        {state === "wrong" && (
+                          <span className="qd-icon qd-icon--wrong">✕</span>
+                        )}
+                        {state === "default" && (
+                          <span className={`qd-radio-dot ${selectedAnswerId === answer.id ? "checked" : ""}`} />
+                        )}
+                      </span>
+                      <span className="qd-answer-label">{letterLabel}.</span>
                     </div>
-                  </Radio>
-                ))}
-            </Space>
-          </Radio.Group>
+
+                    {(!isBlindListening || hasAnswered) && (
+                      <div className="qd-answer-content">
+                        {answer.media && answer.media.length > 0 ? (
+                          <div className="qd-answer-media">
+                            {answer.media.map((m) => renderAudioPlayer(m.url, m.id))}
+                            {answer.content && <span>{answer.content}</span>}
+                          </div>
+                        ) : (
+                          <span dangerouslySetInnerHTML={{ __html: answer.content }} />
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Result Panel */}
+            {hasAnswered && (
+              <div className="qd-result-panel">
+                <div className="qd-correct-answer">
+                  <span className="qd-result-label">Đáp án đúng:</span>
+                  <span className="qd-result-value">{correctLetter}</span>
+                </div>
+
+                {q.explanation && (
+                  <div className="qd-explanation">
+                    <button
+                      className="qd-explanation-toggle"
+                      onClick={() =>
+                        setShowExplanation((prev) => ({
+                          ...prev,
+                          [q.questionId]: !prev[q.questionId],
+                        }))
+                      }
+                    >
+                      {showExplanation[q.questionId] ? "Ẩn giải thích ▲" : "Xem giải thích ▼"}
+                    </button>
+                    {showExplanation[q.questionId] && (
+                      <div
+                        className="qd-explanation-body"
+                        dangerouslySetInnerHTML={{ __html: q.explanation }}
+                      />
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
         </div>
       </div>
+    );
+  };
+
+  // ── MAIN RENDER ──────────────────────────────────
+  return (
+    <div className={`qd-card ${isGroupLayout ? "layout-split" : "layout-single"}`}>
+
+      {/* layout-split: Cột trái = đoạn văn/audio, Cột phải = câu hỏi */}
+      {isGroupLayout && (
+        <div className="qd-left-pane">
+          <div className="qd-left-pane__inner">
+            {renderGroupContent()}
+          </div>
+        </div>
+      )}
+
+      <div className="qd-right-pane">
+        <div className="qd-questions-list">
+          {questions.map((q) => renderQuestion(q))}
+        </div>
+      </div>
+
     </div>
   );
 };

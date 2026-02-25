@@ -66,7 +66,6 @@ const QuestionManager = () => {
   const [selectedPartTitle, setSelectedPartTitle] = useState<string>("Tổng quan");
   const [openAddQuestion, setOpenAddQuestion] = useState(false);
   const [openImportModal, setOpenImportModal] = useState(false);
-  const [isImportOpen, setIsImportOpen] = useState(false);
   const [zipFile, setZipFile] = useState<File | null>(null);
   const [importLoading, setImportLoading] = useState(false);
   const [previewVisible, setPreviewVisible] = useState(false);
@@ -310,10 +309,10 @@ const QuestionManager = () => {
       onOk: async () => {
         try {
           await questionService.delete(record.id);
-          message.success('Đã xóa câu hỏi thành công');
+          toast.success('Đã xóa câu hỏi thành công');
           fetchQuestions();
         } catch (error) {
-          message.error('Không thể xóa câu hỏi');
+          toast.error('Không thể xóa câu hỏi');
         }
       }
     });

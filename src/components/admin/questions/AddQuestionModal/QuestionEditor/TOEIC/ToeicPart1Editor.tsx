@@ -85,6 +85,12 @@ export const ToeicPart1Editor: React.FC<EditorProps> = ({
         if (!categoryId || !difficultyId) {
             return "Vui lòng chọn danh mục và độ khó";
         }
+        console.log({
+            audioFile,
+            existingAudioUrl,
+            imageFile,
+            existingImageUrl
+        });
         const hasAudio = audioFile || existingAudioUrl;
         if (!hasAudio) return "Câu hỏi Part 1 bắt buộc phải có Audio";
 
@@ -101,7 +107,9 @@ export const ToeicPart1Editor: React.FC<EditorProps> = ({
     const handleSubmit = async () => {
         const error = validate();
         if (error) {
-            toast.error(error);
+            toast.error(error, {
+                toastId: "part-1-toast-error"
+            });
             return;
         }
 
@@ -127,9 +135,14 @@ export const ToeicPart1Editor: React.FC<EditorProps> = ({
         // 3. Xử lý Files (Quan trọng)
         if (audioFile) {
             formData.append("AudioFile", audioFile);
+        } else if (existingAudioUrl) {
+            formData.append("AudioUrl", existingAudioUrl);
         }
+
         if (imageFile) {
             formData.append("ImageFile", imageFile);
+        }else if(existingImageUrl) {
+            formData.append("ImageUrl", existingImageUrl);
         }
 
         answers.forEach((ans, index) => {
@@ -138,10 +151,7 @@ export const ToeicPart1Editor: React.FC<EditorProps> = ({
             formData.append(`Answers[${index}].OrderIndex`, String(ans.OrderIndex));
         });
 
-        console.log("📦 FORM DATA SENT:");
-        for (const pair of formData.entries()) {
-            console.log(`${pair[0]}: ${pair[1]}`);
-        }
+
         await onSave({ mode: "single", payload: formData });
     };
     const selectCorrectAnswer = (index: number) => {

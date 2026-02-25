@@ -78,16 +78,11 @@ const AddQuestionModal: React.FC<Props> = ({
       result = mapGroupDtoToEditorData(editingQuestion.data);
     }
 
-      return result;
+    return result;
   }, [isEdit, editingQuestion]);
 
 
-  // 1. Load Data khi Modal mở
-  useEffect(() => {
-    if (open) {
-      loadData();
-    }
-  }, [open]);
+
 
   useEffect(() => {
     if (!open) return;
@@ -110,31 +105,40 @@ const AddQuestionModal: React.FC<Props> = ({
 
     try {
       setLoading(true);
-      const res = await categorieservice.getSelectCategory();
 
-      const categoriesData = res
-        .filter((x: any) => x.label.includes("(SKILL)"))
-        .map((x: any) => ({
-          id: x.value,
-          name: x.label.replace(" (SKILL)", ""),
-        }));
+      // Gọi đồng thời 2 service với 2 tham số khác nhau
+      const [resSkill, resLevel] = await Promise.all([
+        categorieservice.getSelectCategory("skill"),
+        categorieservice.getSelectCategory("level")
+      ]);
 
-      const difficultiesData = res
-        .filter((x: any) => x.label.includes("(LEVEL)"))
-        .map((x: any) => ({
-          id: x.value,
-          name: x.label.replace(" (LEVEL)", ""),
-        }));
+      // Xử lý dữ liệu Skill
+      const categoriesData = resSkill.map((x: any) => ({
+        id: x.value,
+        name: x.label.replace(" (SKILL)", ""),
+      }));
+
+      // Xử lý dữ liệu Level
+      const difficultiesData = resLevel.map((x: any) => ({
+        id: x.value,
+        name: x.label.replace(" (LEVEL)", ""),
+      }));
 
       setCategories(categoriesData);
       setDifficulties(difficultiesData);
     } catch (err) {
       console.error("Load data failed:", err);
-      toast.error("Không thể tải dữ liệu danh mục");
     } finally {
       setLoading(false);
     }
   };
+
+  // 1. Load Data khi Modal mở
+  useEffect(() => {
+    if (open) {
+      loadData();
+    }
+  }, [open]);
 
   const handleSave = async (data: EditorSubmitPayload) => {
     setSaving(true);
@@ -143,7 +147,7 @@ const AddQuestionModal: React.FC<Props> = ({
 
       // ✅ Adapter: object → FormData
       if (data.payload instanceof FormData) {
-        
+
         formData = data.payload;
       } else {
         formData =

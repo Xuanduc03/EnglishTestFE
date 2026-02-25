@@ -55,8 +55,8 @@ export const menuItems: MenuItem[] = [
       undefined,
     ),
     getItem(
-      'Cấu trúc đề thi',
-      '/admin/exams/section',
+      'Cấu trúc điểm',
+      '/admin/exams/score',
       <EditOutlined />,
       undefined,
     ),

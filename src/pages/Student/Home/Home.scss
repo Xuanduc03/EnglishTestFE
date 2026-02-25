@@ -1,672 +1,317 @@
-// Home.scss - Simple Version
-// Variables
-$primary-color: #1890ff;
-$success-color: #52c41a;
-$warning-color: #faad14;
-$error-color: #ff4d4f;
-$purple-color: #722ed1;
-
-$text-primary: #262626;
-$text-secondary: #8c8c8c;
-$border-color: #e8e8e8;
-$bg-gray: #fafafa;
-
-$radius-sm: 4px;
-$radius-md: 8px;
-$radius-lg: 12px;
-
-$shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-$shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
-$shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.12);
-
-// Base
+/* Home.scss */
 .home-page {
+  /* Biến toàn cục (Fallback nếu chưa định nghĩa ở component) */
+  --bg-body: #f4f6f8;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --warning: #f59e0b;
+  --border-light: #e2e8f0;
+  --bg-card: #ffffff;
+  --radius-xl: 24px;
+  --shadow-soft: 0 4px 20px rgba(149, 157, 171, 0.08);
+
+  background-color: var(--bg-body);
   min-height: 100vh;
-  background: $bg-gray;
   padding-bottom: 60px;
-}
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: var(--text-main);
 
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 24px;
-}
-
-// Header
-.home-header {
-  background: white;
-  padding: 32px 0;
-  margin-bottom: 32px;
-  box-shadow: $shadow-sm;
-
-  .welcome-section {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 24px;
-
-    @media (max-width: 768px) {
-      flex-direction: column;
-      align-items: flex-start;
-    }
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
   }
 
-  .welcome-text {
-    flex: 1;
-
-    .greeting {
-      color: $text-secondary;
-      margin: 0 0 8px;
-      font-size: 14px;
-    }
-
-    h1 {
-      margin: 0 0 8px;
-      font-size: 32px;
-      font-weight: 600;
-      color: $text-primary;
-    }
-
-    .subtitle {
-      color: $text-secondary;
-      margin: 0;
-      font-size: 14px;
-    }
-  }
-
-  .quick-stats {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-
-    .stat-card {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 16px 20px;
-      background: $bg-gray;
-      border-radius: $radius-md;
-
-      .stat-icon {
-        font-size: 32px;
-      }
-
-      .stat-info {
-        h3 {
-          margin: 0;
-          font-size: 24px;
-          font-weight: 600;
-          color: $text-primary;
-        }
-
-        p {
-          margin: 4px 0 0;
-          font-size: 12px;
-          color: $text-secondary;
-        }
-      }
-    }
-
-    .stat-badge {
-      padding: 8px 16px;
-      background: linear-gradient(135deg, #faad14, #ff7a45);
-      color: white;
-      border-radius: $radius-lg;
-      font-weight: 500;
-      font-size: 14px;
-    }
-  }
-}
-
-// Section Header
-.section-header {
-  margin-bottom: 24px;
-
-  h2 {
-    margin: 0 0 8px;
-    font-size: 24px;
-    font-weight: 600;
-    color: $text-primary;
-  }
-
-  p {
-    margin: 0;
-    color: $text-secondary;
-    font-size: 14px;
-  }
-}
-
-// Quick Actions
-.quick-actions {
-  margin-bottom: 32px;
-
-  .action-grid {
+  /* LAYOUT CHIA 2 CỘT */
+  .main-content {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: 2fr 1fr;
+    /* Trái 66% - Phải 33% */
+    gap: 24px;
+    margin-bottom: 32px;
+
+    /* Responsive cho màn hình nhỏ */
+    @media (max-width: 992px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .left-column {
+    display: flex;
+    flex-direction: column;
     gap: 24px;
   }
 
-  .action-card {
-    background: white;
-    padding: 32px 24px;
-    border-radius: $radius-lg;
-    box-shadow: $shadow-sm;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: 2px solid transparent;
+  .right-column {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
 
-    &:hover {
-      transform: translateY(-4px);
-      box-shadow: $shadow-lg;
-    }
+  /* CLASS CHUNG CHO CÁC CARD CỘT PHẢI */
+  .premium-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-xl);
+    padding: 24px;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--border-light);
 
-    &.simulation:hover {
-      border-color: $primary-color;
-    }
-
-    &.practice:hover {
-      border-color: $success-color;
-    }
-
-    &.flashcard:hover {
-      border-color: $purple-color;
-    }
-
-    .card-icon {
-      font-size: 48px;
-      margin-bottom: 16px;
-    }
-
-    h3 {
-      margin: 0 0 12px;
-      font-size: 18px;
-      font-weight: 600;
-      color: $text-primary;
-    }
-
-    p {
-      margin: 0 0 16px;
-      color: $text-secondary;
-      font-size: 14px;
-      line-height: 1.6;
-    }
-
-    .card-tags {
+    .card-header {
       display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 20px;
-    }
 
-    button {
-      width: 100%;
-    }
-  }
-}
-
-// Main Content
-.main-content {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 24px;
-  margin-bottom: 32px;
-
-  @media (max-width: 992px) {
-    grid-template-columns: 1fr;
-  }
-}
-
-// Card
-.card {
-  background: white;
-  border-radius: $radius-lg;
-  box-shadow: $shadow-sm;
-  margin-bottom: 24px;
-
-  &.alert-card {
-    background: #e6f7ff;
-    border: 1px solid #91d5ff;
-  }
-
-  .card-header {
-    padding: 20px 24px;
-    border-bottom: 1px solid $border-color;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    .header-title {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-
-      .icon {
-        font-size: 20px;
-      }
-
-      h3 {
-        margin: 0;
-        font-size: 16px;
-        font-weight: 600;
-        color: $text-primary;
-      }
-    }
-
-    .link {
-      color: $primary-color;
-      text-decoration: none;
-      font-size: 14px;
-      cursor: pointer;
-      background: none;
-      border: none;
-
-      &:hover {
-        text-decoration: underline;
-      }
-    }
-  }
-
-  .card-body {
-    padding: 16px 24px 20px;
-  }
-}
-
-// Exam Item
-.exam-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 0;
-  border-bottom: 1px solid $border-color;
-
-  &:last-child {
-    border-bottom: none;
-  }
-
-  .exam-info {
-    display: flex;
-    gap: 16px;
-    flex: 1;
-
-    .exam-icon {
-      font-size: 24px;
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: $bg-gray;
-      border-radius: $radius-md;
-    }
-
-    .exam-details {
-      h4 {
-        margin: 0 0 8px;
-        font-size: 15px;
-        font-weight: 600;
-        color: $text-primary;
-      }
-
-      .exam-meta {
+      .header-title {
         display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
+        align-items: center;
+        gap: 10px;
+
+        .icon {
+          font-size: 20px;
+          background: #f8fafc;
+          width: 36px;
+          height: 36px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 10px;
+          border: 1px solid #e2e8f0;
+        }
+
+        h3 {
+          font-size: 18px;
+          font-weight: 700;
+          margin: 0;
+        }
+      }
+
+      .link {
+        color: var(--primary);
+        background: none;
+        border: none;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+
+        &:hover {
+          text-decoration: underline;
+          color: var(--primary-hover);
+        }
       }
     }
   }
-}
 
-// Result Item
-.result-item {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  padding: 16px 0;
-  border-bottom: 1px solid $border-color;
+  /* LEADERBOARD (Bảng xếp hạng) */
+  .leaderboard-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-light);
 
-  &:last-child {
-    border-bottom: none;
-  }
+    &:last-child {
+      border-bottom: none;
+    }
 
-  .result-score {
-    .score-circle {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, $primary-color, #40a9ff);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: white;
+    /* Highlight User hiện tại */
+    &.current-user {
+      background: #e0e7ff;
+      /* Primary light */
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--primary);
+      border-bottom: 1px solid var(--primary);
+      margin: 8px 0;
+    }
+
+    .user-rank {
+      width: 40px;
+      text-align: center;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-muted);
+      margin-right: 12px;
+
+      .medal {
+        font-size: 24px;
+      }
+    }
+
+    .user-info {
+      flex: 1;
 
       strong {
-        font-size: 18px;
-        line-height: 1;
+        display: block;
+        font-size: 14px;
+        margin-bottom: 4px;
+        color: var(--text-main);
       }
 
       span {
-        font-size: 12px;
-        margin-top: 2px;
+        font-size: 13px;
+        color: var(--primary);
+        font-weight: 700;
+      }
+    }
+
+    .user-stats {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+
+      .tag {
+        font-size: 11px;
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-weight: 600;
+      }
+
+      .tag.blue {
+        background: #f1f5f9;
+        color: #475569;
+      }
+
+      .tag.orange {
+        background: #ffedd5;
+        color: #ea580c;
       }
     }
   }
 
-  .result-info {
-    flex: 1;
-
-    h4 {
-      margin: 0 0 8px;
-      font-size: 15px;
-      font-weight: 600;
-      color: $text-primary;
-    }
-
-    .result-meta {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 13px;
-      color: $text-secondary;
-      flex-wrap: wrap;
-    }
-  }
-
-  .btn-link {
-    white-space: nowrap;
-  }
-}
-
-// Progress
-.progress-item {
-  margin-bottom: 24px;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-
-  .progress-label {
+  /* PRACTICE SUGGESTIONS (Gợi ý luyện tập) */
+  .practice-item {
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    margin-bottom: 8px;
-    font-size: 14px;
+    padding: 16px;
+    border: 1px solid var(--border-light);
+    border-radius: 16px;
+    margin-bottom: 12px;
+    background: #f8fafc;
+    transition: all 0.2s;
 
-    span {
-      color: $text-secondary;
+    &:hover {
+      border-color: var(--primary);
+      background: #ffffff;
+      transform: translateY(-2px);
     }
 
-    strong {
-      color: $text-primary;
-    }
-  }
-}
+    .practice-info {
+      flex: 1;
+      margin-right: 16px;
 
-.progress-bar {
-  height: 6px;
-  background: $border-color;
-  border-radius: 100px;
-  overflow: hidden;
+      h4 {
+        font-size: 14px;
+        font-weight: 700;
+        margin: 0 0 8px 0;
+      }
 
-  &.small {
-    height: 4px;
-  }
+      .practice-meta {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 12px;
 
-  &.large {
-    height: 8px;
-  }
+        .tag.blue {
+          background: #e0f2fe;
+          color: #0369a1;
+          padding: 2px 8px;
+          border-radius: 6px;
+          font-weight: 600;
+        }
 
-  .progress-fill {
-    height: 100%;
-    background: $primary-color;
-    border-radius: 100px;
-    transition: width 0.3s ease;
+        .progress-bar {
+          width: 80px;
+          height: 6px;
+          background: #e2e8f0;
+          border-radius: 4px;
+          overflow: hidden;
 
-    &.blue {
-      background: $primary-color;
-    }
+          .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 4px;
+          }
+        }
 
-    &.green {
-      background: $success-color;
-    }
-
-    &.orange {
-      background: $warning-color;
-    }
-  }
-}
-
-// Leaderboard
-.leaderboard-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 0;
-  border-bottom: 1px solid $border-color;
-
-  &:last-child {
-    border-bottom: none;
-  }
-
-  &.current-user {
-    background: #e6f7ff;
-    padding: 12px;
-    margin: 0 -12px;
-    border-radius: $radius-md;
-    border-bottom: none;
-  }
-
-  .user-rank {
-    width: 40px;
-    text-align: center;
-
-    .medal {
-      font-size: 24px;
+        .progress-text {
+          font-weight: 600;
+          color: var(--text-muted);
+        }
+      }
     }
 
-    .rank-number {
-      font-size: 16px;
+    .btn-link {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
       font-weight: 600;
-      color: $text-secondary;
-    }
-  }
-
-  .user-info {
-    flex: 1;
-
-    strong {
-      display: block;
-      font-size: 14px;
-      color: $text-primary;
-      margin-bottom: 4px;
-    }
-
-    span {
       font-size: 13px;
-      color: $text-secondary;
+      cursor: pointer;
+
+      &:hover {
+        background: var(--primary-hover);
+      }
     }
   }
 
-  .user-stats {
+  /* ALERT CARD (Upcoming Deadlines) */
+  .alert-card {
+    background: linear-gradient(90deg, #fef3c7 0%, #ffedd5 100%);
+    border: 1px solid #fcd34d;
+    border-radius: var(--radius-xl);
+    padding: 24px;
     display: flex;
-    gap: 8px;
-  }
-}
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
 
-// Practice Item
-.practice-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 0;
-  border-bottom: 1px solid $border-color;
-
-  &:last-child {
-    border-bottom: none;
-  }
-
-  .practice-info {
-    flex: 1;
-
-    h4 {
-      margin: 0 0 8px;
-      font-size: 14px;
-      font-weight: 500;
-      color: $text-primary;
-    }
-
-    .practice-meta {
+    .alert-content {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 20px;
+      flex: 1;
 
-      .progress-bar {
-        width: 80px;
+      .alert-icon {
+        font-size: 32px;
       }
 
-      .progress-text {
-        font-size: 12px;
-        color: $text-secondary;
+      .alert-text {
+        h4 {
+          color: #b45309;
+          font-size: 18px;
+          font-weight: 800;
+          margin: 0 0 4px 0;
+        }
+
+        p {
+          color: #92400e;
+          font-size: 14px;
+          margin: 0;
+          font-weight: 500;
+        }
       }
     }
-  }
-}
 
-// Alert Card
-.alert-content {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 20px 24px;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .alert-icon {
-    font-size: 32px;
-  }
-
-  .alert-text {
-    flex: 1;
-
-    h4 {
-      margin: 0 0 4px;
+    .btn-primary {
+      background: #d97706;
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-weight: 700;
       font-size: 15px;
-      font-weight: 600;
-      color: $text-primary;
-    }
+      cursor: pointer;
+      white-space: nowrap;
 
-    p {
-      margin: 0;
-      font-size: 13px;
-      color: $text-secondary;
+      &:hover {
+        background: #b45309;
+      }
     }
   }
-
-  button {
-    white-space: nowrap;
-  }
-}
-
-// Tags
-.tag {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: $radius-sm;
-  font-size: 12px;
-  font-weight: 500;
-  background: $bg-gray;
-  color: $text-primary;
-
-  &.blue {
-    background: #e6f7ff;
-    color: $primary-color;
-  }
-
-  &.green {
-    background: #f6ffed;
-    color: $success-color;
-  }
-
-  &.orange {
-    background: #fff7e6;
-    color: $warning-color;
-  }
-
-  &.red {
-    background: #fff1f0;
-    color: $error-color;
-  }
-
-  &.purple {
-    background: #f9f0ff;
-    color: $purple-color;
-  }
-}
-
-// Buttons
-.btn {
-  padding: 8px 16px;
-  border: none;
-  border-radius: $radius-md;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: inline-block;
-  text-align: center;
-
-  &:hover {
-    opacity: 0.9;
-    transform: translateY(-1px);
-  }
-
-  &.btn-primary {
-    background: $primary-color;
-    color: white;
-
-    &:hover {
-      background: #40a9ff;
-    }
-  }
-
-  &.btn-default {
-    background: white;
-    color: $text-primary;
-    border: 1px solid $border-color;
-
-    &:hover {
-      border-color: $primary-color;
-      color: $primary-color;
-    }
-  }
-
-  &.btn-sm {
-    padding: 6px 12px;
-    font-size: 13px;
-  }
-}
-
-.btn-link {
-  background: none;
-  border: none;
-  color: $primary-color;
-  font-size: 13px;
-  cursor: pointer;
-  padding: 0;
-
-  &:hover {
-    text-decoration: underline;
-  }
-}
-
-// Utility
-.mt-16 {
-  margin-top: 16px;
-}
-
-.mt-24 {
-  margin-top: 24px;
 }

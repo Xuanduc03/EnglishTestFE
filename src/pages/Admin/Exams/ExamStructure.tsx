@@ -16,7 +16,8 @@ import {
   Input,
   InputNumber,
   Table,
-  Popconfirm
+  Popconfirm,
+  Select
 } from 'antd';
 import {
   ArrowLeftOutlined,
@@ -26,43 +27,96 @@ import {
 } from '@ant-design/icons';
 import { ExamService } from './exams.service';
 import type { ExamDetailDto, ExamSectionDto, CreateExamSectionDto } from './exam.types';
+import { toast } from 'react-toastify';
+import { categorieservice } from '../Categories/category.service';
+import { questionService } from '../../../components/admin/questions/components/Question.service';
+import AddQuestionToSectionModal, { type QuestionSelectItem } from '../../../components/admin/exams/ModalAddQuestions';
 
 const { Title, Text } = Typography;
 const { Panel } = Collapse;
+const { Option } = Select;
 
 const ExamStructurePage: React.FC = () => {
+
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [category, setCategory] = useState<string>('');
+  const [categoryId, setCategoryId] = useState<string>('');
+  const [categories, setCategories] = useState<Array<{ value: string; label: string }>>([]);
   const [loading, setLoading] = useState(true);
   const [exam, setExam] = useState<ExamDetailDto | null>(null);
   const [sectionModalVisible, setSectionModalVisible] = useState(false);
   const [editingSection, setEditingSection] = useState<any>(null);
+
+  const [questionModalOpen, setQuestionModalOpen] = useState(false);
+  const [targetSection, setTargetSection] = useState<ExamSectionDto | null>(null);
   const [form] = Form.useForm();
 
   // Load exam detail
   const loadExam = async () => {
     if (!id) return;
-    
     try {
       setLoading(true);
       const data = await ExamService.getById(id);
       setExam(data);
     } catch (error: any) {
-      message.error('Không thể tải thông tin đề thi!');
+      toast.error('Không thể tải thông tin đề thi!');
       console.error(error);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    loadExam();
-  }, [id]);
+  const loadCategories = async (codeType = "skill") => {
+    try {
+      const resData = await categorieservice.getSelectCategory(codeType);
+      if (!resData) return;
+      setCategories(resData);
+    } catch (error) {
+      console.error("Lỗi khi load Categories:", error);
+    }
+  };
+
+  // fetch Question
+  const fetchQuestions = async (categoryId: string, keyword?: string): Promise<QuestionSelectItem[]> => {
+    const res = await questionService.getAll({
+      page: 1,
+      pageSize: 50,
+      categoryId: categoryId,
+      ...(keyword ? { keyword } : {}),
+      sortBy: 'createdAt',
+      sortOrder: 'desc'
+    });
+
+    const rawItems = res.items ?? [];
+
+    return rawItems.map((item: any) => ({
+      ...item, 
+      hasAudio: item.hasAudio ?? false, // VD: item.audioUrl ? true : false
+      hasImage: item.hasImage ?? false, // VD: item.imageUrl ? true : false
+      isGroup: item.isGroup ?? false,   // VD: item.questionType === 'GROUP'
+    }));
+  }
+
+  const addQuestionsToSection = async (
+    examId: string,
+    sectionId: string,
+    categoryId: string,
+    ids: string[]
+  ) => {
+    await ExamService.addQuestionsToSection(examId, sectionId, {
+      examId,
+      sectionId,
+      categoryId,
+      questionIds: ids,
+      defaultPoint: 1
+    });
+  };
 
   useEffect(() => {
-    
-  }, [category]);
+    loadExam();
+    loadCategories();
+  }, [id]);
+
 
   // Mở modal thêm/sửa section
   const openSectionModal = (section?: any) => {
@@ -95,7 +149,7 @@ const ExamStructurePage: React.FC = () => {
         });
         message.success('Thêm section thành công!');
       }
-      
+
       setSectionModalVisible(false);
       loadExam();
     } catch (error: any) {
@@ -148,8 +202,8 @@ const ExamStructurePage: React.FC = () => {
         <Space direction="vertical" size="large" style={{ width: '100%' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Space>
-              <Button 
-                icon={<ArrowLeftOutlined />} 
+              <Button
+                icon={<ArrowLeftOutlined />}
                 onClick={() => navigate('/admin/exams')}
               >
                 Quay lại
@@ -181,11 +235,11 @@ const ExamStructurePage: React.FC = () => {
       </Card>
 
       {/* Sections */}
-      <Card 
-        title="Danh sách Sections" 
+      <Card
+        title="Danh sách Sections"
         extra={
-          <Button 
-            type="primary" 
+          <Button
+            type="primary"
             icon={<PlusOutlined />}
             onClick={() => openSectionModal()}
           >
@@ -303,12 +357,12 @@ const ExamStructurePage: React.FC = () => {
                 />
 
                 <div style={{ marginTop: 16 }}>
-                  <Button 
-                    type="dashed" 
+                  <Button
+                    type="dashed"
                     icon={<PlusOutlined />}
                     onClick={() => {
-                      // TODO: Open question selector modal
-                      message.info('Tính năng chọn câu hỏi đang phát triển...');
+                      setTargetSection(section);    // section đang xét
+                      setQuestionModalOpen(true);
                     }}
                   >
                     Thêm câu hỏi vào section này
@@ -337,19 +391,28 @@ const ExamStructurePage: React.FC = () => {
           onFinish={handleSaveSection}
         >
           <Form.Item
-            name="name"
-            label="Tên Section"
-            rules={[{ required: true, message: 'Vui lòng nhập tên section' }]}
+            name="categoryId" // Khớp với Command BE
+            label="Loại phần thi"
+            rules={[{ required: true, message: 'Vui lòng chọn loại phần thi' }]}
           >
-            <Input placeholder="VD: Listening Section" />
+            <Select
+              value={categoryId}
+              options={categories}
+              placeholder="Chọn phần thi (VD: Listening Part 1...)"
+              showSearch
+              style={{ width: "100%" }}
+              disabled={categories.length === 0}
+              optionFilterProp="children"
+            >
+            </Select>
           </Form.Item>
 
           <Form.Item
             name="instructions"
             label="Hướng dẫn"
           >
-            <Input.TextArea 
-              rows={3} 
+            <Input.TextArea
+              rows={3}
               placeholder="Hướng dẫn làm bài cho section này..."
             />
           </Form.Item>
@@ -370,6 +433,22 @@ const ExamStructurePage: React.FC = () => {
           </Form.Item>
         </Form>
       </Modal>
+
+
+
+      {/* Render modal */}
+      <AddQuestionToSectionModal
+        open={questionModalOpen}
+        section={targetSection}
+        examId={id!}
+        existingQuestionIds={
+          targetSection?.questions.map(q => q.questionId) ?? []
+        }
+        onClose={() => setQuestionModalOpen(false)}
+        onSuccess={loadExam}
+        fetchQuestions={fetchQuestions}
+        addQuestionsToSection={addQuestionsToSection}
+      />
     </div>
   );
 };

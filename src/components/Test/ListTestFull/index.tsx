@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './ListTestFull.scss';
+import { api } from '../../../configs/axios-custom'; // Import axios instance đã cấu hình
 
-// Types
+// Types (giữ nguyên)
 interface Test {
   id: number;
   title: string;
@@ -15,6 +16,21 @@ interface Test {
   progress?: number;
 }
 
+// Interface cho response từ API (dựa trên ExamSummaryDto)
+interface ExamSummaryDto {
+  id: number;
+  code: string;
+  title: string;
+  description?: string;
+  duration: number;
+  totalScore: number;
+  questionCount: number;
+  status: string;      // "Published", "Draft", ...
+  version: number;
+  createdAt: string;
+  // Nếu có thêm các trường khác (price, isPremium, ...) thì thêm vào đây
+}
+
 interface TestCardProps {
   test: Test;
   onStartTest: (testId: number) => void;
@@ -22,12 +38,12 @@ interface TestCardProps {
   onRetryTest: (testId: number) => void;
 }
 
-// Test Card Component
-const TestCard: React.FC<TestCardProps> = ({ 
-  test, 
-  onStartTest, 
-  onContinueTest, 
-  onRetryTest 
+// Test Card Component (giữ nguyên)
+const TestCard: React.FC<TestCardProps> = ({
+  test,
+  onStartTest,
+  onContinueTest,
+  onRetryTest
 }) => {
   const getBadgeText = () => {
     switch (test.type) {
@@ -113,7 +129,7 @@ const TestCard: React.FC<TestCardProps> = ({
         </div>
 
         {/* Action Button */}
-        <button 
+        <button
           className="action-button"
           onClick={handleButtonClick}
         >
@@ -124,109 +140,44 @@ const TestCard: React.FC<TestCardProps> = ({
   );
 };
 
-// Main Tests Section Component
+// Main component
 const ListTestFull: React.FC = () => {
   const [tests, setTests] = useState<Test[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Mock API call - Replace with your actual API endpoint
-  const fetchTests = async (): Promise<Test[]> => {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Mock data - Replace with actual API response
-    return [
-      {
-        id: 1,
-        title: "TEST 1",
-        type: "free",
-        totalScore: 990,
-        userScore: 270,
-        questionCount: 200,
-        participantCount: 15420,
-        hasExplanation: true,
-        status: "completed"
-      },
-      {
-        id: 2,
-        title: "TEST 2",
-        type: "free",
-        totalScore: 990,
-        userScore: undefined,
-        questionCount: 200,
-        participantCount: 12850,
-        hasExplanation: true,
-        status: "not-started"
-      },
-      {
-        id: 3,
-        title: "TEST 3",
-        type: "new",
-        totalScore: 990,
-        userScore: 450,
-        questionCount: 200,
-        participantCount: 8650,
-        hasExplanation: true,
-        status: "in-progress",
-        progress: 60
-      },
-      {
-        id: 4,
-        title: "TEST 4",
-        type: "free",
-        totalScore: 990,
-        userScore: 720,
-        questionCount: 200,
-        participantCount: 11200,
-        hasExplanation: true,
-        status: "completed"
-      },
-      {
-        id: 5,
-        title: "TEST 5",
-        type: "new",
-        totalScore: 990,
-        userScore: undefined,
-        questionCount: 200,
-        participantCount: 4200,
-        hasExplanation: true,
-        status: "not-started"
-      },
-      {
-        id: 6,
-        title: "TEST 6",
-        type: "premium",
-        totalScore: 990,
-        userScore: undefined,
-        questionCount: 200,
-        participantCount: 3200,
-        hasExplanation: true,
-        status: "not-started"
-      },
-      {
-        id: 7,
-        title: "TEST 7",
-        type: "free",
-        totalScore: 990,
-        userScore: 580,
-        questionCount: 200,
-        participantCount: 9800,
-        hasExplanation: true,
-        status: "completed"
-      },
-      {
-        id: 8,
-        title: "TEST 8",
-        type: "new",
-        totalScore: 990,
-        userScore: undefined,
-        questionCount: 200,
-        participantCount: 2100,
-        hasExplanation: true,
-        status: "not-started"
-      }
-    ];
+  // Hàm gọi API thực tế
+  const fetchFullTests = async (): Promise<Test[]> => {
+    try {
+      // Gọi endpoint GET /api/exams/full-tests
+      const response = await api.get<ExamSummaryDto[]>('/api/exams/full-tests');
+      const examDtos = response.data;
+
+      const mappedTests: Test[] = examDtos.map((exam) => {
+        const isPremium = exam.code?.toLowerCase().includes('premium') || false;
+        const isNew = new Date(exam.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+        let type: 'free' | 'new' | 'premium' = 'free';
+        if (isPremium) type = 'premium';
+        else if (isNew) type = 'new';
+
+        return {
+          id: exam.id,
+          title: exam.title,
+          type,
+          totalScore: exam.totalScore,
+          userScore: undefined, 
+          questionCount: exam.questionCount,
+          participantCount: 0, // chưa có dữ liệu thật
+          hasExplanation: true, // giả sử luôn có giải thích
+          status: 'not-started', // chưa có thông tin trạng thái của user
+        };
+      });
+
+      return mappedTests;
+    } catch (error) {
+      console.error('Lỗi khi gọi API lấy danh sách đề thi:', error);
+      throw error;
+    }
   };
 
   useEffect(() => {
@@ -234,7 +185,7 @@ const ListTestFull: React.FC = () => {
       try {
         setLoading(true);
         setError(null);
-        const testsData = await fetchTests();
+        const testsData = await fetchFullTests();
         setTests(testsData);
       } catch (err) {
         setError('Không thể tải danh sách đề thi. Vui lòng thử lại sau.');
@@ -247,16 +198,17 @@ const ListTestFull: React.FC = () => {
     loadTests();
   }, []);
 
+  // Handlers (giữ nguyên, có thể thêm logic gọi API thật sau)
   const handleStartTest = async (testId: number) => {
     try {
       console.log('Starting test:', testId);
-      // Implement start test API call here
-      // await startTestAPI(testId);
-      
-      // Update test status locally for demo
-      setTests(prev => prev.map(test => 
-        test.id === testId ? { ...test, status: 'in-progress' as const } : test
-      ));
+      // TODO: Gọi API start test
+      // await api.post(`/exams/${testId}/start`);
+      setTests(prev =>
+        prev.map(test =>
+          test.id === testId ? { ...test, status: 'in-progress' as const } : test
+        )
+      );
     } catch (error) {
       console.error('Error starting test:', error);
     }
@@ -265,8 +217,8 @@ const ListTestFull: React.FC = () => {
   const handleContinueTest = async (testId: number) => {
     try {
       console.log('Continuing test:', testId);
-      // Implement continue test API call here
-      // await continueTestAPI(testId);
+      // TODO: Gọi API continue test
+      // await api.post(`/exams/${testId}/continue`);
     } catch (error) {
       console.error('Error continuing test:', error);
     }
@@ -275,19 +227,19 @@ const ListTestFull: React.FC = () => {
   const handleRetryTest = async (testId: number) => {
     try {
       console.log('Retrying test:', testId);
-      // Implement retry test API call here
-      // await retryTestAPI(testId);
-      
-      // Update test status locally for demo
-      setTests(prev => prev.map(test => 
-        test.id === testId ? { ...test, status: 'in-progress' as const, userScore: undefined } : test
-      ));
+      // TODO: Gọi API retry test
+      // await api.post(`/exams/${testId}/retry`);
+      setTests(prev =>
+        prev.map(test =>
+          test.id === testId ? { ...test, status: 'in-progress' as const, userScore: undefined } : test
+        )
+      );
     } catch (error) {
       console.error('Error retrying test:', error);
     }
   };
 
-  // Loading State
+  // Các trạng thái render (giữ nguyên)
   if (loading) {
     return (
       <section className="tests-section">
@@ -308,7 +260,6 @@ const ListTestFull: React.FC = () => {
     );
   }
 
-  // Error State
   if (error) {
     return (
       <section className="tests-section">
@@ -317,7 +268,7 @@ const ListTestFull: React.FC = () => {
             <div className="empty-icon">⚠️</div>
             <h3 className="empty-title">Đã xảy ra lỗi</h3>
             <p className="empty-description">{error}</p>
-            <button 
+            <button
               onClick={() => window.location.reload()}
               className="retry-button"
             >
@@ -329,7 +280,6 @@ const ListTestFull: React.FC = () => {
     );
   }
 
-  // Empty State
   if (!tests || tests.length === 0) {
     return (
       <section className="tests-section">
@@ -352,11 +302,9 @@ const ListTestFull: React.FC = () => {
     );
   }
 
-  // Main Content
   return (
     <section className="tests-section">
       <div className="tests-container">
-        {/* Section Header */}
         <div className="section-header">
           <h1 className="section-title">📚 Đề Thi TOEIC</h1>
           <p className="section-subtitle">
@@ -364,7 +312,6 @@ const ListTestFull: React.FC = () => {
           </p>
         </div>
 
-        {/* Tests Grid */}
         <div className="tests-grid">
           {tests.map((test) => (
             <TestCard

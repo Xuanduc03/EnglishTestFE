@@ -28,7 +28,7 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined
 } from "@ant-design/icons";
-import Profile from "../../../components/Profile/Profile";
+import Profile from "../../../components/student/Profile/Profile";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faUser, 

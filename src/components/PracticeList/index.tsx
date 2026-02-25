@@ -93,7 +93,7 @@ const PracticeList: React.FC<PracticeListProps> = ({
   return (
     <div className="practice-list">
       {/* Hero Header */}
-      <div className="practice-hero">
+      {/* <div className="practice-hero">
         <div className="hero-content">
           <div className="hero-badge">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -148,7 +148,7 @@ const PracticeList: React.FC<PracticeListProps> = ({
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Practice Cards */}
       {tests.length === 0 ? (

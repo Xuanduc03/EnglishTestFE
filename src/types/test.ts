@@ -33,9 +33,14 @@ export interface ReadingBlockQuestion extends BaseQuestion {
 
 export type Question = ListeningQuestion | ReadingSingleQuestion | ReadingBlockQuestion;
 
+export type TestSection = 'listening' | 'reading';
+
 export interface TestState {
   currentQuestion: number;
   answers: Answer[];
   timeLeft: number;
   isTestCompleted: boolean;
+  currentSection: TestSection;
+  listeningTimeLeft: number; // 45 minutes for Listening section
+  isListeningLocked: boolean; // true after moving to Reading section
 }

@@ -196,7 +196,7 @@ export default function SkillTabsWithParts() {
             </div>
 
             {/* Parts Grid */}
-            <div className="parts-grid">
+            {/* <div className="parts-grid">
                 {activeSkill.children && activeSkill.children.length > 0 ? (
                     activeSkill.children.map(part => (
                         <div
@@ -213,7 +213,7 @@ export default function SkillTabsWithParts() {
                         <p>{activeSkill.name} chưa có phần luyện tập nào</p>
                     </div>
                 )}
-            </div>
+            </div> */}
 
             {/* Practice List */}
             <PracticeList

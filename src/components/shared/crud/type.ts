@@ -85,7 +85,8 @@ export type FormFieldType =
   | 'password'
   | 'date'
   | 'disable'
-  | 'hidden';
+  | 'hidden'
+  | 'custom';
 
 export interface FormFieldConfig {
   name: string;
@@ -105,6 +106,8 @@ export interface FormFieldConfig {
   rules?: any[]; //antd mo rong
   colSpan?: number; // layout
   dependencies?: string[];
+
+  renderInput?: (props: any) => React.ReactNode;
 }
 
 export interface FilterOption {
@@ -169,7 +172,7 @@ export interface PaginatedResult<T> {
 export interface DetailFieldConfig<T = any> {
   name: string;      // Tên field trong data (VD: 'createdAt')
   label: string;     // Nhãn hiển thị (VD: 'Ngày tạo')
-  type?: 'text' | 'date' | 'tag' | 'json' | 'boolean' | 'image';
+  type?: 'text' | 'date' | 'tag' | 'json' | 'boolean' | 'image' | 'custom';
   color?: string;    // Màu (nếu type là tag)
   render?: (value: any, record: T) => React.ReactNode;
   hidden?: (record: T) => boolean; // Logic ẩn hiện động

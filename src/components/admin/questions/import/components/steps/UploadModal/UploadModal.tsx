@@ -16,8 +16,8 @@ const { Dragger } = Upload;
 const { Title, Paragraph } = Typography;
 
 interface UploadStepProps {
-  open: boolean;                          // 👈 thêm
-  onClose: () => void;                    // 👈 thêm
+  open: boolean;                          
+  onClose: () => void;                   
   onNext: (file: File, previewData: PreviewZipResponse) => void;
   onLoading?: (loading: boolean) => void;
 }

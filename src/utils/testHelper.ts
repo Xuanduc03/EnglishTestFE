@@ -1,5 +1,5 @@
-import type { Question } from '../types/test';
-import { DUMMY_QUESTIONS } from '../constants/test';
+import type { Question, TestSection } from '../types/test';
+import { DUMMY_QUESTIONS, LISTENING_QUESTIONS_COUNT, READING_QUESTIONS_START } from '../constants/test';
 
 export const getQuestionData = (id: number): Question => {
   for (const q of DUMMY_QUESTIONS) {
@@ -10,7 +10,7 @@ export const getQuestionData = (id: number): Question => {
       return q;
     }
   }
-  
+
   return {
     id,
     part: id <= 100 ? (id <= 6 ? 1 : (id <= 31 ? 2 : (id <= 70 ? 3 : 4))) : (id <= 130 ? 5 : (id <= 146 ? 6 : 7)),
@@ -34,4 +34,16 @@ export const formatTime = (seconds: number): string => {
   const minutes = Math.floor(seconds / 60);
   const secs = seconds % 60;
   return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+};
+
+export const isListeningQuestion = (questionId: number): boolean => {
+  return questionId >= 1 && questionId <= LISTENING_QUESTIONS_COUNT;
+};
+
+export const isReadingQuestion = (questionId: number): boolean => {
+  return questionId >= READING_QUESTIONS_START && questionId <= 200;
+};
+
+export const getCurrentSection = (questionId: number): TestSection => {
+  return isListeningQuestion(questionId) ? 'listening' : 'reading';
 };

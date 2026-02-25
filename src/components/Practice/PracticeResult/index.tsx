@@ -14,6 +14,25 @@ import './PracticeResult.scss';
 import type { PartResultDto, PracticeResultDto } from '../Types/practice.type';
 import { PracticeService } from '../Services/practice.service';
 
+// FIX: Helper format TimeSpan "00:18:30" → "18 phút 30 giây"
+const formatDuration = (timeSpan: string): string => {
+  if (!timeSpan) return '0 giây';
+
+  const parts = timeSpan.split(':');
+  if (parts.length !== 3) return timeSpan;
+
+  const hours = parseInt(parts[0], 10);
+  const minutes = parseInt(parts[1], 10);
+  const seconds = parseInt(parts[2], 10);
+
+  const result: string[] = [];
+  if (hours > 0) result.push(`${hours} giờ`);
+  if (minutes > 0) result.push(`${minutes} phút`);
+  if (seconds > 0 || result.length === 0) result.push(`${seconds} giây`);
+
+  return result.join(' ');
+};
+
 const PracticeResult: React.FC = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
@@ -23,7 +42,7 @@ const PracticeResult: React.FC = () => {
 
   useEffect(() => {
     if (!sessionId) {
-      navigate('/practice');
+      navigate('/practice/list');
       return;
     }
 
@@ -37,7 +56,7 @@ const PracticeResult: React.FC = () => {
       setResult(data);
     } catch (error) {
       console.error('Load result error:', error);
-      navigate('/practice');
+      navigate('/practice/list');
     } finally {
       setLoading(false);
     }
@@ -62,7 +81,7 @@ const PracticeResult: React.FC = () => {
     );
   }
 
-  // Convert partResults object to array
+  // Convert partResults object to array, sort by partNumber
   const partResultsArray = Object.values(result.partResults).sort(
     (a, b) => a.partNumber - b.partNumber
   );
@@ -80,7 +99,7 @@ const PracticeResult: React.FC = () => {
       title: 'Part',
       dataIndex: 'partName',
       key: 'partName',
-      render: (text: string, record: PartResultDto) => (
+      render: (_: string, record: PartResultDto) => (
         <strong>{record.partName}</strong>
       )
     },
@@ -172,22 +191,25 @@ const PracticeResult: React.FC = () => {
 
             <Col xs={24} md={16}>
               <Row gutter={[16, 16]}>
+                {/* FIX: Bỏ hardcode "/ 990", chỉ hiển thị điểm practice */}
                 <Col span={12}>
                   <Statistic
-                    title="Tổng điểm"
+                    title="Điểm luyện tập"
                     value={result.score}
                     precision={0}
-                    suffix="/ 990"
                     valueStyle={{ color: getScoreColor(result.accuracyPercentage) }}
                   />
                 </Col>
+
+                {/* FIX: Format totalTime từ "00:18:30" thành dạng đọc được */}
                 <Col span={12}>
                   <Statistic
-                    title="Thời gian"
-                    value={result.totalTime}
+                    title="Thời gian hoàn thành"
+                    value={formatDuration(result.totalTime)}
                     prefix={<ClockCircleOutlined />}
                   />
                 </Col>
+
                 <Col span={8}>
                   <Statistic
                     title="Đúng"
@@ -238,16 +260,16 @@ const PracticeResult: React.FC = () => {
           <Button
             size="large"
             icon={<HomeOutlined />}
-            onClick={() => navigate('/practice')}
+            onClick={() => navigate('/practice/list')}
           >
-            Về trang chủ
+            Về trang luyện tập
           </Button>
-          
+
           <Button
             type="primary"
             size="large"
             icon={<RedoOutlined />}
-            onClick={() => navigate('/practice')}
+            onClick={() => navigate('/practice/list')}
           >
             Luyện tập mới
           </Button>

@@ -1,13 +1,21 @@
 export const TOTAL_QUESTIONS = 200;
 export const INITIAL_TIME = 120 * 60; // 120 minutes in seconds
 
+// Section boundaries
+export const LISTENING_QUESTIONS_COUNT = 100;
+export const READING_QUESTIONS_START = 101;
+
+// Section timings
+export const LISTENING_TIME = 45 * 60; // 45 minutes in seconds
+export const READING_TIME = 75 * 60; // 75 minutes in seconds
+
 export const DUMMY_QUESTIONS = [
   // Listening Part 1
   ...Array(6).fill(0).map((_, i) => ({
     id: i + 1,
     part: 1,
     type: 'listening' as const,
-    image: `https://placehold.co/600x400/e2e8f0/cbd5e0?text=Image+for+Q${i+1}`,
+    image: `https://placehold.co/600x400/e2e8f0/cbd5e0?text=Image+for+Q${i + 1}`,
     audio: 'audio_placeholder.mp3',
     options: ['A', 'B', 'C', 'D']
   })),

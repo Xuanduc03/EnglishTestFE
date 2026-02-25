@@ -10,12 +10,14 @@ interface QuestionAreaProps {
   currentQuestion: number;
   answers: Answer[];
   onAnswer: (questionId: number, answerIndex: number) => void;
+  onAudioEnd?: () => void; // For Listening questions
 }
 
 const QuestionArea: React.FC<QuestionAreaProps> = ({
   currentQuestion,
   answers,
   onAnswer,
+  onAudioEnd,
 }) => {
   const questionData = getQuestionData(currentQuestion);
 
@@ -26,7 +28,8 @@ const QuestionArea: React.FC<QuestionAreaProps> = ({
           <ListeningQuestion
             question={questionData}
             selectedAnswer={answers[currentQuestion].answer}
-            onAnswer={(idx : any) => onAnswer(currentQuestion, idx)}
+            onAnswer={(idx: any) => onAnswer(currentQuestion, idx)}
+            onAudioEnd={onAudioEnd || (() => { })}
           />
         );
       case 'reading_single':
@@ -34,7 +37,7 @@ const QuestionArea: React.FC<QuestionAreaProps> = ({
           <ReadingSingleQuestion
             question={questionData}
             selectedAnswer={answers[currentQuestion].answer}
-            onAnswer={(idx : any) => onAnswer(currentQuestion, idx)}
+            onAnswer={(idx: any) => onAnswer(currentQuestion, idx)}
           />
         );
       case 'reading_block':

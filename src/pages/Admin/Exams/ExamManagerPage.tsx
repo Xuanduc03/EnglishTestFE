@@ -50,10 +50,21 @@ const ExamPage = () => {
   const handlePublish = async (record: any) => {
     try {
       await ExamService.publish(record.id);
-      message.success('Đã công khai đề thi!');
+      message.success('Đã xuất bản đề thi!');
       window.location.reload();
     } catch (error: any) {
-      message.error(error?.response?.data?.message || 'Công khai thất bại!');
+      message.error(error?.response?.data?.message || 'Xuất bản thất bại!');
+    }
+  };
+
+  // Tạm ngưng đề thi
+  const handleSuspend = async (record: any) => {
+    try {
+      await ExamService.changeStatus(record.id, 3, 'Tạm ngưng từ trang quản lý');
+      message.success('Đã tạm ngưng đề thi!');
+      window.location.reload();
+    } catch (error: any) {
+      message.error(error?.response?.data?.message || 'Tạm ngưng thất bại!');
     }
   };
 
@@ -77,15 +88,21 @@ const ExamPage = () => {
           },
           {
             title: "Đã xuất bản",
-            value: data.filter((x: any) => x.status === 'Published').length,
+            value: data.filter((x: any) => x.status === 'Published' || x.status === 2).length,
             icon: <CheckCircleOutlined />,
             color: "#10b981"
           },
           {
             title: "Bản nháp",
-            value: data.filter((x: any) => x.status === 'Draft').length,
+            value: data.filter((x: any) => x.status === 'Draft' || x.status === 0).length,
             icon: <SyncOutlined />,
             color: "#faad14"
+          },
+          {
+            title: "Tạm ngưng",
+            value: data.filter((x: any) => x.status === 'Suspended' || x.status === 3).length,
+            icon: <ClockCircleOutlined />,
+            color: "#ff4d4f"
           }
         ],
 
@@ -98,15 +115,17 @@ const ExamPage = () => {
             placeholder: "Tìm theo tên hoặc mã đề..."
           },
           {
-            width: "150px",
+            width: "160px",
             name: "status",
             type: "select",
             placeholder: "Trạng thái",
             options: [
-              { label: 'Tất cả', value: 'all' },
-              { label: 'Bản nháp', value: 'Draft' },
-              { label: 'Đã đăng', value: 'Published' },
-              { label: 'Lưu trữ', value: 'Archived' }
+              { label: 'Tất cả',      value: 'all'          },
+              { label: 'Bản nháp',    value: 'Draft'        },
+              { label: 'Chờ duyệt',   value: 'PendingReview'},
+              { label: 'Đã xuất bản', value: 'Published'    },
+              { label: 'Tạm ngưng',   value: 'Suspended'    },
+              { label: 'Lưu trữ',     value: 'Archived'     },
             ]
           }
         ],
@@ -178,15 +197,23 @@ const ExamPage = () => {
             {
               title: "Trạng thái",
               dataIndex: "status",
-              width: 120,
-              render: (status: string) => {
-                const statusMap: any = {
-                  'Draft': { color: 'default', text: 'Bản nháp' },
-                  'Published': { color: 'success', text: 'Đã đăng' },
-                  'Archived': { color: 'warning', text: 'Lưu trữ' }
+              width: 130,
+              render: (status: string | number) => {
+                // BE trả về string ("Draft") hoặc số (0) đều handle được
+                const statusMap: Record<string | number, { color: string; text: string; badgeStatus: any }> = {
+                  0:               { color: 'default',    text: 'Bản nháp',   badgeStatus: 'default'   },
+                  'Draft':         { color: 'default',    text: 'Bản nháp',   badgeStatus: 'default'   },
+                  1:               { color: 'processing', text: 'Chờ duyệt',  badgeStatus: 'processing' },
+                  'PendingReview': { color: 'processing', text: 'Chờ duyệt',  badgeStatus: 'processing' },
+                  2:               { color: 'success',    text: 'Đã xuất bản',badgeStatus: 'success'   },
+                  'Published':     { color: 'success',    text: 'Đã xuất bản',badgeStatus: 'success'   },
+                  3:               { color: 'warning',    text: 'Tạm ngưng',  badgeStatus: 'warning'   },
+                  'Suspended':     { color: 'warning',    text: 'Tạm ngưng',  badgeStatus: 'warning'   },
+                  99:              { color: 'error',      text: 'Lưu trữ',    badgeStatus: 'error'     },
+                  'Archived':      { color: 'error',      text: 'Lưu trữ',    badgeStatus: 'error'     },
                 };
-                const config = statusMap[status] || statusMap['Draft'];
-                return <Badge status={config.color} text={config.text} />;
+                const config = statusMap[status] ?? statusMap['Draft'];
+                return <Badge status={config.badgeStatus} text={config.text} />;
               }
             },
             {
@@ -218,13 +245,13 @@ const ExamPage = () => {
                     </Button>
                   </Tooltip>
 
-                  {/* Nút Publish (chỉ hiện khi Draft) */}
-                  {record.status === 'Draft' && (
+                  {/* Nút thay đổi trạng thái - theo BE state machine */}
+                  {(record.status === 'Draft' || record.status === 0) && (
                     <Popconfirm
-                      title="Công khai đề thi?"
+                      title="Xuất bản đề thi?"
                       description="Đề thi sẽ hiển thị cho học viên"
                       onConfirm={() => handlePublish(record)}
-                      okText="Công khai"
+                      okText="Xuất bản"
                       cancelText="Hủy"
                     >
                       <Button
@@ -232,8 +259,46 @@ const ExamPage = () => {
                         size="small"
                         icon={<CheckCircleOutlined />}
                         onClick={(e) => e.stopPropagation()}
+                        style={{ color: '#52c41a', borderColor: '#52c41a' }}
                       >
-                        Publish
+                        Xuất bản
+                      </Button>
+                    </Popconfirm>
+                  )}
+                  {(record.status === 'Suspended' || record.status === 3) && (
+                    <Popconfirm
+                      title="Mở lại đề thi?"
+                      description="Đề thi sẽ hiển thị lại cho học viên"
+                      onConfirm={() => handlePublish(record)}
+                      okText="Mở lại"
+                      cancelText="Hủy"
+                    >
+                      <Button
+                        type="default"
+                        size="small"
+                        icon={<CheckCircleOutlined />}
+                        onClick={(e) => e.stopPropagation()}
+                        style={{ color: '#1677ff', borderColor: '#1677ff' }}
+                      >
+                        Mở lại
+                      </Button>
+                    </Popconfirm>
+                  )}
+                  {(record.status === 'Published' || record.status === 2) && (
+                    <Popconfirm
+                      title="Tạm ngưng đề thi?"
+                      description="Học viên sẽ không thể vào thi mới"
+                      onConfirm={() => handleSuspend(record)}
+                      okText="Tạm ngưng"
+                      cancelText="Hủy"
+                    >
+                      <Button
+                        type="default"
+                        size="small"
+                        danger
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Ngưng
                       </Button>
                     </Popconfirm>
                   )}

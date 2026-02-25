@@ -2,7 +2,7 @@ import { Modal, Typography } from "antd";
 import { RightOutlined } from "@ant-design/icons";
 import { useState, useEffect } from "react";
 import "./Profile.scss";
-import { api } from "../../configs/axios-custom";
+import { api } from "../../../configs/axios-custom";
 
 interface SimpleProfileProps {
   openModalFromOutside?: boolean;

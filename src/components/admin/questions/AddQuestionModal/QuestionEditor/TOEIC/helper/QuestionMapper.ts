@@ -47,7 +47,7 @@ export const mapGroupDtoToEditorData = (
     categoryId: dto.categoryId,
     content: dto.content ?? "",
     questionType: "GROUP",
-    difficultyId: dto.questions?.[0]?.difficultyId ?? "",
+    difficultyId: dto.difficultyId ?? dto.questions?.[0]?.difficultyId ?? "",
     defaultScore: dto.questions?.[0]?.defaultScore ?? 0,
     shuffleAnswers: false,
     explanation: dto.explanation ?? undefined,

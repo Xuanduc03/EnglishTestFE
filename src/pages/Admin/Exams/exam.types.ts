@@ -31,7 +31,8 @@ export interface ExamQuestionDto {
 // DTO cho từng Phần thi (Section)
 export interface ExamSectionDto {
   id: string;
-  name: string; // "Part 1", "Listening Section"
+  categoryId: string; 
+  name?: string;
   instructions?: string;
   orderIndex: number;
   questions: ExamQuestionDto[];
@@ -63,9 +64,10 @@ export interface GenerateExamDto extends ExamBaseDto {
 // Thêm câu hỏi vào đề (Add Question to Exam)
 export interface AddQuestionToExamDto {
   examId: string;
-  sectionId?: string; // Nếu đề chia section thì bắt buộc
-  questionIds: string[]; // Chọn 1 lúc nhiều câu
-  defaultPoint?: number; // Điểm mặc định, mặc định là 5.0
+  sectionId: string;
+  categoryId: string;
+  questionIds: string[];
+  defaultPoint?: number;
 }
 
 // Cập nhật vị trí/điểm số của câu hỏi trong đề
@@ -83,22 +85,51 @@ export interface CreateExamSectionDto {
   orderIndex: number;
 }
 
-// Type cho trạng thái đề thi (nếu muốn type chặt chẽ hơn)
-export type ExamStatus = 'Draft' | 'Published' | 'Archived' | 'Deleted';
+// ── Enums (khớp với BE) ──────────────────────────────────────
+export const ExamStatus = {
+  Draft: 0,
+  PendingReview: 1,
+  Published: 2,
+  Suspended: 3,
+  Archived: 99,
+} as const;
 
-// Có thể cập nhật lại interface ExamSummaryDto và các DTO khác để sử dụng type trên
-// export interface ExamSummaryDto extends ExamBaseDto {
-//   id: string;
-//   totalScore: number;
-//   status: ExamStatus;      // Sử dụng type union
-//   questionCount: number;
-//   version: number;
-//   createdAt: Date | string;
-// }
+export const ExamType = {
+  TOEIC : 1, IELTS : 2, TOEFL : 3, SAT : 4, Other : 99,
+} as const
 
-// Helper type cho việc tạo mới exam (có thể bỏ qua status)
+export const ExamCategory = {
+  FullTest       : 1,
+  SkillTest      : 2,
+  PartTest       : 3,
+  MiniTest       : 4,
+  DiagnosticTest : 5,
+  AssignmentTest : 6,
+}  as const;
+
+export const ExamScope = {
+  Full           : 1,
+  ListeningOnly  : 10, ReadingOnly  : 11,
+  WritingOnly    : 12, SpeakingOnly : 13,
+  Part1Only : 20, Part2Only : 21, Part3Only : 22,
+  Part4Only : 23, Part5Only : 24, Part6Only : 25, Part7Only : 26,
+  Part5And6 : 30, Part3And4 : 31, Part1And2 : 32,
+  IELTSListeningOnly : 40, IELTSReadingOnly : 41,
+  IELTSWritingTask1  : 42, IELTSWritingTask2 : 43,
+  Custom : 99,
+} as const;
+
+export const ExamLevel = {
+  Practice  : 1, MockTest   : 2, Assignment : 3,
+  MidTerm   : 4, FinalExam  : 5, Placement  : 6, RealExam : 7,
+} as const
+
+// 1. Tạo một Type trích xuất các value từ ExamStatus (0 | 1 | 2 | 3 | 99)
+export type ExamStatusValue = typeof ExamStatus[keyof typeof ExamStatus];
+
+// 2. Sửa lại helper type, dùng Type vừa tạo thay vì dùng Object
 export type ExamCreatePayload = Omit<CreateExamDto, 'status'> & {
-  status?: ExamStatus;
+  status?: ExamStatusValue; 
 };
 
 // Helper type cho việc cập nhật exam (có thể chỉ cập nhật một số trường)

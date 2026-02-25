@@ -1,178 +1,473 @@
 // QuestionDisplay.scss
-// ============================================
+// ─────────────────────────────────────────────────
+// Cấu trúc layout:
+//
+// [layout-split]  có groupId (Part 3,4,6,7)
+// ┌─────────────────┬──────────────────────────────┐
+// │  Đoạn văn/Audio │  Câu hỏi trái | Đáp án phải  │
+// └─────────────────┴──────────────────────────────┘
+//
+// [layout-single]  không có groupId (Part 1,2,5)
+// ┌──────────────────────────────────────────────┐
+// │  Câu hỏi/Media (trái) | Đáp án (phải)        │
+// └──────────────────────────────────────────────┘
+// ─────────────────────────────────────────────────
 
-.question-display {
-  .question-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-    padding-bottom: 16px;
-    border-bottom: 2px solid #f0f0f0;
+// ── CSS Variables ─────────────────────────────────
+:root {
+  --qd-correct: #52c41a;
+  --qd-wrong: #ff4d4f;
+  --qd-primary: #1677ff;
+  --qd-border: #e8e8e8;
+  --qd-bg: #fff;
+  --qd-bg-soft: #fafafa;
+  --qd-text: #1a1a1a;
+  --qd-muted: #888;
+  --qd-radius: 8px;
+  --qd-radius-lg: 12px;
+}
 
-    .question-number {
-      font-size: 20px;
-      font-weight: 600;
-      color: #1890ff;
-      margin: 0;
+// ── Card wrapper ──────────────────────────────────
+.qd-card {
+  background: var(--qd-bg);
+  border-radius: var(--qd-radius-lg);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+// ══════════════════════════════════════════════════
+// LAYOUT-SPLIT: 2 pane ngang (đoạn văn | câu hỏi)
+// ══════════════════════════════════════════════════
+.layout-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.qd-left-pane {
+  border-right: 1px solid var(--qd-border);
+  overflow-y: auto;
+  max-height: 82vh;
+
+  &__inner {
+    padding: 24px 20px;
+  }
+}
+
+.qd-right-pane {
+  overflow-y: auto;
+  max-height: 82vh;
+  padding: 24px 20px;
+}
+
+// ══════════════════════════════════════════════════
+// LAYOUT-SINGLE: không có cột đoạn văn
+// ══════════════════════════════════════════════════
+.layout-single {
+  .qd-right-pane {
+    max-height: unset;
+    overflow-y: visible;
+  }
+}
+
+// ── Questions list ────────────────────────────────
+.qd-questions-list {
+  display: flex;
+  flex-direction: column;
+}
+
+// ── Single question block ─────────────────────────
+.qd-single-question {
+  padding: 24px 0;
+  border-bottom: 1px dashed var(--qd-border);
+
+  &:first-child {
+    padding-top: 0;
+  }
+
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+}
+
+// ── Header: Số câu + Flag (full width, trên cùng) ─
+.qd-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.qd-question-number {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--qd-correct);
+}
+
+.qd-group-badge {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--qd-muted);
+  background: #f0f0f0;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.qd-flag-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #d9d9d9;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: color 0.2s, background 0.2s;
+
+  &:hover {
+    background: #fff1f0;
+    color: var(--qd-wrong);
+  }
+
+  &.active {
+    color: var(--qd-wrong);
+    background: #fff1f0;
+  }
+}
+
+// ══════════════════════════════════════════════════
+// QD-BODY: 2 cột ngang — Câu hỏi (trái) | Đáp án (phải)
+// Áp dụng cho cả layout-split và layout-single
+// ══════════════════════════════════════════════════
+.qd-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// CỘT TRÁI của body: media + nội dung câu hỏi
+.qd-body__left {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+// CỘT PHẢI của body: đáp án + result panel
+.qd-body__right {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+// ── Question Media ────────────────────────────────
+.qd-question-media {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.qd-media-image {
+  max-width: 100%;
+  max-height: 320px;
+  border-radius: var(--qd-radius);
+  object-fit: contain;
+  border: 1px solid var(--qd-border);
+}
+
+.qd-audio-container {
+  width: 100%;
+
+  audio {
+    width: 100%;
+    height: 40px;
+    outline: none;
+    border-radius: 20px;
+  }
+}
+
+// ── Question Text ─────────────────────────────────
+.qd-question-text {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--qd-text);
+}
+
+// ── Audio Player ─────────────────────────────────
+.qd-audio-player {
+  margin: 8px 0;
+
+  audio {
+    width: 100%;
+    height: 40px;
+    border-radius: 20px;
+    outline: none;
+
+    &::-webkit-media-controls-panel {
+      background: #f5f5f5;
     }
+  }
+}
 
-    .group-badge {
-      background: #e6f7ff;
-      color: #1890ff;
-      padding: 4px 12px;
-      border-radius: 12px;
-      font-size: 12px;
-      font-weight: 500;
+// ── Group Content (layout-split, cột đoạn văn) ────
+.qd-group-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.qd-passages {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.qd-passage-card {
+  background: var(--qd-bg-soft);
+  border: 1px solid var(--qd-border);
+  border-radius: var(--qd-radius);
+  padding: 16px;
+}
+
+.qd-passage-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+
+.qd-passage-body {
+  font-size: 14px;
+  line-height: 1.75;
+  color: #333;
+}
+
+.qd-group-media {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.qd-transcript {
+  font-size: 13px;
+  color: #666;
+
+  summary {
+    color: var(--qd-primary);
+    user-select: none;
+    cursor: pointer;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
     }
   }
 
-  .group-content {
-    margin-bottom: 32px;
-    padding: 20px;
-    background: #fafafa;
-    border-radius: 8px;
+  >div {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--qd-border);
+    line-height: 1.65;
+  }
+}
 
-    &.passages {
-      .passage-card {
-        margin-bottom: 16px;
+// ══════════════════════════════════════════════════
+// ANSWER ROWS
+// ══════════════════════════════════════════════════
+.qd-answers {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 
-        &:last-child {
-          margin-bottom: 0;
-        }
+.qd-answer-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  border-radius: var(--qd-radius);
+  border: 1.5px solid var(--qd-border);
+  background: var(--qd-bg);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
 
-        .passage-content {
-          line-height: 1.8;
-          white-space: pre-wrap;
-        }
-      }
-    }
-
-    &.audio {
-      .audio-player {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-
-        .audio-icon {
-          font-size: 24px;
-          color: #1890ff;
-        }
-
-        audio {
-          width: 100%;
-        }
-
-        .transcript {
-          margin-top: 8px;
-
-          summary {
-            cursor: pointer;
-            color: #1890ff;
-            font-size: 14px;
-
-            &:hover {
-              text-decoration: underline;
-            }
-          }
-
-          p {
-            margin-top: 12px;
-            padding: 12px;
-            background: white;
-            border-radius: 4px;
-            line-height: 1.6;
-          }
-        }
-      }
-    }
-
-    &.passage {
-      .passage-content {
-        line-height: 1.8;
-        white-space: pre-wrap;
-      }
-    }
+  // Hover chỉ khi chưa trả lời
+  &:not(.qd-answer-row--correct):not(.qd-answer-row--wrong):not(.qd-answer-row--default):hover {
+    background: #f0f5ff;
+    border-color: #adc6ff;
   }
 
-  .question-content {
-    .question-media {
-      margin-bottom: 24px;
-
-      .media-image {
-        img {
-          max-width: 100%;
-          border-radius: 8px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-      }
-
-      .media-audio {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-
-        .audio-icon {
-          font-size: 24px;
-          color: #1890ff;
-        }
-
-        audio {
-          flex: 1;
-        }
-      }
-    }
-
-    .question-text {
-      font-size: 16px;
-      line-height: 1.8;
-      margin-bottom: 24px;
-      color: #262626;
-    }
-
-    .answer-options {
-      .answer-option {
-        display: flex;
-        padding: 16px;
-        margin-bottom: 12px;
-        border: 2px solid #f0f0f0;
-        border-radius: 8px;
-        transition: all 0.3s;
-
-        &:hover {
-          border-color: #1890ff;
-          background: #f0f7ff;
-        }
-
-        .answer-content {
-          display: flex;
-          align-items: flex-start;
-          gap: 12px;
-          width: 100%;
-
-          .answer-label {
-            font-weight: 600;
-            color: #1890ff;
-            min-width: 24px;
-          }
-
-          .answer-text {
-            flex: 1;
-            line-height: 1.6;
-          }
-
-          .answer-media {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            width: 100%;
-
-            audio {
-              width: 100%;
-            }
-          }
-        }
-      }
-    }
+  &--correct {
+    background: #f6ffed;
+    border-color: var(--qd-correct);
+    cursor: default;
   }
+
+  &--wrong {
+    background: #fff1f0;
+    border-color: var(--qd-wrong);
+    cursor: default;
+  }
+
+  &--default {
+    cursor: default;
+  }
+}
+
+.qd-answer-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.qd-answer-radio {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #d9d9d9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color 0.15s, background 0.15s;
+
+  &--correct {
+    border-color: var(--qd-correct);
+    background: var(--qd-correct);
+  }
+
+  &--wrong {
+    border-color: var(--qd-wrong);
+    background: var(--qd-wrong);
+  }
+}
+
+.qd-radio-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: transparent;
+  transition: background 0.15s;
+
+  &.checked {
+    background: var(--qd-primary);
+  }
+}
+
+.qd-icon {
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+
+  &--correct {
+    color: #fff;
+  }
+
+  &--wrong {
+    color: #fff;
+  }
+}
+
+.qd-answer-label {
+  font-weight: 600;
+  font-size: 14px;
+  color: #555;
+  min-width: 18px;
+}
+
+.qd-answer-content {
+  font-size: 14px;
+  color: #333;
+  line-height: 1.5;
+  flex: 1;
+}
+
+.qd-answer-media {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+// ══════════════════════════════════════════════════
+// RESULT PANEL
+// ══════════════════════════════════════════════════
+.qd-result-panel {
+  padding: 14px 16px;
+  background: #f6ffed;
+  border: 1px solid #b7eb8f;
+  border-radius: var(--qd-radius);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.qd-correct-answer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.qd-result-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+}
+
+.qd-result-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--qd-correct);
+}
+
+.qd-explanation {
+  display: flex;
+  flex-direction: column;
+}
+
+.qd-explanation-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--qd-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: fit-content;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.qd-explanation-body {
+  margin-top: 10px;
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.75;
+  color: #444;
+  background: #fff;
+  border-radius: 6px;
+  border-left: 3px solid var(--qd-primary);
 }

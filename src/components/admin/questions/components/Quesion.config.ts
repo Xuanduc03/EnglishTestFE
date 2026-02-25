@@ -51,7 +51,7 @@ export interface SingleQuestionDetailDto {
 export interface QuestionGroupDetailDto {
   id: string;
   categoryId: string;
-
+  difficultyId: string;
   content: string;        // passage
   explanation?: string;
   transcript?: string;

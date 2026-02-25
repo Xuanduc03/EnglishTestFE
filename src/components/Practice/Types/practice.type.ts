@@ -17,6 +17,7 @@ export interface PracticeAnswerDto {
   content: string;
   orderIndex: number;
   answerLabel: 'A' | 'B' | 'C' | 'D';
+  isCorrect: boolean;
   media: PracticeMediaDto[];
 }
 
@@ -31,10 +32,14 @@ export interface GroupPassageDto {
 
 // Question
 export interface PracticeQuestionDto {
+  audioUrl: any;
+  imageUrl: any;
+  hasAudio: any;
+  hasImage: any;
   questionId: string;
   orderIndex: number;
   questionNumber: number;
-
+  partNumber: number;
   // Group info (Part 3,4,6,7)
   groupId?: string;
   groupContent?: string;
@@ -43,6 +48,7 @@ export interface PracticeQuestionDto {
   questionIndexInGroup?: number;
   passages?: GroupPassageDto[];
 
+  explanation?: string;
   // Question content
   content: string;
   media: PracticeMediaDto[];
@@ -178,16 +184,54 @@ export interface PracticeStatistics {
 export interface PracticeState {
   session: PracticeSessionDto | null;
   currentQuestionIndex: number;
-  answers: Map<string, string>; // questionId -> answerId
-  markedForReview: Set<string>; // questionId
+  answers: Map<string, string>;
+  markedForReview: Set<string>;
   startTime: Date;
-  timeSpent: number; // seconds
+  timeSpent: number;
   isSubmitting: boolean;
-  error?: string;
 }
 
 export interface QuestionTimingInfo {
   questionId: string;
   startTime: Date;
   timeSpent: number;
+}
+
+
+// ==================== SUBMIT ====================
+
+// Submit toàn bộ 1 lần khi nộp bài
+export interface SubmitPracticeRequest {
+  sessionId: string;
+  answers: {
+    questionId: string;
+    answerId: string | null;
+    isMarkedForReview: boolean;
+  }[];
+  totalTimeSeconds: number;
+}
+
+// ==================== RESULT ====================
+
+export interface PartResultDto {
+  partName: string;
+  partNumber: number;
+  total: number;
+  correct: number;
+  incorrect: number;
+  unanswered: number;
+  percentage: number;
+  averageTimePerQuestion: number;
+}
+
+export interface PracticeResultDto {
+  sessionId: string;
+  totalQuestions: number;
+  correctAnswers: number;
+  incorrectAnswers: number;
+  unansweredQuestions: number;
+  score: number;
+  accuracyPercentage: number;
+  totalTime: string;
+  partResults: Record<string, PartResultDto>;
 }
