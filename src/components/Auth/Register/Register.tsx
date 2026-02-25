@@ -45,7 +45,7 @@ const RegisterPage: React.FC = () => {
       setLoading(true);
 
       const payload = {
-        username: values.fullname, // API có thể yêu cầu username riêng? bạn kiểm tra lại
+        fullname: values.fullname, // API có thể yêu cầu username riêng? bạn kiểm tra lại
         email: values.email,
         password: values.password,
       };
