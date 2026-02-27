@@ -46,6 +46,7 @@ import UploadQuestionModal from '../../../components/admin/questions/import/comp
 import type { PreviewZipResponse } from '../../../components/admin/questions/import/types/PreviewData.type';
 import PreviewImportModal from '../../../components/admin/questions/import/components/steps/PreviewImport/PreviewImportModal';
 import { ImportQuestionService } from '../../../components/admin/questions/import/services/ImportQuestion.service';
+import ConfirmModal from '../../../components/shared/modal/ConfirmModal';
 
 
 const { Search } = Input;
@@ -99,6 +100,14 @@ const QuestionManager = () => {
   const [searchText, setSearchText] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
+
+  const [deleteModal, setDeleteModal] = useState<{
+    open: boolean;
+    record: any;
+  }>({
+    open: false,
+    record: null,
+  });
   // ========================================
   // DATA FETCHING
   // ========================================
@@ -211,6 +220,10 @@ const QuestionManager = () => {
     setPagination(prev => ({ ...prev, current: 1 }));
   };
 
+  const handleDelete = (record: any) => {
+    setDeleteModal({ open: true, record });
+  };
+
   // Handle table change (pagination, sorter)
   const handleTableChange = (paginationConfig: any, filters: any, sorter: any) => {
     setPagination(prev => ({
@@ -299,23 +312,18 @@ const QuestionManager = () => {
 
 
   // Handle delete question
-  const handleDelete = (record: any) => {
-    Modal.confirm({
-      title: 'Xác nhận xóa',
-      content: `Bạn có chắc chắn muốn xóa câu hỏi "${record.content}"?`,
-      okText: 'Xóa',
-      okType: 'danger',
-      cancelText: 'Hủy',
-      onOk: async () => {
-        try {
-          await questionService.delete(record.id);
-          toast.success('Đã xóa câu hỏi thành công');
-          fetchQuestions();
-        } catch (error) {
-          toast.error('Không thể xóa câu hỏi');
-        }
-      }
-    });
+  const confirmDelete = async () => {
+    const record = deleteModal.record;
+    if (!record) return;
+    try {
+      await questionService.delete(record.id);
+      toast.success('Đã xóa câu hỏi thành công');
+      fetchQuestions();
+      setDeleteModal({ open: false, record: null });
+    } catch (error) {
+      toast.error('Không thể xóa câu hỏi');
+      setDeleteModal({ open: false, record: null });
+    }
   };
 
   // Handle export
@@ -775,6 +783,17 @@ const QuestionManager = () => {
         </Spin>
       )}
 
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        open={deleteModal.open}
+        title="Xác nhận xóa"
+        content={`Bạn có chắc chắn muốn xóa câu hỏi "${deleteModal.record?.content || ''}"?`}
+        okText="Xóa"
+        cancelText="Hủy"
+        onOk={confirmDelete}
+        onCancel={() => setDeleteModal({ open: false, record: null })}
+      />
+      
     </Layout>
   );
 };

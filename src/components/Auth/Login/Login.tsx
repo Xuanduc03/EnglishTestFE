@@ -100,12 +100,8 @@ const LoginPage: React.FC = () => {
         }
       }
     } catch (error: any) {
-      toast.update(toastId, {
-        render: error.response?.data?.message,
-        type: "error",
-        isLoading: false,
-        autoClose: 3000,
-      });
+      const errorMsg = error.response?.data?.message || "Đăng nhập thất bại!";
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }

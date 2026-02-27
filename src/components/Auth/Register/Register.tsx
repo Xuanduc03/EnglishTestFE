@@ -45,7 +45,7 @@ const RegisterPage: React.FC = () => {
       setLoading(true);
 
       const payload = {
-        fullname: values.fullname, // API có thể yêu cầu username riêng? bạn kiểm tra lại
+        fullname: values.fullname,
         email: values.email,
         password: values.password,
       };
@@ -56,8 +56,8 @@ const RegisterPage: React.FC = () => {
         navigate("/login");
       }
     } catch (error: any) {
-      console.error("Register Error:", error);
-      toast.error(error.response?.data?.message || "Đăng ký thất bại!");
+      const errorMsg = error.response?.data?.message || "Đăng nhập thất bại!";
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }

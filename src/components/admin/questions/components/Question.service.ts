@@ -113,17 +113,17 @@ export const questionService = {
   // ================= UPDATE (WRITE) =================
 
   updateSingle: async (id: string, data: any): Promise<void> => {
-    await apiUpload.put(`api/questions/singles/${id}`, data);
+    await apiUpload.put(`/api/questions/singles/${id}`, data);
   },
 
   updateGroup: async (id: string, data: any): Promise<void> => {
-    await apiUpload.put(`api/questions/groups/${id}`, data);
+    await apiUpload.put(`/api/questions/groups/${id}`, data);
   },
 
   // ================= DELETE =================
 
   delete: async (id: string): Promise<void> => {
-    await api.delete(`api/questions/${id}`);
+    await api.delete(`/api/questions/singles/${id}`);
   },
 
 

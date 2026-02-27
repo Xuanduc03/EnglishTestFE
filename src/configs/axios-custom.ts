@@ -28,7 +28,7 @@ function onRefreshed(token: string) {
 // 2. Tạo instance đơn giản
 export const api = axios.create({
   baseURL: getBaseUrl(),
-  timeout: 30000,
+  timeout: 300000,
   headers: {
     'Content-Type': 'application/json',
   },

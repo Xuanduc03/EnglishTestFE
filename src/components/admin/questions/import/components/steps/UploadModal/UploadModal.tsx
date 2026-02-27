@@ -16,18 +16,11 @@ const { Dragger } = Upload;
 const { Title, Paragraph } = Typography;
 
 interface UploadStepProps {
-  open: boolean;                          
-  onClose: () => void;                   
+  open: boolean;
+  onClose: () => void;
   onNext: (file: File, previewData: PreviewZipResponse) => void;
   onLoading?: (loading: boolean) => void;
 }
-
-/**
- *  Upload Step Component step 1 : người dùng upload file zip
- * @param OnNext -> chạy bước tiếp previe với data trả về
- * @param onLoading -> đồng bộ trạng thái loading với main nếu cần
- * @returns Json của be truyền sang step preview
- */
 
 const UploadQuestionModal: React.FC<UploadStepProps> = ({ open, onClose, onNext, onLoading }) => {
   const [file, setFile] = useState<File | null>(null);
@@ -65,18 +58,19 @@ const UploadQuestionModal: React.FC<UploadStepProps> = ({ open, onClose, onNext,
     setFile(selectedFile);
   };
 
+  const handleRemove = () => {
+    setFile(null);
+  };
+
   const handlePreview = async () => {
     if (!file) return;
 
     setLoading(true);
-    onLoading?.(true); // Sync main nếu cần
-
-    const formData = new FormData();
-    formData.append('zipFile', file);
+    onLoading?.(true);
 
     try {
       const previewData = await ImportQuestionService.uploadFileQuestion(file);
-      onNext(file! ,previewData);
+      onNext(file, previewData);
     } catch (error: any) {
       Modal.error({
         title: 'Lỗi kiểm tra dữ liệu',
@@ -89,8 +83,8 @@ const UploadQuestionModal: React.FC<UploadStepProps> = ({ open, onClose, onNext,
   };
 
   const handleClose = () => {
-    if (loading) return;        // tránh đóng khi đang upload
-    setFile(null);              // reset state
+    if (loading) return;
+    setFile(null);
     onClose();
   };
 
@@ -114,7 +108,6 @@ const UploadQuestionModal: React.FC<UploadStepProps> = ({ open, onClose, onNext,
                 Chọn file ZIP chứa file Excel và các file media (audio, image)
               </Paragraph>
             </Title>
-
           </div>
 
           <Dragger
@@ -123,8 +116,16 @@ const UploadQuestionModal: React.FC<UploadStepProps> = ({ open, onClose, onNext,
             accept=".zip"
             beforeUpload={() => false}
             onChange={handleFileChange}
+            onRemove={handleRemove} // Thêm onRemove để xóa file
             fileList={
-              file ? [{ uid: '-1', name: file.name, status: 'done' }] : []
+              file ? [
+                {
+                  uid: '-1',
+                  name: file.name,
+                  status: 'done',
+                  size: file.size,
+                }
+              ] : []
             }
             className="upload-question-modal__dragger"
           >

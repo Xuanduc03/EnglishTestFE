@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import './ListTestFull.scss';
-import { api } from '../../../configs/axios-custom'; // Import axios instance đã cấu hình
+import { api } from '../../../configs/axios-custom';
+import { examAttemptService } from '../services/examAttemptApi';
+import { useNavigate } from 'react-router-dom';
 
-// Types (giữ nguyên)
+// Types
 interface Test {
-  id: number;
+  id: string;
   title: string;
   type: 'free' | 'new' | 'premium';
   totalScore: number;
@@ -16,29 +18,28 @@ interface Test {
   progress?: number;
 }
 
-// Interface cho response từ API (dựa trên ExamSummaryDto)
+// DTO từ API (cập nhật đúng với backend)
 interface ExamSummaryDto {
-  id: number;
+  id: string;           // Guid dạng string
   code: string;
   title: string;
   description?: string;
   duration: number;
   totalScore: number;
   questionCount: number;
-  status: string;      // "Published", "Draft", ...
+  status: string;       // "Published", "Draft", ...
   version: number;
   createdAt: string;
-  // Nếu có thêm các trường khác (price, isPremium, ...) thì thêm vào đây
 }
 
 interface TestCardProps {
   test: Test;
-  onStartTest: (testId: number) => void;
-  onContinueTest: (testId: number) => void;
-  onRetryTest: (testId: number) => void;
+  onStartTest: (testId: string) => void;
+  onContinueTest: (testId: string) => void;
+  onRetryTest: (testId: string) => void;
 }
 
-// Test Card Component (giữ nguyên)
+// Test Card Component
 const TestCard: React.FC<TestCardProps> = ({
   test,
   onStartTest,
@@ -98,19 +99,15 @@ const TestCard: React.FC<TestCardProps> = ({
 
   return (
     <div className={`test-card ${test.type}`}>
-      {/* Badge */}
       <div className={`card-badge ${test.type}`}>
         {getBadgeText()}
       </div>
 
       <div className="card-content">
-        {/* Title */}
         <h3 className="test-title">{test.title}</h3>
 
-        {/* Score Section */}
         {getScoreDisplay()}
 
-        {/* Test Info */}
         <div className="test-info">
           <div className="info-item">
             <span className="info-icon">❓</span>
@@ -128,7 +125,6 @@ const TestCard: React.FC<TestCardProps> = ({
           </div>
         </div>
 
-        {/* Action Button */}
         <button
           className="action-button"
           onClick={handleButtonClick}
@@ -145,15 +141,17 @@ const ListTestFull: React.FC = () => {
   const [tests, setTests] = useState<Test[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
-  // Hàm gọi API thực tế
+  // Gọi API lấy danh sách đề thi full test
   const fetchFullTests = async (): Promise<Test[]> => {
     try {
-      // Gọi endpoint GET /api/exams/full-tests
+      // Endpoint: GET /api/exams/full-tests
       const response = await api.get<ExamSummaryDto[]>('/api/exams/full-tests');
       const examDtos = response.data;
 
       const mappedTests: Test[] = examDtos.map((exam) => {
+        // Xác định type: nếu có trường isPremium từ API thì dùng, tạm thời dùng logic cũ
         const isPremium = exam.code?.toLowerCase().includes('premium') || false;
         const isNew = new Date(exam.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
         let type: 'free' | 'new' | 'premium' = 'free';
@@ -165,11 +163,11 @@ const ListTestFull: React.FC = () => {
           title: exam.title,
           type,
           totalScore: exam.totalScore,
-          userScore: undefined, 
+          userScore: undefined,
           questionCount: exam.questionCount,
           participantCount: 0, // chưa có dữ liệu thật
-          hasExplanation: true, // giả sử luôn có giải thích
-          status: 'not-started', // chưa có thông tin trạng thái của user
+          hasExplanation: true, // tạm thời
+          status: 'not-started', // cần lấy từ lịch sử sau
         };
       });
 
@@ -198,12 +196,13 @@ const ListTestFull: React.FC = () => {
     loadTests();
   }, []);
 
-  // Handlers (giữ nguyên, có thể thêm logic gọi API thật sau)
-  const handleStartTest = async (testId: number) => {
+  // Handlers
+  const handleStartTest = async (testId: string) => {
     try {
-      console.log('Starting test:', testId);
-      // TODO: Gọi API start test
-      // await api.post(`/exams/${testId}/start`);
+      const attempt = await examAttemptService.startExam({ examId: testId });
+      // Điều hướng tới trang làm bài với attemptId
+      navigate(`/exam/${attempt.attemptId}`);
+      // Cập nhật trạng thái local
       setTests(prev =>
         prev.map(test =>
           test.id === testId ? { ...test, status: 'in-progress' as const } : test
@@ -214,21 +213,22 @@ const ListTestFull: React.FC = () => {
     }
   };
 
-  const handleContinueTest = async (testId: number) => {
+  const handleContinueTest = async (testId: string) => {
     try {
+      // TODO: Gọi API continue (resume) – có thể cần attemptId
+      // Giả sử có attemptId đang dở, cần lấy từ state hoặc gọi API riêng
       console.log('Continuing test:', testId);
-      // TODO: Gọi API continue test
-      // await api.post(`/exams/${testId}/continue`);
+      // navigate(`/exam/${attemptId}`);
     } catch (error) {
       console.error('Error continuing test:', error);
     }
   };
 
-  const handleRetryTest = async (testId: number) => {
+  const handleRetryTest = async (testId: string) => {
     try {
-      console.log('Retrying test:', testId);
-      // TODO: Gọi API retry test
-      // await api.post(`/exams/${testId}/retry`);
+      // TODO: Gọi API retry – có thể là start một attempt mới
+      const attempt = await examAttemptService.startExam({ examId: testId });
+      navigate(`/exam/${attempt.attemptId}`);
       setTests(prev =>
         prev.map(test =>
           test.id === testId ? { ...test, status: 'in-progress' as const, userScore: undefined } : test
@@ -239,7 +239,7 @@ const ListTestFull: React.FC = () => {
     }
   };
 
-  // Các trạng thái render (giữ nguyên)
+  // Render states
   if (loading) {
     return (
       <section className="tests-section">

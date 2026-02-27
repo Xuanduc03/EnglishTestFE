@@ -47,12 +47,16 @@ export interface ExamDetailDto extends ExamSummaryDto {
 // [UC-22] Payload tạo đề thi THỦ CÔNG (Đơn giản nhất)
 // Chỉ tạo vỏ đề, chưa thêm câu hỏi vội
 export interface CreateExamDto extends ExamBaseDto {
-  status: string; // Mặc định tạo là Draft
+  type?: number;           // ExamType
+  category?: number;       // ExamCategory
+  scope?: number;          // ExamScope
+  level?: number;          // ExamLevel
+  status?: number;         // ExamStatus (mặc định Draft = 0)
 }
 
 // Payload cập nhật thông tin chung (Rename, đổi giờ...)
-export interface UpdateExamDto extends ExamBaseDto {
-  status: string;
+export interface UpdateExamDto extends Partial<CreateExamDto> {
+  status: number;
 }
 
 // [UC-21] Payload tạo đề TỰ ĐỘNG (Sinh từ ma trận)

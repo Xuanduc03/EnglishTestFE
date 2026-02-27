@@ -1,12 +1,12 @@
 import type { PaginationParams } from "../../../components/shared/crud/type";
 import { api } from "../../../configs/axios-custom";
-import type { 
-  ExamSummaryDto, 
+import type {
+  ExamSummaryDto,
   ExamDetailDto,
   CreateExamDto,
   UpdateExamDto,
   CreateExamSectionDto,
-  AddQuestionToExamDto 
+  AddQuestionToExamDto
 } from "./exam.types";
 
 export interface ExamParams extends PaginationParams {
@@ -21,7 +21,7 @@ export const ExamService = {
   // ============================================
   // CRUD CƠ BẢN (CHO SCREEN 1: DANH SÁCH)
   // ============================================
-  
+
   getAll: async (params: ExamParams) => {
     const res = await api.get('/api/exams', {
       params: {
@@ -57,12 +57,12 @@ export const ExamService = {
   // ============================================
   // EXAM ACTIONS (PUBLISH, ARCHIVE...)
   // ============================================
-  
+
   publish: async (id: string) => {
     return await api.post(`/api/exams/${id}/publish`);
   },
 
-   // PATCH /api/exams/{id}/status
+  // PATCH /api/exams/{id}/status
   changeStatus: async (id: string, newStatus: number, reason?: string) => {
     return await api.patch(`/api/exams/${id}/status`, { newStatus, reason });
   },
@@ -77,7 +77,7 @@ export const ExamService = {
   // ============================================
   // SECTION MANAGEMENT (CHO SCREEN 2: CẤU TRÚC)
   // ============================================
-  
+
   addSection: async (examId: string, data: CreateExamSectionDto) => {
     return await api.post(`/api/exams/${examId}/sections`, data);
   },
@@ -90,13 +90,21 @@ export const ExamService = {
     return await api.delete(`/api/exams/${examId}/sections/${sectionId}`);
   },
 
+  // xóa nhiều câu hỏi trong section
+  // Trong ExamService, thêm:
+  bulkDeleteQuestions: async (examId: string, examQuestionIds: string[]) => {
+    return await api.delete(`/api/exams/${examId}/questions`, {
+      data: examQuestionIds // axios gửi body trong DELETE cần đặt trong data
+    });
+  },
+
   // ============================================
   // QUESTION MANAGEMENT (CHO SCREEN 2: CẤU TRÚC)
   // ============================================
   
   addQuestionsToSection: async (
-    examId: string, 
-    sectionId: string, 
+    examId: string,
+    sectionId: string,
     data: AddQuestionToExamDto
   ) => {
     return await api.post(

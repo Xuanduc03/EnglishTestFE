@@ -14,6 +14,7 @@ import { CrudPage } from "../../../components/shared/crud/components/page/CrudPa
 import dayjs from "dayjs";
 import { ExamService } from "./exams.service";
 import { message } from "antd";
+import { ExamCategory, ExamLevel, ExamScope, ExamStatus, ExamType } from "./exam.types";
 
 const { Text } = Typography;
 
@@ -120,12 +121,12 @@ const ExamPage = () => {
             type: "select",
             placeholder: "Trạng thái",
             options: [
-              { label: 'Tất cả',      value: 'all'          },
-              { label: 'Bản nháp',    value: 'Draft'        },
-              { label: 'Chờ duyệt',   value: 'PendingReview'},
-              { label: 'Đã xuất bản', value: 'Published'    },
-              { label: 'Tạm ngưng',   value: 'Suspended'    },
-              { label: 'Lưu trữ',     value: 'Archived'     },
+              { label: 'Tất cả', value: 'all' },
+              { label: 'Bản nháp', value: 'Draft' },
+              { label: 'Chờ duyệt', value: 'PendingReview' },
+              { label: 'Đã xuất bản', value: 'Published' },
+              { label: 'Tạm ngưng', value: 'Suspended' },
+              { label: 'Lưu trữ', value: 'Archived' },
             ]
           }
         ],
@@ -201,16 +202,16 @@ const ExamPage = () => {
               render: (status: string | number) => {
                 // BE trả về string ("Draft") hoặc số (0) đều handle được
                 const statusMap: Record<string | number, { color: string; text: string; badgeStatus: any }> = {
-                  0:               { color: 'default',    text: 'Bản nháp',   badgeStatus: 'default'   },
-                  'Draft':         { color: 'default',    text: 'Bản nháp',   badgeStatus: 'default'   },
-                  1:               { color: 'processing', text: 'Chờ duyệt',  badgeStatus: 'processing' },
-                  'PendingReview': { color: 'processing', text: 'Chờ duyệt',  badgeStatus: 'processing' },
-                  2:               { color: 'success',    text: 'Đã xuất bản',badgeStatus: 'success'   },
-                  'Published':     { color: 'success',    text: 'Đã xuất bản',badgeStatus: 'success'   },
-                  3:               { color: 'warning',    text: 'Tạm ngưng',  badgeStatus: 'warning'   },
-                  'Suspended':     { color: 'warning',    text: 'Tạm ngưng',  badgeStatus: 'warning'   },
-                  99:              { color: 'error',      text: 'Lưu trữ',    badgeStatus: 'error'     },
-                  'Archived':      { color: 'error',      text: 'Lưu trữ',    badgeStatus: 'error'     },
+                  0: { color: 'default', text: 'Bản nháp', badgeStatus: 'default' },
+                  'Draft': { color: 'default', text: 'Bản nháp', badgeStatus: 'default' },
+                  1: { color: 'processing', text: 'Chờ duyệt', badgeStatus: 'processing' },
+                  'PendingReview': { color: 'processing', text: 'Chờ duyệt', badgeStatus: 'processing' },
+                  2: { color: 'success', text: 'Đã xuất bản', badgeStatus: 'success' },
+                  'Published': { color: 'success', text: 'Đã xuất bản', badgeStatus: 'success' },
+                  3: { color: 'warning', text: 'Tạm ngưng', badgeStatus: 'warning' },
+                  'Suspended': { color: 'warning', text: 'Tạm ngưng', badgeStatus: 'warning' },
+                  99: { color: 'error', text: 'Lưu trữ', badgeStatus: 'error' },
+                  'Archived': { color: 'error', text: 'Lưu trữ', badgeStatus: 'error' },
                 };
                 const config = statusMap[status] ?? statusMap['Draft'];
                 return <Badge status={config.badgeStatus} text={config.text} />;
@@ -373,11 +374,13 @@ const ExamPage = () => {
             type: "select",
             rules: [{ required: true }],
             options: [
-              { label: 'TOEIC', value: 1 },
-              { label: 'IELTS', value: 2 },
-              { label: 'TOEFL', value: 3 }
+              { label: 'TOEIC', value: ExamType.TOEIC },
+              { label: 'IELTS', value: ExamType.IELTS },
+              { label: 'TOEFL', value: ExamType.TOEFL },
+              { label: 'SAT', value: ExamType.SAT },
+              { label: 'Other', value: ExamType.Other },
             ],
-            defaultValue: 1
+            defaultValue: ExamType.TOEIC
           },
           {
             name: "category",
@@ -385,12 +388,14 @@ const ExamPage = () => {
             type: "select",
             rules: [{ required: true }],
             options: [
-              { label: 'Full Test', value: 1 },
-              { label: 'Skill Test', value: 2 },
-              { label: 'Part Test', value: 3 },
-              { label: 'Mini Test', value: 4 }
+              { label: 'Full Test', value: ExamCategory.FullTest },
+              { label: 'Skill Test', value: ExamCategory.SkillTest },
+              { label: 'Part Test', value: ExamCategory.PartTest },
+              { label: 'Mini Test', value: ExamCategory.MiniTest },
+              { label: 'Diagnostic Test', value: ExamCategory.DiagnosticTest },
+              { label: 'Assignment Test', value: ExamCategory.AssignmentTest },
             ],
-            defaultValue: 1
+            defaultValue: ExamCategory.FullTest
           },
           {
             name: "scope",
@@ -398,34 +403,51 @@ const ExamPage = () => {
             type: "select",
             rules: [{ required: true }],
             options: [
-              { label: 'Full', value: 1 },
-              { label: 'Listening Only', value: 10 },
-              { label: 'Reading Only', value: 11 },
-              { label: 'Part 5 Only', value: 24 },
-              { label: 'Part 7 Only', value: 26 }
+              { label: 'Full', value: ExamScope.Full },
+              { label: 'Listening Only', value: ExamScope.ListeningOnly },
+              { label: 'Reading Only', value: ExamScope.ReadingOnly },
+              { label: 'Writing Only', value: ExamScope.WritingOnly },
+              { label: 'Speaking Only', value: ExamScope.SpeakingOnly },
+              { label: 'Part 1 Only', value: ExamScope.Part1Only },
+              { label: 'Part 2 Only', value: ExamScope.Part2Only },
+              { label: 'Part 3 Only', value: ExamScope.Part3Only },
+              { label: 'Part 4 Only', value: ExamScope.Part4Only },
+              { label: 'Part 5 Only', value: ExamScope.Part5Only },
+              { label: 'Part 6 Only', value: ExamScope.Part6Only },
+              { label: 'Part 7 Only', value: ExamScope.Part7Only },
+              { label: 'Part 5 & 6', value: ExamScope.Part5And6 },
+              { label: 'Part 3 & 4', value: ExamScope.Part3And4 },
+              { label: 'Part 1 & 2', value: ExamScope.Part1And2 },
             ],
-            defaultValue: 1
+            defaultValue: ExamScope.Full
           },
           {
             name: "level",
             label: "Mức độ",
             type: "select",
             options: [
-              { label: 'Practice', value: 1 },
-              { label: 'Mock Test', value: 2 },
-              { label: 'Assignment', value: 3 }
+              { label: 'Practice', value: ExamLevel.Practice },
+              { label: 'Mock Test', value: ExamLevel.MockTest },
+              { label: 'Assignment', value: ExamLevel.Assignment },
+              { label: 'Mid Term', value: ExamLevel.MidTerm },
+              { label: 'Final Exam', value: ExamLevel.FinalExam },
+              { label: 'Placement', value: ExamLevel.Placement },
+              { label: 'Real Exam', value: ExamLevel.RealExam },
             ],
-            defaultValue: 1
+            defaultValue: ExamLevel.Practice
           },
           {
             name: "status",
             label: "Trạng thái",
             type: "select",
             options: [
-              { label: 'Bản nháp', value: 'Draft' },
-              { label: 'Xuất bản ngay', value: 'Published' }
+              { label: 'Bản nháp', value: ExamStatus.Draft },
+              { label: 'Chờ duyệt', value: ExamStatus.PendingReview },
+              { label: 'Đã xuất bản', value: ExamStatus.Published },
+              { label: 'Tạm ngưng', value: ExamStatus.Suspended },
+              { label: 'Lưu trữ', value: ExamStatus.Archived },
             ],
-            defaultValue: 'Draft'
+            defaultValue: ExamStatus.Draft
           }
         ]
       }}
