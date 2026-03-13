@@ -32,7 +32,3 @@ Project sử dụng các thư viện chính:
 4. Chạy project ở môi trường development
 Chạy server local:
 npm run dev
-
-Chart.js / Recharts (chart)
-
-TipTap (rich text editor)
