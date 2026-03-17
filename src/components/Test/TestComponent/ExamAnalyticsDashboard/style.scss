@@ -1,0 +1,255 @@
+// ExamAnalyticsDashboard.scss
+.analytics-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+}
+
+.analytics-dashboard {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px 16px 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+.analytics-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.section-title {
+    margin: 0 !important;
+    font-size: 16px !important;
+    color: #1a1a2e;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+// ── Stat cards ──────────────────────────────────────────────
+.stat-card {
+    border-radius: 12px;
+    border: 1px solid #e8e8e8;
+
+    .trend-badge {
+        font-size: 11px;
+        margin-top: 4px;
+
+        &.up {
+            color: #52c41a;
+        }
+
+        &.down {
+            color: #ff4d4f;
+        }
+    }
+}
+
+// ── History chart ────────────────────────────────────────────
+.history-chart-card {
+    border-radius: 12px;
+    border: 1px solid #e8e8e8;
+}
+
+.chart-container {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    height: 140px;
+    padding: 12px 8px 0;
+}
+
+.chart-bar-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    justify-content: flex-end;
+    gap: 4px;
+    cursor: pointer;
+}
+
+.chart-bar {
+    width: 100%;
+    max-width: 40px;
+    border-radius: 4px 4px 0 0;
+    transition: opacity .15s;
+    min-height: 4px;
+
+    &:hover {
+        opacity: .8;
+    }
+}
+
+.chart-label {
+    font-size: 10px;
+    color: #888;
+    text-align: center;
+    white-space: nowrap;
+}
+
+// ── Skill cards ──────────────────────────────────────────────
+.skill-card {
+    border-radius: 12px;
+    border: 1px solid #e8e8e8;
+
+    .skill-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 12px;
+    }
+
+    .skill-parts {
+        margin-top: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .skill-part-row {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 13px;
+        color: #555;
+
+        span:first-child {
+            min-width: 52px;
+        }
+    }
+}
+
+// ── Part grid ─────────────────────────────────────────────────
+.parts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.part-card {
+    border: 1.5px solid;
+    border-radius: 10px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: box-shadow .15s;
+
+    &:hover {
+        box-shadow: 0 2px 12px rgba(0, 0, 0, .08);
+    }
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    &__name {
+        font-size: 14px;
+        font-weight: 700;
+        color: #1a1a2e;
+    }
+
+    &__footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+}
+
+.trend {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 12px;
+    font-weight: 600;
+
+    &.up {
+        color: #52c41a;
+    }
+
+    &.down {
+        color: #ff4d4f;
+    }
+}
+
+// ── Insight cards ─────────────────────────────────────────────
+.insight-card {
+    border-radius: 12px;
+    border: 1px solid #e8e8e8;
+
+    .insight-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 12px;
+    }
+
+    .insight-item {
+        padding: 5px 0;
+        font-size: 14px;
+    }
+
+    &.strength {
+        border-color: #b7eb8f;
+        background: #f6ffed;
+    }
+
+    &.weakness {
+        border-color: #ffccc7;
+        background: #fff2f0;
+    }
+}
+
+// ── Suggestions ───────────────────────────────────────────────
+.suggestions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.suggestion-card {
+    border-radius: 10px;
+    border: 1px solid #e8e8e8;
+
+    .suggestion-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+    .suggestion-part {
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .suggestion-msg {
+        font-size: 14px;
+        color: #444;
+        margin: 0 0 8px;
+        line-height: 1.6;
+    }
+
+    .suggestion-link {
+        font-size: 13px;
+        color: #1677ff;
+        font-weight: 500;
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}

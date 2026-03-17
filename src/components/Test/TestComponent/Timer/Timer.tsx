@@ -14,7 +14,6 @@ const Timer: React.FC<TimerProps> = ({ timeLeft }) => {
 
   return (
     <div className={`timer-container ${isWarning ? 'warning' : ''}`}>
-      <FontAwesomeIcon icon={faClock} className='timer__icon' />
       <span className="timer">{formatTime(timeLeft)}</span>
     </div>
   );

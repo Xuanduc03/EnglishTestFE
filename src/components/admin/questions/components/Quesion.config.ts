@@ -99,6 +99,7 @@ export interface GroupQuestionItemDto {
   shuffleAnswers: boolean;
   explanation?: string;
   isActive: boolean;
+  orderIndex: number;
   media: MediaDto[];
   answers: AnswerDto[];
 }

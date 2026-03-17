@@ -1,0 +1,130 @@
+/* Bọc ngoài 2 cột: Khóa cứng chiều cao 100% của parent */
+.iig-dual-scroll-wrapper {
+  display: flex;
+  gap: 16px;
+  height: 100%; /* Chiếm trọn chiều cao đã bị khóa ở QuestionArea */
+  width: 100%;
+}
+
+/* Kế thừa chung cho cả 2 cột */
+.iig-panel {
+  flex: 1;
+  background-color: #ffffff;
+  border: 1px solid #d9d9d9;
+  border-radius: 2px;
+  padding: 24px;
+  
+  /* LÕI CỦA VẤN ĐỀ: Ép cuộn độc lập bên trong từng cột */
+  height: 100%;
+  overflow-y: auto;
+
+  /* Custom thanh cuộn chuẩn IIG (mỏng, màu xám) */
+  &::-webkit-scrollbar { width: 8px; }
+  &::-webkit-scrollbar-track { background: #f9f9f9; border-left: 1px solid #e8e8e8; }
+  &::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+  &::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+}
+
+/* --- STYLE RIÊNG CHO CỘT TRÁI --- */
+.iig-left-panel {
+  .iig-instruction {
+    color: #1a5b82;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 24px;
+  }
+
+  .iig-image-wrapper {
+    text-align: center;
+    img {
+      max-width: 100%;
+      border: 1px solid #e8e8e8;
+    }
+  }
+}
+
+/* --- STYLE RIÊNG CHO CỘT PHẢI --- */
+.iig-right-panel {
+  /* Tiêu đề "Question" dính chặt trên cùng khi cuộn */
+  .iig-panel-header {
+    color: #1a5b82;
+    font-size: 15px;
+    font-weight: 700;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #e8e8e8;
+    position: sticky;
+    top: -24px; /* Trừ hao padding cha */
+    background: white;
+    z-index: 10;
+  }
+
+  .iig-questions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    padding-bottom: 20px; /* Đệm một chút dưới đáy cho dễ nhìn */
+  }
+
+  .iig-question-block {
+    .iig-question-text {
+      font-size: 14px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 16px;
+    }
+
+    .iig-options-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0; /* IIG xịn là các đáp án dính liền nhau */
+    }
+
+    .iig-option-row {
+      display: flex;
+      align-items: center;
+      border: 1px solid #d9d9d9;
+      border-bottom: none; /* Tránh viền đôi do dính liền nhau */
+      padding: 12px 16px;
+      cursor: pointer;
+      background-color: #ffffff;
+
+      /* Fix viền đôi cho phần tử cuối */
+      &:last-child {
+        border-bottom: 1px solid #d9d9d9;
+      }
+
+      &:hover {
+        background-color: #fafafa;
+      }
+
+      .iig-radio-input {
+        margin: 0 12px 0 0;
+        transform: scale(1.1);
+        cursor: pointer;
+      }
+
+      .iig-option-letter, .iig-option-text {
+        font-size: 14px;
+        color: #333;
+      }
+      .iig-option-letter {
+        margin-right: 8px;
+      }
+    }
+  }
+}
+
+/* Responsive cho điện thoại: Hủy chia 2 cột tĩnh, cho cuộn tự do */
+@media (max-width: 768px) {
+  .iig-dual-scroll-wrapper {
+    flex-direction: column;
+    height: auto;
+    overflow: visible;
+  }
+  
+  .iig-panel {
+    height: auto;
+    overflow-y: visible;
+  }
+}

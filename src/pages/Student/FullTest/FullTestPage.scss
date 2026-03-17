@@ -1,8 +1,9 @@
 .full-test-page {
-  min-height: 100vh;
+  height: 100vh;
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
   display: flex;
   flex-direction: column;
+  padding-bottom: 20px; // Chừa chỗ cho BottomQuestionBar fixed
 
   .test-main {
     flex: 1;
@@ -10,13 +11,12 @@
     overflow: hidden;
 
     .test-container {
-      max-width: 1400px;
       margin: 0 auto;
-      padding: 0 20px;
+      padding: 0 10px;
       display: flex;
       gap: 24px;
-      height: calc(100vh - 160px);
-      min-height: 600px;
+      height: calc(100vh - 260px); // Trừ header + bottom bar
+      min-height: 800px;
 
       // Question Section
       .question-section {
@@ -260,7 +260,7 @@
 
       .test-container {
         padding: 0 12px;
-        height: calc(100vh - 140px);
+        height: calc(100vh - 240px);
 
         .question-section {
           border-radius: 12px;

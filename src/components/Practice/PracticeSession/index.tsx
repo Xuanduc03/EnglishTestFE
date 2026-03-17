@@ -20,6 +20,7 @@ import { toast } from "react-toastify";
 const PracticeSession: React.FC = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
+  const STORAGE_KEY = `practice_progress_${sessionId}`;
 
   const [state, setState] = useState<PracticeState>({
     session: null,
@@ -35,6 +36,21 @@ const PracticeSession: React.FC = () => {
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   const [showAbandonModal, setShowAbandonModal] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // ── Auto-save sessionStorage ──────────────────────────────────
+  useEffect(() => {
+    if (!sessionId || state.isSubmitting || !state.session) return;
+
+    // Phải convert Map và Set sang Array để lưu JSON
+    const stateToSave = {
+      currentQuestionIndex: state.currentQuestionIndex,
+      answers: Array.from(state.answers.entries()),
+      markedForReview: Array.from(state.markedForReview),
+      timeSpent: state.timeSpent,
+      timeRemaining: timeRemaining
+    };
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
+  }, [state.currentQuestionIndex, state.answers, state.markedForReview, state.timeSpent, timeRemaining, sessionId, state.isSubmitting, state.session, STORAGE_KEY]);
 
   // ─────────────────────────────────────────────
   // SUBMIT — gom tất cả answers local, call API 1 lần
@@ -52,8 +68,8 @@ const PracticeSession: React.FC = () => {
         timerRef.current = null;
       }
 
-      // Tính tổng thời gian đã làm
-      const totalTimeSeconds = Math.floor(
+      // Tính tổng thời gian đã làm (thời gian trước F5 + thời gian phiên hiện tại)
+      const totalTimeSeconds = Math.floor(state.timeSpent) + Math.floor(
         (new Date().getTime() - state.startTime.getTime()) / 1000
       );
 
@@ -71,6 +87,7 @@ const PracticeSession: React.FC = () => {
         totalTimeSeconds,
       });
 
+      sessionStorage.removeItem(STORAGE_KEY);
       message.success("Nộp bài thành công!");
       navigate(`/practice/result/${sessionId}`);
     } catch (error: any) {
@@ -205,30 +222,46 @@ const PracticeSession: React.FC = () => {
         setLoading(true);
         const session = await PracticeService.resumePractice(sessionId);
 
-        // Restore answers + marked từ session đã làm dở
+        // Load từ sessionStorage
+        let savedState: any = null;
+        try {
+          const saved = sessionStorage.getItem(STORAGE_KEY);
+          if (saved) savedState = JSON.parse(saved);
+        } catch { }
+
+        // Restore answers + marked
         const restoredAnswers = new Map<string, string>();
         const restoredMarked = new Set<string>();
 
-        session.parts.forEach((part) => {
-          part.questions.forEach((q) => {
-            if (q.selectedAnswerId) {
-              restoredAnswers.set(q.questionId, q.selectedAnswerId);
-            }
-            if (q.isMarkedForReview) {
-              restoredMarked.add(q.questionId);
-            }
+        if (savedState && savedState.answers) {
+          savedState.answers.forEach(([k, v]: [string, string]) => restoredAnswers.set(k, v));
+          savedState.markedForReview?.forEach((k: string) => restoredMarked.add(k));
+        } else {
+          session.parts.forEach((part) => {
+            part.questions.forEach((q) => {
+              if (q.selectedAnswerId) {
+                restoredAnswers.set(q.questionId, q.selectedAnswerId);
+              }
+              if (q.isMarkedForReview) {
+                restoredMarked.add(q.questionId);
+              }
+            });
           });
-        });
+        }
 
         setState((prev) => ({
           ...prev,
           session,
           answers: restoredAnswers,
           markedForReview: restoredMarked,
+          currentQuestionIndex: savedState?.currentQuestionIndex ?? 0,
+          timeSpent: savedState?.timeSpent ?? 0,
           startTime: new Date(),
         }));
 
-        if (session.duration > 0) {
+        if (savedState?.timeRemaining !== undefined && savedState.timeRemaining !== null) {
+          setTimeRemaining(savedState.timeRemaining);
+        } else if (session.duration > 0) {
           setTimeRemaining(session.duration * 60);
         }
       } catch (error: any) {
@@ -349,7 +382,18 @@ const PracticeSession: React.FC = () => {
       "Tiến trình của bạn sẽ được lưu lại. Bạn có thể tiếp tục sau.",
       async () => {
         try {
-          await PracticeService.abandonPractice(sessionId!);
+          const formattedAnswers = Array.from(state.answers.entries()).map(([qId, aId]) => ({
+            questionId: qId,
+            answerId: aId,
+            isMarkedForReview: state.markedForReview.has(qId)
+          }));
+
+          await PracticeService.abandonPractice({
+            sessionId: sessionId!,
+            answers: formattedAnswers,
+            totalTimeSeconds: Math.floor(state.timeSpent),
+          });
+          sessionStorage.removeItem(STORAGE_KEY);
           navigate("/practice/list");
         } catch {
           navigate("/practice/list");
@@ -433,7 +477,7 @@ const PracticeSession: React.FC = () => {
         <div className="question-area">
           {activePage && (
             <QuestionDisplay
-              questions={activePage.questions} // Đẩy nguyên 1 mảng các câu hỏi vào đây
+              questions={activePage.questions} // Đẩy 1 mảng các câu hỏi 
               partNumber={activePage.part.partNumber}
               answersMap={state.answers}
               markedSet={state.markedForReview}
@@ -446,8 +490,8 @@ const PracticeSession: React.FC = () => {
           <div className="question-navigation">
             <button
               className="nav-btn prev"
-              onClick={() => goToQuestion(state.currentQuestionIndex - 1)}
-              disabled={state.currentQuestionIndex === 0}
+              onClick={handlePrevPage}
+              disabled={activePageIndex === 0}
             >
               <LeftOutlined /> Câu trước
             </button>
@@ -469,11 +513,8 @@ const PracticeSession: React.FC = () => {
 
             <button
               className="nav-btn next"
-              onClick={() => goToQuestion(state.currentQuestionIndex + 1)}
-              disabled={
-                state.currentQuestionIndex ===
-                state.session.totalQuestions - 1
-              }
+              onClick={handleNextPage}
+              disabled={activePageIndex === displayPages.length - 1}
             >
               Câu sau <RightOutlined />
             </button>

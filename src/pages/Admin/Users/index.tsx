@@ -1,4 +1,4 @@
-import { Tag, Avatar, Badge, Space, Typography } from "antd";
+import { Tag, Avatar, Badge, Space, Typography, message } from "antd";
 import { UserOutlined, ManOutlined, WomanOutlined, PhoneOutlined } from "@ant-design/icons";
 import { UserService } from "./user.service";
 import { CrudPage } from "../../../components/shared/crud/components/page/CrudPage";
@@ -24,10 +24,10 @@ const UserPage = () => {
         viewMode: "table",
 
         // 1. THỐNG KÊ (Optional)
-        stats: (data: any) => [
+        stats: (data: any, meta: any) => [
           {
             title: "Tổng người dùng",
-            value: data.length,
+            value: meta?.total || 0,
             icon: <UserOutlined />,
             color: "#6366f1"
           },
@@ -140,17 +140,45 @@ const UserPage = () => {
 
         // 4. CẤU HÌNH FORM (THÊM / SỬA)
         formFields: [
-          // Cột 1: Thông tin cơ bản
-          { name: "fullname", label: "Họ và tên", type: "input", rules: [{ required: true, message: "Nhập họ tên" }] },
-          { name: "email", label: "Email", type: "input", rules: [{ required: true, type: 'email' }] },
-          { name: "password", label: "Mật khẩu", type: "input" },
-          { name: "phone", label: "Số điện thoại", type: "input" },
+          {
+            name: "fullname",
+            label: "Họ và tên",
+            type: "input",
+            rules: [
+              { required: true, message: "Nhập họ tên" },
+              {
+                pattern: /^[a-zA-ZÀ-ỹ\s]+$/,
+                message: "Họ tên không hợp lệ"
+              },
+              {
+                max: 100,
+                message: "Họ tên quá dài"
+              }
+            ]
+          },
+          { name: "email", label: "Email", type: "input", rules: [{ required: true, type: 'email', message: "Vui lòng nhập email" }] },
+          {
+            name: "password",
+            label: "Mật khẩu",
+            type: "input",
+            rules: [
+              { required: true, message: "Nhập mật khẩu" }, {
+                min: 6,
+                message: "Mật khẩu tối thiểu 6 ký tự"
+              }
+            ]
+          },
+          {
+            name: "phone", label: "Số điện thoại", type: "input", rules: [{ pattern: /^\d{10,15}$/, message: "Số điện thoại không hợp lệ" }]
+          },
           {
             name: "roleIds",
             label: "Vai trò",
             type: "select",
             api: RoleService.getSelectRole,
-            rules: [{ required: true }]
+            rules: [
+              { required: true, message: "Chọn vai trò" }
+            ]
           },
           { name: "isActive", label: "Trạng thái hoạt động", type: "switch" }
         ],
@@ -160,7 +188,6 @@ const UserPage = () => {
           { name: 'updatedAt', label: 'Cập nhật lần cuối', type: 'date' },
           { name: 'lastLogin', label: 'Đăng nhập lần cuối', type: 'date' },
 
-          // Field phức tạp: Permissions
           {
             name: 'permissions',
             label: 'Quyền hạn bổ sung',
@@ -171,8 +198,6 @@ const UserPage = () => {
           {
             name: 'failedLoginAttempts',
             label: 'Cảnh báo đăng nhập',
-            // Chỉ hiện nếu số lần > 0
-            // Render màu mè
             render: (val) => <Tag color="red">{val} lần sai</Tag>
           }
         ]

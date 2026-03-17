@@ -30,6 +30,15 @@ export const CrudPage = <T extends { id?: string | number }>
   const tableColumnsWithActions = useMemo(() => {
     if (config.viewMode === 'tree' || !config.tableConfig?.columns) return [];
 
+    // Nếu config đã có cột action/actions custom thì KHÔNG thêm cột mặc định
+    const hasCustomActions = config.tableConfig.columns.some(
+      (col: any) => col.key === 'actions' || col.key === 'action'
+    );
+
+    if (hasCustomActions) {
+      return config.tableConfig.columns;
+    }
+
     const actionColumn = {
       title: "Hành động",
       key: "action",
@@ -117,7 +126,7 @@ export const CrudPage = <T extends { id?: string | number }>
       {/* Stats */}
       {config.stats && (
         <div className="stats-section">
-          <StatCards stats={config.stats(crud.data)} />
+          <StatCards stats={config.stats(crud.data, crud.meta)} />
         </div>
       )}
 

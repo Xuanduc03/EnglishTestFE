@@ -291,7 +291,7 @@ const QuestionSelectorModal: React.FC<QuestionSelectorModalProps> = ({
               <Option value="SingleChoice">Single Choice</Option>
               <Option value="MultipleChoice">Multiple Choice</Option>
               <Option value="FillBlank">Fill Blank</Option>
-              <Option value="Essay">Essay</Option>
+              <Option value="Writing">Writing</Option>
             </Select>
           </Col>
           <Col span={2}>

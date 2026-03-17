@@ -123,7 +123,6 @@ const LoginPage: React.FC = () => {
         {/* Login Card */}
         <Card className="login-card" >
           <div className="login-header">
-            <img src="/logo.png" alt="Logo" className="login-logo" />
             <Title level={3}>Đăng nhập tài khoản</Title>
           </div>
 

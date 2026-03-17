@@ -13,6 +13,7 @@ export interface ListeningQuestion extends BaseQuestion {
   image?: string;
   audio: string;
   options: string[];
+  question?: string;
 }
 
 export interface ReadingSingleQuestion extends BaseQuestion {

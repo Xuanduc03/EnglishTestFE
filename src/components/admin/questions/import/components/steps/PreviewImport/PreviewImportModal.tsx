@@ -59,7 +59,7 @@ const PreviewImportModal: React.FC<PreviewImportModalProps> = ({
   return (
     <Spin spinning={loading} tip="Đang import...">
       <div className="preview-import-modal">
-        <div className="modal-overlay" onClick={onClose}></div>
+        <div className="modal-overlay" onClick={() => !loading && onClose()}></div>
         <div className="modal-container">
           {/* Header */}
           <div className="modal-header">
@@ -67,20 +67,20 @@ const PreviewImportModal: React.FC<PreviewImportModalProps> = ({
               <h2 className="modal-title">Preview Import Questions</h2>
               <div className="import-stats">
                 <div className="stat-item">
-                  <span className="stat-label">Total:</span>
+                  <span className="stat-label">Tổng cộng:</span>
                   <span className="stat-value">{totalQuestions}</span>
                 </div>
                 <div className="stat-item stat-valid">
-                  <span className="stat-label">Valid:</span>
+                  <span className="stat-label">Không hợp lệ:</span>
                   <span className="stat-value">{totalValidQuestions}</span>
                 </div>
                 <div className="stat-item stat-error">
-                  <span className="stat-label">Errors:</span>
+                  <span className="stat-label">Lỗi:</span>
                   <span className="stat-value">{errorCount}</span>
                 </div>
               </div>
             </div>
-            <button className="close-button" onClick={onClose}>
+            <button className="close-button" onClick={() => !loading && onClose()} disabled={loading}>
               ×
             </button>
           </div>
@@ -143,7 +143,7 @@ const PreviewImportModal: React.FC<PreviewImportModalProps> = ({
             {/* Sidebar - Question List */}
             <div className="sidebar">
               <div className="sidebar-header">
-                <h3>Question List</h3>
+                <h3>Danh sách câu hỏi</h3>
                 <span className="subtitle">
                   Part {activePart} • {activePartData?.questions.length || 0} questions
                 </span>
@@ -160,7 +160,7 @@ const PreviewImportModal: React.FC<PreviewImportModalProps> = ({
               {activePartData?.questions.length === 0 ? (
                 <div className="empty-state">
                   <div className="empty-icon">📝</div>
-                  <p className="empty-text">No questions in this part</p>
+                  <p className="empty-text">Không có câu hỏi nào</p>
                 </div>
               ) : (
                 <div className="question-list">
@@ -202,7 +202,7 @@ const PreviewImportModal: React.FC<PreviewImportModalProps> = ({
             {/* Question Detail */}
             <div className="question-detail">
               <div className="detail-header">
-                <h3>Question Details</h3>
+                <h3>Chi tiết câu hỏi</h3>
                 {activeQuestion && (
                   <div className="question-meta">
                     {activeQuestion.isGroupQuestion && (
@@ -223,7 +223,7 @@ const PreviewImportModal: React.FC<PreviewImportModalProps> = ({
               {!activeQuestion ? (
                 <div className="empty-state select">
                   <div className="empty-icon">👈</div>
-                  <p className="empty-text">Select a question to view details</p>
+                  <p className="empty-text">Hiện tại chưa có câu hỏi đã được import cần xử</p>
                 </div>
               ) : (
                 <div className="detail-content">
@@ -231,7 +231,7 @@ const PreviewImportModal: React.FC<PreviewImportModalProps> = ({
                   {activeQuestion.isGroupQuestion && (
                     <>
                       <div className="detail-section group-section">
-                        <h4 className="section-title">Group Information</h4>
+                        <h4 className="section-title">Câu hỏi nhóm</h4>
                         <div className="group-info">
                           <div className="group-title">
                             <strong>Title:</strong> {activeQuestion.groupTitle}
@@ -251,7 +251,7 @@ const PreviewImportModal: React.FC<PreviewImportModalProps> = ({
 
                   {/* Question Content */}
                   <div className="detail-section">
-                    <h4 className="section-title">Question Content</h4>
+                    <h4 className="section-title">Nội dung câu hỏi</h4>
                     <p className="question-content">{activeQuestion.content}</p>
                   </div>
 
@@ -261,7 +261,7 @@ const PreviewImportModal: React.FC<PreviewImportModalProps> = ({
                   {activeQuestion.answers && activeQuestion.answers.length > 0 && (
                     <>
                       <div className="detail-section">
-                        <h4 className="section-title">Answers</h4>
+                        <h4 className="section-title">Đáp án</h4>
                         <div className="answers-list">
                           {activeQuestion.answers.map((ans, idx) => (
                             <div
@@ -368,7 +368,7 @@ const PreviewImportModal: React.FC<PreviewImportModalProps> = ({
           {/* Footer */}
           <div className="modal-footer">
             <div className="footer-actions">
-              <button className="btn btn-secondary" onClick={onClose}>
+              <button className="btn btn-secondary" onClick={() => !loading && onClose()} disabled={loading}>
                 Cancel
               </button>
               <div className="import-summary">
@@ -387,7 +387,7 @@ const PreviewImportModal: React.FC<PreviewImportModalProps> = ({
                 onClick={onImport}
               >
                 <span className="btn-icon">📥</span>
-                Import Questions
+                Import Câu hỏi
               </button>
             </div>
           </div>

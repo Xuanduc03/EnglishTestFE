@@ -1,0 +1,118 @@
+.practice-review {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+
+  &__loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    gap: 16px;
+    color: rgba(0, 0, 0, 0.45);
+  }
+
+  // ── Header ──
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+
+    h1 {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0;
+    }
+  }
+
+  // ── Summary bar ──
+  &__summary {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    background: #fff;
+    border: 1px solid #f0f0f0;
+    border-radius: 10px;
+    padding: 14px 20px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+
+    .summary-stat {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+
+      .val { font-size: 18px; font-weight: 600; }
+      .lbl { color: rgba(0, 0, 0, 0.45); }
+
+      &--correct   { color: #52c41a; }
+      &--wrong     { color: #ff4d4f; }
+      &--unanswered { color: #8c8c8c; }
+    }
+  }
+
+  // ── Filters ──
+  &__filters {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  &__empty {
+    text-align: center;
+    color: rgba(0, 0, 0, 0.45);
+    padding: 48px 0;
+    font-size: 15px;
+  }
+
+  // ── Body: Navigator + Content ──
+  &__body {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
+
+  &__navigator {
+    flex-shrink: 0;
+    width: 260px;
+    position: sticky;
+    top: 16px;
+  }
+
+  &__content {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+// ── Prev/Next buttons ──
+.review-nav-btns {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+// ── Responsive ──
+@media (max-width: 768px) {
+  .practice-review {
+    &__body {
+      flex-direction: column;
+    }
+    &__navigator {
+      width: 100%;
+      position: static;
+    }
+    &__header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+
+      h1 { font-size: 17px; }
+    }
+  }
+}

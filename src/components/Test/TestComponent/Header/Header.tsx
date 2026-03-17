@@ -1,92 +1,101 @@
 import React, { useState } from 'react';
-import Timer from '../Timer/Timer';
+import { Popover, Slider } from 'antd';
+import {
+  LogoutOutlined,
+  SoundFilled,
+  ClockCircleOutlined
+} from '@ant-design/icons';
+import Timer from '../Timer/Timer'; 
 import './Header.scss';
 
 interface HeaderProps {
   timeLeft: number;
   onSubmit: () => void;
-  sectionTitle?: string;               // Ví dụ: "Listening: Questions 1 of 200"
-  answeredCount?: number;              // Số câu đã làm
-  totalQuestions?: number;             // Tổng câu, mặc định 200
-  logoUrl?: string;                    // Logo IIG
-  onVolumeChange?: (volume: number) => void; // Callback để điều chỉnh volume toàn app (nếu có)
+  onExit?: () => void;
+  sectionTitle?: string;
+  answeredCount?: number;
+  totalQuestions?: number;
+  currentQuestion?: number;
+  currentSection?: 'listening' | 'reading';
+  logoUrl?: string;
+  onVolumeChange?: (volume: number) => void;
 }
 
 const Header: React.FC<HeaderProps> = ({
   timeLeft,
   onSubmit,
-  sectionTitle = 'Bài Thi Thử TOEIC Full Test',
+  onExit,
   answeredCount = 0,
   totalQuestions = 200,
-  logoUrl = 'https://iigvietnam.com/images/logo-iig.png', // Logo chính thức IIG (có thể thay)
+  currentQuestion = 1,
+  currentSection = 'listening',
+  logoUrl,
   onVolumeChange,
 }) => {
+  const [volume, setVolume] = useState(75);
 
-  const [volume, setVolume] = useState(75); // Mặc định 75% giống thi thật
-  const [showVolumeSlider, setShowVolumeSlider] = useState(false);
-
-  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newVolume = Number(e.target.value);
-    setVolume(newVolume);
-    onVolumeChange?.(newVolume / 100); // Gửi volume 0-1 về parent nếu cần
+  const handleVolumeChange = (value: number) => {
+    setVolume(value);
+    onVolumeChange?.(value / 100);
   };
 
+  const isListening = currentSection === 'listening';
+  const sectionText = isListening ? 'Listening' : 'Reading';
+
+  // Nội dung của popover chỉnh âm lượng
+  const volumeContent = (
+    <div style={{ width: 140, padding: '0 8px' }}>
+      <Slider 
+        min={0} 
+        max={100} 
+        value={volume} 
+        onChange={handleVolumeChange} 
+        tooltip={{ formatter: (val) => `${val}%` }}
+      />
+    </div>
+  );
+
   return (
-    <header className="test-header">
-      <div className="header-content">
-        <div className="header-left">
-          <h1 className="header-title">Bài Thi Thử TOEIC Full Test</h1>
-        </div>
-
-        {/* Bên phải: Volume + Progress + Timer + Submit */}
-        <div className="header-right">
-          {/* Volume Control */}
-          <div className="volume-control">
-            <button
-              className="volume-btn"
-              onClick={() => setShowVolumeSlider(!showVolumeSlider)}
-            >
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M11 5L6 9H2v6h4l5 4V5z" />
-                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
-              </svg>
-            </button>
-            {showVolumeSlider && (
-              <div className="volume-slider">
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={volume}
-                  onChange={handleVolumeChange}
-                  className="volume-range"
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Progress */}
-          <div className="progress-info">
-            <span className="answered-count">
-              {answeredCount}/{totalQuestions}
-            </span>
-          </div>
-
-          {/* Timer */}
-          <Timer timeLeft={timeLeft} />
-
-          {/* Submit */}
-          <button className="submit-btn" onClick={onSubmit}>
-            Submit
+    <header className="iig-header">
+      {/* --- CỘT TRÁI: Logo & Nút Thoát --- */}
+      <div className="iig-header-left">
+        {onExit && (
+          <button className="iig-exit-btn" onClick={onExit} title="Thoát bài thi">
+            <LogoutOutlined />
           </button>
+        )}
+      </div>
+
+      {/* --- CỘT GIỮA: Tiêu đề chuẩn IIG --- */}
+      <div className="iig-header-center">
+        {sectionText}: Questions {currentQuestion} of {totalQuestions}
+      </div>
+
+      {/* --- CỘT PHẢI: Volume, Progress, Timer, Submit --- */}
+      <div className="iig-header-right">
+        {isListening && (
+          <Popover content={volumeContent} title="Âm lượng" trigger="click" placement="bottomRight">
+            <button className="iig-btn btn-volume">
+              <SoundFilled />
+            </button>
+          </Popover>
+        )}
+
+        {/* Khung đếm số câu đã làm: Nền trắng, chữ đen */}
+        <div className="iig-badge badge-progress">
+          {answeredCount}/{totalQuestions}
         </div>
+
+        {/* Khung đếm ngược thời gian: Nền xanh lơ, chữ trắng */}
+        <div className="iig-badge badge-timer">
+          <ClockCircleOutlined style={{ marginRight: 6 }} />
+          <Timer timeLeft={timeLeft} />
+        </div>
+
+        {/* Nút Submit: Nền cam */}
+        <button className="iig-btn btn-submit" onClick={onSubmit}>
+          Submit
+        </button>
       </div>
     </header>
   );

@@ -67,11 +67,21 @@ export const ExamService = {
     return await api.patch(`/api/exams/${id}/status`, { newStatus, reason });
   },
 
+  // nhân bản đề thi
   duplicate: async (id: string, newCode: string, newTitle: string) => {
-    return await api.post(`/api/exams/${id}/status`, {
+    return await api.post(`/api/exams/${id}/duplicate`, {
       newCode,
       newTitle
     });
+  },
+
+
+  // Api xem trước đề thi (UC: preview exam)
+  getPreview: async (examId: string, showCorrectAnswers = true) => {
+    const res = await api.get(`/api/exams/${examId}/preview`, {
+      params: { showCorrectAnswers }
+    });
+    return res.data?.data || res.data;
   },
 
   // ============================================
@@ -101,7 +111,7 @@ export const ExamService = {
   // ============================================
   // QUESTION MANAGEMENT (CHO SCREEN 2: CẤU TRÚC)
   // ============================================
-  
+
   addQuestionsToSection: async (
     examId: string,
     sectionId: string,

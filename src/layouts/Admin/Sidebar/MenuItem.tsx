@@ -266,12 +266,6 @@ export const menuItems: MenuItem[] = [
       undefined,
     ),
     getItem(
-      'Giáo viên',
-      '/admin/system/teachers',
-      <UserOutlined />,
-      undefined,
-    ),
-    getItem(
       'Cấu hình',
       '/admin/system/settings',
       <SettingOutlined />,

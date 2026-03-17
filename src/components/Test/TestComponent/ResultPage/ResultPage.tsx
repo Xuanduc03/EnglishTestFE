@@ -1,125 +1,178 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { CustomerServiceOutlined, ReadOutlined, KeyOutlined } from '@ant-design/icons';
+import type { SubmitExamResult } from '../../../../pages/Student/FullTest/examAttempt.types';
 import './ResultPage.scss';
 
+// ── Helpers ───────────────────────────────────────────────────
+const LISTENING_PARTS = ['Part 1', 'Part 2', 'Part 3', 'Part 4'];
+const READING_PARTS   = ['Part 5', 'Part 6', 'Part 7'];
+const MAX_TOEIC_SKILL = 495;
+const MAX_TOEIC_TOTAL = 990;
+
 interface ResultPageProps {
-  onReview?: () => void;
-  onRetry?: () => void;
+  result: SubmitExamResult;
+  attemptId: string;
+  examTitle?: string;
 }
 
-const ResultPage: React.FC<ResultPageProps> = ({ onReview, onRetry }) => {
+const ResultPage: React.FC<ResultPageProps> = ({ 
+  result, 
+  attemptId, 
+  examTitle = 'THI THỬ ONLINE TOEIC - ĐỀ 01' 
+}) => {
+  const navigate = useNavigate();
+
+  // ── 1. GIỮ NGUYÊN LOGIC CŨ CỦA BẠN ──────────────────────────
+  const {
+    listeningScore,
+    readingScore,
+    totalScore,
+    partSummaries,
+  } = result;
+
+  // Tính phần trăm cho thanh Progress Bar IIG
+  const listeningPercent = Math.round((listeningScore / MAX_TOEIC_SKILL) * 100);
+  const readingPercent   = Math.round((readingScore / MAX_TOEIC_SKILL) * 100);
+  const totalPercent     = Math.round((totalScore / MAX_TOEIC_TOTAL) * 100);
+
+  // ── 2. RENDER GIAO DIỆN IIG CHUẨN ───────────────────────────
   return (
-    <div className="result-page">
-      <div className="result-container">
-        <h2 className="result-title">🎉 Hoàn Thành Bài Thi!</h2>
-        <p className="result-subtitle">
-          Chúc mừng bạn đã hoàn thành bài thi. Dưới đây là kết quả của bạn.
-        </p>
-        
-        <div className="score-grid">
-          <div className="score-card listening">
-            <p className="score-label">LISTENING</p>
-            <p className="score-value">450</p>
-            <div className="score-progress">
-              <div className="progress-bar">
-                <div className="progress-fill" style={{ width: '75%' }}></div>
-              </div>
-              <span className="progress-text">75%</span>
-            </div>
-          </div>
-          
-          <div className="score-card reading">
-            <p className="score-label">READING</p>
-            <p className="score-value">425</p>
-            <div className="score-progress">
-              <div className="progress-bar">
-                <div className="progress-fill" style={{ width: '70%' }}></div>
-              </div>
-              <span className="progress-text">70%</span>
-            </div>
-          </div>
-          
-          <div className="score-card total">
-            <p className="score-label">TỔNG ĐIỂM</p>
-            <p className="score-value">875</p>
-            <div className="score-progress">
-              <div className="progress-bar">
-                <div className="progress-fill" style={{ width: '72.5%' }}></div>
-              </div>
-              <span className="progress-text">72.5%</span>
-            </div>
-          </div>
+    <div className="iig-result-wrapper">
+      
+      {/* --- HEADER KẾT QUẢ --- */}
+      <div className="iig-result-topbar">
+        <div className="iig-logo">
+          <span className="logo-text">IIG</span>
+          <span className="logo-sub">VIỆT NAM</span>
         </div>
-
-        <div className="performance-section">
-          <h3 className="performance-title">Tiến độ làm bài của bạn</h3>
-          <div className="performance-chart">
-            <svg viewBox="0 0 300 120" className="chart-svg">
-              {/* Grid lines */}
-              <line x1="20" y1="20" x2="20" y2="100" stroke="#e5e7eb" strokeWidth="1" />
-              <line x1="20" y1="100" x2="280" y2="100" stroke="#e5e7eb" strokeWidth="1" />
-              
-              {/* Data line */}
-              <polyline 
-                fill="none" 
-                stroke="#4f46e5" 
-                strokeWidth="3" 
-                points="40,80 80,60 120,70 160,40 200,50 240,20 280,30" 
-              />
-              
-              {/* Data points */}
-              <circle cx="40" cy="80" r="4" fill="#4f46e5" />
-              <circle cx="80" cy="60" r="4" fill="#4f46e5" />
-              <circle cx="120" cy="70" r="4" fill="#4f46e5" />
-              <circle cx="160" cy="40" r="4" fill="#4f46e5" />
-              <circle cx="200" cy="50" r="4" fill="#4f46e5" />
-              <circle cx="240" cy="20" r="4" fill="#4f46e5" />
-              <circle cx="280" cy="30" r="4" fill="#4f46e5" />
-              
-              {/* Labels */}
-              <text x="40" y="110" textAnchor="middle" fontSize="10" fill="#6b7280">1</text>
-              <text x="80" y="110" textAnchor="middle" fontSize="10" fill="#6b7280">2</text>
-              <text x="120" y="110" textAnchor="middle" fontSize="10" fill="#6b7280">3</text>
-              <text x="160" y="110" textAnchor="middle" fontSize="10" fill="#6b7280">4</text>
-              <text x="200" y="110" textAnchor="middle" fontSize="10" fill="#6b7280">5</text>
-              <text x="240" y="110" textAnchor="middle" fontSize="10" fill="#6b7280">6</text>
-              <text x="280" y="110" textAnchor="middle" fontSize="10" fill="#6b7280">7</text>
-            </svg>
-          </div>
-        </div>
-
-        <div className="result-stats">
-          <div className="stat-item">
-            <div className="stat-icon">✅</div>
-            <div className="stat-content">
-              <div className="stat-value">145</div>
-              <div className="stat-label">Câu đúng</div>
-            </div>
-          </div>
-          <div className="stat-item">
-            <div className="stat-icon">❌</div>
-            <div className="stat-content">
-              <div className="stat-value">55</div>
-              <div className="stat-label">Câu sai</div>
-            </div>
-          </div>
-          <div className="stat-item">
-            <div className="stat-icon">⏱️</div>
-            <div className="stat-content">
-              <div className="stat-value">98</div>
-              <div className="stat-label">Phút</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="action-buttons">
-          <button className="action-btn review-btn" onClick={onReview}>
-            Xem lại câu sai
-          </button>
-          <button className="action-btn retry-btn" onClick={onRetry}>
-            Làm lại bài thi
-          </button>
-        </div>
+        <div className="iig-topbar-title">Result</div>
       </div>
+
+      {/* --- MAIN CONTENT --- */}
+      <div className="iig-result-container">
+        
+        <h1 className="iig-exam-title">{examTitle.toUpperCase()}</h1>
+
+        {/* --- TOTAL SCORE BOX --- */}
+        <div className="iig-total-box">
+          <div className="score-text">
+            Your score: <span className="score-number">{totalScore}</span>
+          </div>
+          
+          <div className="progress-container">
+            <span className="label-min">TOTAL</span>
+            <div className="progress-track">
+              <div className="track-bg"></div>
+              {/* Vạch màu cam theo điểm */}
+              <div className="track-fill orange" style={{ width: `${totalPercent}%` }}></div>
+              <div className="track-dot orange" style={{ left: '0%' }}></div>
+              <div className="track-dot orange" style={{ left: `${totalPercent}%` }}></div>
+              
+              <span className="track-limit-max">990</span>
+              <span className="track-limit-min">0</span>
+            </div>
+          </div>
+        </div>
+
+        {/* --- 2 CỘT LISTENING & READING --- */}
+        <div className="iig-sections-grid">
+          
+          {/* CỘT LISTENING */}
+          <div className="iig-section-card">
+            <div className="card-header listening-header">
+              <div className="header-left">
+                <CustomerServiceOutlined className="icon" />
+                <span>Listening</span>
+              </div>
+              <KeyOutlined className="icon-key" />
+            </div>
+            
+            <div className="card-body">
+              <div className="score-text">
+                Your score: <span className="score-number">{listeningScore}</span>
+              </div>
+              
+              <div className="progress-container">
+                <div className="progress-track">
+                  <div className="track-bg"></div>
+                  {/* Vạch màu xanh theo điểm Listening */}
+                  <div className="track-fill green" style={{ width: `${listeningPercent}%` }}></div>
+                  <div className="track-dot green" style={{ left: '0%' }}></div>
+                  <div className="track-dot green" style={{ left: `${listeningPercent}%` }}></div>
+                  
+                  <span className="track-limit-max">495</span>
+                  <span className="track-limit-min">0</span>
+                </div>
+              </div>
+
+              {/* Text Đánh giá năng lực giả lập IIG */}
+              <ul className="skill-feedback-list">
+                <li>You can <span className="highlight">infer the central idea, purpose, and basic context</span> of short spoken exchanges, especially when the vocabulary is not difficult.</li>
+                <li>You can <span className="highlight">understand the central idea, purpose, and basic context</span> of extended spoken texts when this information is supported by repetition or paraphrase.</li>
+                <li>You can <span className="highlight">understand details</span> in short spoken exchanges when easy or medium-level vocabulary is used.</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* CỘT READING */}
+          <div className="iig-section-card">
+            <div className="card-header reading-header">
+              <div className="header-left">
+                <ReadOutlined className="icon" />
+                <span>Reading</span>
+              </div>
+              <KeyOutlined className="icon-key" />
+            </div>
+            
+            <div className="card-body">
+              <div className="score-text">
+                Your score: <span className="score-number">{readingScore}</span>
+              </div>
+              
+              <div className="progress-container">
+                <div className="progress-track">
+                  <div className="track-bg"></div>
+                  {/* Vạch màu xanh theo điểm Reading */}
+                  <div className="track-fill green" style={{ width: `${readingPercent}%` }}></div>
+                  <div className="track-dot green" style={{ left: '0%' }}></div>
+                  <div className="track-dot green" style={{ left: `${readingPercent}%` }}></div>
+                  
+                  <span className="track-limit-max">495</span>
+                  <span className="track-limit-min">0</span>
+                </div>
+              </div>
+
+              <ul className="skill-feedback-list">
+                <li>You can <span className="highlight">understand very familiar everyday words</span>.</li>
+                <li>You can <span className="highlight">understand some most-common, rule-based grammatical constructions</span> when not very much reading is necessary, and no difficult words are present.</li>
+                <li>You can <span className="highlight">catch the basic idea</span> of very short and simple texts such as restaurant menus, train or bus schedules, traffic signs.</li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+
+        {/* --- DÀNH MỘT GÓC NHỎ ĐỂ HIỂN THỊ CÁC THỐNG KÊ CHI TIẾT CỦA BẠN --- */}
+        {/* Do IIG không có phần này, mình để nó ở dưới dạng "Review Action" để không làm hỏng form gốc */}
+        <div className="iig-custom-stats-area">
+           <button 
+             className="btn-review-detail" 
+             onClick={() => navigate(`/full-test/${attemptId}/review`)}
+           >
+             Xem lại bài làm chi tiết (Review Answers)
+           </button>
+        </div>
+
+      </div>
+
+      {/* --- FOOTER (Thanh xám dưới đáy) --- */}
+      <div className="iig-result-footer">
+        <button className="btn-back" onClick={() => navigate('/full-test')}>
+          Back to Dashboard
+        </button>
+      </div>
+
     </div>
   );
 };

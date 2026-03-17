@@ -28,7 +28,7 @@
     max-width: 1600px; // nếu màn rất to thì giới hạn lại
     max-height: 95vh;
     background: white;
-    border-radius: 6px;
+    border-radius: 8px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     overflow: hidden;
     display: flex;
@@ -37,8 +37,8 @@
 
     // Header
     .modal-header {
-      padding: 5px 5px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 10px 25px;
+      background: #1565c0;
       color: white;
       display: flex;
       justify-content: space-between;

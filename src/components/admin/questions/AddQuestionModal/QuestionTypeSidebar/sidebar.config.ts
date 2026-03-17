@@ -71,7 +71,36 @@ export const SIDEBAR_CONFIG: SidebarItem[] = [
             type: "group",
           },
         ],
+        
       },
+       {
+        id: "toeic-writing",
+        label: "Writing",
+        icon: "fa-solid fa-pen-nib",
+        children: [
+          {
+            id: "toeic-writing-q",
+            label: "Writing Questions",
+            icon: "fa-solid fa-file-pen",
+            editorKey: "TOEIC_WRITING",
+            type: "single",
+          },
+        ],
+      },
+      {
+        id: "toeic-speaking",
+        label: "Speaking",
+        icon: "fa-solid fa-microphone",
+        children: [
+          {
+            id: "toeic-speaking-q",
+            label: "Speaking Questions",
+            icon: "fa-solid fa-comment-dots",
+            editorKey: "TOEIC_SPEAKING",
+            type: "single",
+          },
+        ]
+      }
     ],
   },
 ];

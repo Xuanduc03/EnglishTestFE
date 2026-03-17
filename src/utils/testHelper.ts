@@ -1,5 +1,6 @@
 import type { Question, TestSection } from '../types/test';
 import { DUMMY_QUESTIONS, LISTENING_QUESTIONS_COUNT, READING_QUESTIONS_START } from '../constants/test';
+import type { ExamQuestionPreview } from '../pages/Student/FullTest/examAttempt.types';
 
 export const getQuestionData = (id: number): Question => {
   for (const q of DUMMY_QUESTIONS) {
@@ -46,4 +47,30 @@ export const isReadingQuestion = (questionId: number): boolean => {
 
 export const getCurrentSection = (questionId: number): TestSection => {
   return isListeningQuestion(questionId) ? 'listening' : 'reading';
+};
+
+
+
+// Thêm hàm mới — map API question sang format FE đang dùng
+export const mapApiQuestionToLocal = (apiQuestion: ExamQuestionPreview) => {
+  return {
+    id: apiQuestion.orderIndex + 1,          // orderIndex bắt đầu từ 0, FE từ 1
+    examQuestionId: apiQuestion.examQuestionId,
+    content: apiQuestion.content,
+    questionType: apiQuestion.questionType,
+    answers: apiQuestion.answers,
+    hasAudio: apiQuestion.hasAudio,
+    hasImage: apiQuestion.hasImage,
+    audioUrl: apiQuestion.audioUrl,
+    imageUrl: apiQuestion.imageUrl,
+    point: apiQuestion.point,
+  };
+};
+
+// Thêm hàm lấy question từ API data thay vì DUMMY
+export const getQuestionFromExamData = (
+  questions: ExamQuestionPreview[],
+  orderIndex: number  // FE dùng 1-based, trừ 1 khi tìm
+) => {
+  return questions.find(q => q.orderIndex === orderIndex - 1) ?? null;
 };

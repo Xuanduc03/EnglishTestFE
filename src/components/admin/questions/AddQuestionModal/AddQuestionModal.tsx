@@ -11,11 +11,6 @@ import type { SingleQuestionDetailDto, QuestionGroupDetailDto } from "../compone
 import { mapGroupDtoToEditorData, mapSingleDtoToEditorData } from "./QuestionEditor/TOEIC/helper/QuestionMapper";
 import { buildGroupFormData, buildSingleFormData } from "./QuestionEditor/TOEIC/helper/BuildForm";
 
-const SINGLE_EDITORS: EditorKey[] = [
-  "TOEIC_PART_1",
-  "TOEIC_PART_2",
-  "TOEIC_PART_5",
-];
 
 // Định nghĩa kiểu dữ liệu cho EditingQuestion
 type EditingQuestion =
@@ -32,23 +27,70 @@ type Props = {
 };
 
 
-
-const mapCategoryIdToEditorKey = (categoryId: string, categories: Array<{ id: string, name: string }>): EditorKey => {
+const mapCategoryIdToEditorKey = (
+  categoryId: string,
+  categories: Array<{ id: string; name: string; code?: string }>
+): EditorKey => {
   const category = categories.find(cat => cat.id === categoryId);
   if (!category) return "TOEIC_PART_1";
 
-  const name = category.name || "";
-  if (name.includes("Part 1")) return "TOEIC_PART_1";
-  if (name.includes("Part 2")) return "TOEIC_PART_2";
-  if (name.includes("Part 3")) return "TOEIC_PART_3";
-  if (name.includes("Part 4")) return "TOEIC_PART_4";
-  if (name.includes("Part 5")) return "TOEIC_PART_5";
-  if (name.includes("Part 6")) return "TOEIC_PART_6";
-  if (name.includes("Part 7")) return "TOEIC_PART_7";
+  // Ưu tiên dùng code nếu có
+  const code = (category as any).code?.toUpperCase() ?? "";
+  const name = category.name?.toLowerCase() ?? "";
+
+  // ── Dùng code trước (chính xác hơn) ─────────────────────
+  if (code) {
+    if (code === "PART 1") return "TOEIC_PART_1";
+    if (code === "PART 2") return "TOEIC_PART_2";
+    if (code === "PART 3") return "TOEIC_PART_3";
+    if (code === "PART 4") return "TOEIC_PART_4";
+    if (code === "PART 5") return "TOEIC_PART_5";
+    if (code === "PART 6") return "TOEIC_PART_6";
+    if (code === "PART 7") return "TOEIC_PART_7";
+    if (code.startsWith("IELTS_L")) return "IELTS_LISTENING";
+    if (code.startsWith("IELTS_R")) return "IELTS_READING";
+    if (code.startsWith("IELTS_W")) return "TOEIC_WRITING";
+    if (code.startsWith("IELTS_SP")) return "TOEIC_SPEAKING";
+    if (code === "WRITING") return "TOEIC_WRITING";
+    if (code === "SPEAKING") return "TOEIC_SPEAKING";
+  }
+
+  // ── Fallback dùng name ───────────────────────────────────
+  if (name.includes("section")) return "IELTS_LISTENING";
+  if (name.includes("passage")) return "IELTS_READING";
+  if (name.includes("part 1") && !name.includes("ielts")) return "TOEIC_PART_1";
+  if (name.includes("part 2") && !name.includes("ielts")) return "TOEIC_PART_2";
+  if (name.includes("part 3") && !name.includes("ielts")) return "TOEIC_PART_3";
+  if (name.includes("part 4") && !name.includes("ielts")) return "TOEIC_PART_4";
+  if (name.includes("part 5")) return "TOEIC_PART_5";
+  if (name.includes("part 6")) return "TOEIC_PART_6";
+  if (name.includes("part 7")) return "TOEIC_PART_7";
+  if (name.includes("viết") || name.includes("writing")) return "TOEIC_WRITING";
+  if (name.includes("nói") || name.includes("speaking")) return "TOEIC_SPEAKING";
 
   return "TOEIC_PART_1";
 };
 
+const mapEditorKeyToCategoryId = (key: EditorKey, categories: Array<{ id: string, name: string }>): string => {
+  const nameMap: Partial<Record<EditorKey, string[]>> = {
+    TOEIC_PART_1: ["part 1"],
+    TOEIC_PART_2: ["part 2"],
+    TOEIC_PART_3: ["part 3"],
+    TOEIC_PART_4: ["part 4"],
+    TOEIC_PART_5: ["part 5"],
+    TOEIC_PART_6: ["part 6"],
+    TOEIC_PART_7: ["part 7"],
+    TOEIC_WRITING: ["viết", "writing"],
+    TOEIC_SPEAKING: ["nói", "speaking"],
+    IELTS_LISTENING: ["section 1"],  // default Section 1
+    IELTS_READING: ["passage 1"],  // default Passage 1
+  };
+  const keywords = nameMap[key] ?? [];
+  const found = categories.find(c =>
+    keywords.some(k => c.name.toLowerCase().includes(k))
+  );
+  return found?.id ?? "";
+};
 
 const AddQuestionModal: React.FC<Props> = ({
   open,
@@ -59,9 +101,14 @@ const AddQuestionModal: React.FC<Props> = ({
 }) => {
   const [editorKey, setEditorKey] = useState<EditorKey>("TOEIC_PART_1");
   const [saving, setSaving] = useState(false);
-  const [categories, setCategories] = useState<Array<{ id: string; name: string }>>([]);
+  const [categories, setCategories] = useState<Array<{
+    id: string;
+    name: string;
+    code?: string;
+  }>>([]);
   const [difficulties, setDifficulties] = useState<Array<{ id: string; name: string }>>([]);
   const [loading, setLoading] = useState(false);
+  const [presetCategoryId, setPresetCategoryId] = useState<string>("");
 
   // Check an toàn
   const isEdit = !!editingQuestion && !!editingQuestion.data;
@@ -82,8 +129,6 @@ const AddQuestionModal: React.FC<Props> = ({
   }, [isEdit, editingQuestion]);
 
 
-
-
   useEffect(() => {
     if (!open) return;
 
@@ -100,25 +145,23 @@ const AddQuestionModal: React.FC<Props> = ({
     }
   }, [open, isEdit, editingQuestion, categories, initialCategoryId]);
 
+  // lấy danh mục
   const loadData = async () => {
     if (categories.length > 0 && difficulties.length > 0) return;
-
     try {
       setLoading(true);
-
-      // Gọi đồng thời 2 service với 2 tham số khác nhau
       const [resSkill, resLevel] = await Promise.all([
         categorieservice.getSelectCategory("skill"),
-        categorieservice.getSelectCategory("level")
+        categorieservice.getSelectCategory("level"),
       ]);
 
-      // Xử lý dữ liệu Skill
+      // ← giữ lại code để map chính xác
       const categoriesData = resSkill.map((x: any) => ({
         id: x.value,
         name: x.label.replace(" (SKILL)", ""),
+        code: x.code ?? x.label.replace(" (SKILL)", "").toUpperCase(),
       }));
 
-      // Xử lý dữ liệu Level
       const difficultiesData = resLevel.map((x: any) => ({
         id: x.value,
         name: x.label.replace(" (LEVEL)", ""),
@@ -220,7 +263,11 @@ const AddQuestionModal: React.FC<Props> = ({
           <DynamicSidebar
             activeEditorKey={editorKey}
             onSelectEditor={(key) => {
-              if (!isEdit) setEditorKey(key);
+              if (!isEdit) {
+                setEditorKey(key);
+                const catId = mapEditorKeyToCategoryId(key, categories);
+                setPresetCategoryId(catId);
+              }
             }}
             disabled={isEdit}
           />
@@ -243,6 +290,7 @@ const AddQuestionModal: React.FC<Props> = ({
                   saving,
                   initialData: initialEditorData,
                   isEdit,
+                  presetCategoryId,
                 }}
               />
 

@@ -17,7 +17,7 @@ import {
   Dropdown,
   Menu,
   DatePicker,
-  Spin
+  Spin,
 } from 'antd';
 import {
   SearchOutlined,
@@ -30,7 +30,7 @@ import {
   SyncOutlined,
   SettingOutlined,
   MoreOutlined,
-  CloudUploadOutlined
+  CloudUploadOutlined, ScanOutlined
 } from '@ant-design/icons';
 import { CrudHeader } from '../../../components/shared/crud/components/header/CrudHeader';
 import { CategorySidebar } from '../../../components/admin/questions/components/CategorySidebar';
@@ -47,6 +47,8 @@ import type { PreviewZipResponse } from '../../../components/admin/questions/imp
 import PreviewImportModal from '../../../components/admin/questions/import/components/steps/PreviewImport/PreviewImportModal';
 import { ImportQuestionService } from '../../../components/admin/questions/import/services/ImportQuestion.service';
 import ConfirmModal from '../../../components/shared/modal/ConfirmModal';
+import OcrUploadModal from '../../../components/admin/questions/OcrQuestions/components/OcrUploadModal';
+import ExamDigitizeModal from '../../../components/admin/questions/OcrQuestions/components/OcrUploadModal';
 
 
 const { Search } = Input;
@@ -77,6 +79,7 @@ const QuestionManager = () => {
 
   const [previewData, setPreviewData] = useState<PreviewZipResponse | null>(null);
   const [openPreview, setOpenPreview] = useState(false);
+  const [digitizeOpen, setDigitizeOpen] = useState(false);
 
   // Sorting
   const [difficulties, setDifficulties] = useState<Array<{ id: string; name: string }>>([]);
@@ -345,7 +348,6 @@ const QuestionManager = () => {
     setOpenImportModal(true);
   };
 
-
   const handleSubmitImport = async () => {
     if (!zipFile || !previewData) {
       message.error("Không có file ZIP để import");
@@ -358,7 +360,7 @@ const QuestionManager = () => {
     setImportLoading(true);
     const msgKey = 'import_' + Date.now();
     message.loading({ content: 'Đang import dữ liệu...', key: msgKey, duration: 0 });
-
+    setLoading(true)
     try {
       const response = await ImportQuestionService.importFileQuestion(zipFile);
 
@@ -368,13 +370,11 @@ const QuestionManager = () => {
         duration: 3
       });
 
-      // ✅ Reset import modals
       setOpenPreview(false);
       setPreviewData(null);
       setZipFile(null);
       setOpenImportModal(false);
 
-      // ✅ Reload table after small delay to ensure data is saved
       setTimeout(() => {
         fetchQuestions();
       }, 500);
@@ -392,6 +392,7 @@ const QuestionManager = () => {
         duration: 5
       });
     } finally {
+      setLoading(false);
       setImportLoading(false);
     }
   };
@@ -569,12 +570,23 @@ const QuestionManager = () => {
         subtitle="Thêm, sửa, xóa và quản lý câu hỏi TOEIC/IELTS"
         onRefresh={() => fetchQuestions()}
         onCreate={() => setOpenAddQuestion(true)}
-        extra={<Button
-          icon={<CloudUploadOutlined />}
-          onClick={handleOpenModalImport}
-        >
-          Import Excel
-        </Button>}
+        extra={
+          <Space>
+            <Button
+              className="btn btn-primary"
+              onClick={() => setDigitizeOpen(true)}
+            >
+              Số hóa đề thi
+            </Button>
+
+            <Button
+              icon={<CloudUploadOutlined />}
+              onClick={handleOpenModalImport}
+            >
+              Import Excel
+            </Button>
+          </Space>
+        }
       />
 
       {/* Search & Filter Section */}
@@ -755,32 +767,32 @@ const QuestionManager = () => {
 
       {/* import modal */}
       {/* Upload modal */}
-      <UploadQuestionModal
-        open={openImportModal}
-        onClose={() => setOpenImportModal(false)}
-        onNext={(file, data) => {
-          setZipFile(file);
-          setOpenImportModal(false);
-          setPreviewData(data);
-          setOpenPreview(true);
-        }}
-      />
+      <Spin spinning={importLoading} tip="Đang import...">
+        <UploadQuestionModal
+          open={openImportModal}
+          onClose={() => setOpenImportModal(false)}
+          onNext={(file, data) => {
+            setZipFile(file);
+            setOpenImportModal(false);
+            setPreviewData(data);
+            setOpenPreview(true);
+          }}
+        />
+      </Spin>
 
       {/* Preview modal */}
       {previewData && (
-        <Spin spinning={importLoading} tip="Đang import...">
-          <PreviewImportModal
-            open={openPreview}
-            data={previewData}
-            onClose={() => {
-              setOpenPreview(false);
-              setPreviewData(null);
-              setZipFile(null);
-            }}
-            onImport={handleSubmitImport}
-            loading={importLoading}
-          />
-        </Spin>
+        <PreviewImportModal
+          open={openPreview}
+          data={previewData}
+          onClose={() => {
+            setOpenPreview(false);
+            setPreviewData(null);
+            setZipFile(null);
+          }}
+          onImport={handleSubmitImport}
+          loading={importLoading}
+        />
       )}
 
       {/* Delete Confirmation Modal */}
@@ -793,7 +805,16 @@ const QuestionManager = () => {
         onOk={confirmDelete}
         onCancel={() => setDeleteModal({ open: false, record: null })}
       />
-      
+
+      {/* THÊM MODAL OCR VÀO ĐÂY */}
+      <ExamDigitizeModal
+        open={digitizeOpen}
+        onClose={() => setDigitizeOpen(false)}
+        onSuccess={(groupId) => {
+          setDigitizeOpen(false);
+          toast.success(`Đã lưu nhóm câu hỏi: ${groupId}`);
+        }}
+      />
     </Layout>
   );
 };

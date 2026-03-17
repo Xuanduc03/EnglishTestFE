@@ -54,9 +54,38 @@ const VARIANT_CONFIG = {
         passageLabel: "Đoạn văn đọc hiểu",
         passageEmptyError: "Vui lòng nhập đoạn văn đọc hiểu",
     },
+
+     ielts_reading: {
+        icon: "fa-solid fa-book-open",
+        title: "IELTS Reading – Passage",
+        hint: "📋 1 đoạn văn + nhiều loại câu hỏi (MCQ, T/F/NG, Matching, Short Answer...)",
+        defaultTags: "ielts,reading",
+        defaultQuestionCount: 5,
+        minQuestions: 1,
+        maxQuestions: 14,
+        showImage: false,
+        defaultScore: "1",
+        passageLabel: "Đoạn văn (Passage)",
+        passageEmptyError: "Vui lòng nhập đoạn văn",
+    },
+
+    ielts_listening: {
+        icon: "fa-solid fa-headphones",
+        title: "IELTS Listening – Section",
+        hint: "🎧 1 đoạn audio + nhiều loại câu hỏi (MCQ, Form/Note Completion, Matching...)",
+        defaultTags: "ielts,listening",
+        defaultQuestionCount: 5,
+        minQuestions: 1,
+        maxQuestions: 10,
+        showImage: false,
+        showAudio: true,
+        defaultScore: "1",
+        passageLabel: "Transcript (script bài nghe)",
+        passageEmptyError: "",  // transcript không bắt buộc
+    },
 } as const;
 
-type PartVariant = "part6" | "part7";
+type PartVariant = "part6" | "part7" | "ielts_reading" | "ielts_listening";
 
 type Part6And7EditorProps = EditorProps & {
     /**

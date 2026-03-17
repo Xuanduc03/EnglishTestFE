@@ -20,7 +20,6 @@ const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(true);
 
-  // Build flat list of questions with metadata
   const questionList = (() => {
     const list: Array<{
       index: number;
@@ -30,10 +29,8 @@ const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
       partId: string;
       partNumber: number;
     }> = [];
-
     let globalIndex = 0;
     let globalQuestionNumber = 1;
-
     session.parts.forEach(part => {
       part.questions.forEach(question => {
         list.push({
@@ -48,35 +45,27 @@ const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
         globalQuestionNumber++;
       });
     });
-
     return list;
   })();
 
-  // Get question status
   const getQuestionStatus = (questionId: string) => {
     const isAnswered = answers.has(questionId);
     const isMarked = markedForReview.has(questionId);
     return { isAnswered, isMarked };
   };
 
-  // Calculate stats
   const total = questionList.length;
   const answered = answers.size;
   const unanswered = total - answered;
   const marked = markedForReview.size;
-
-  const handleRestart = () => {
-    // TODO: implement restart logic later
-    console.log('Restart clicked');
-  };
 
   return (
     <div className={`question-navigator ${isOpen ? 'open' : 'closed'}`}>
       <div className="navigator-header">
         <span className="title">Câu hỏi 1-{total}</span>
         <div className="header-actions">
-          <button className="restart-btn" onClick={handleRestart}>
-            <RedoOutlined /> Restart
+          <button className="restart-btn" onClick={() => {}}>
+            <RedoOutlined /> Làm lại
           </button>
           <button className="toggle-btn" onClick={() => setIsOpen(!isOpen)}>
             <MenuOutlined />
@@ -87,34 +76,33 @@ const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
       {isOpen && (
         <>
           <div className="stats">
-            <div className="stat correct">
-              <span className="stat-value">{answered}</span> Đúng
-              <span className="stat-total">/{total}</span>
+            <div className="stat-item">
+              <span className="stat-label">Đã trả lời</span>
+              <span className="stat-value answered">{answered}</span>
             </div>
-            <div className="stat incorrect">
-              <span className="stat-value">0</span> Sai
-              <span className="stat-total">/{total}</span>
+            <div className="stat-item">
+              <span className="stat-label">Chưa trả lời</span>
+              <span className="stat-value">{unanswered}</span>
             </div>
-            <div className="stat unanswered">
-              <span className="stat-value">{unanswered}</span> Chưa trả lời
-              <span className="stat-total">/{total}</span>
-            </div>
+            {marked > 0 && (
+              <div className="stat-item">
+                <span className="stat-label">Đánh dấu</span>
+                <span className="stat-value marked">{marked}</span>
+              </div>
+            )}
           </div>
 
-          <div className="question-row">
+          <div className="question-grid">
             {questionList.map(q => {
               const { isAnswered, isMarked } = getQuestionStatus(q.questionId);
               const isCurrent = q.index === currentIndex;
-
               return (
                 <button
                   key={q.index}
-                  className={`
-                    question-btn
-                    ${isCurrent ? 'current' : ''}
+                  className={`question-btn 
+                    ${isCurrent ? 'current' : ''} 
                     ${isAnswered ? 'answered' : 'unanswered'}
-                    ${isMarked ? 'marked' : ''}
-                  `}
+                    ${isMarked ? 'marked' : ''}`}
                   onClick={() => onNavigate(q.index)}
                   title={`Câu ${q.questionNumber}${isMarked ? ' (Đánh dấu)' : ''}${isAnswered ? ' (Đã trả lời)' : ''}`}
                 >

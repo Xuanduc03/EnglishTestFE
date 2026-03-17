@@ -1,47 +1,87 @@
 .audio-player {
-    margin: 20px 0;
     padding: 16px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    background: #f9f9f9;
+    border-radius: 8px;
+    margin-bottom: 16px;
 
-    .audio-status {
+    .audio-controls {
         display: flex;
         align-items: center;
-        justify-content: center;
-        gap: 8px;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
 
-        span {
-            font-size: 15px;
-            font-weight: 500;
-            color: white;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+    .audio-status {
+        font-size: 14px;
+        font-weight: 500;
+        padding: 8px 12px;
+        border-radius: 20px;
+        background: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 
         .status-playing {
-            animation: pulse 1.5s ease-in-out infinite;
+            color: #1890ff;
+            animation: pulse 1.5s infinite;
+        }
+
+        .status-paused {
+            color: #8c8c8c;
         }
 
         .status-loading {
-            opacity: 0.8;
+            color: #faad14;
         }
 
-        .status-ended {
-            opacity: 0.7;
+        .status-error {
+            color: #f5222d;
         }
+    }
+
+    .replay-button {
+        background: #1890ff;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: background 0.2s, transform 0.2s;
+
+        &:hover:not(:disabled) {
+            background: #40a9ff;
+            transform: scale(1.02);
+        }
+
+        &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    }
+
+    .max-plays-reached {
+        font-size: 13px;
+        color: #52c41a;
+        font-weight: 500;
+        background: #f6ffed;
+        padding: 4px 12px;
+        border-radius: 16px;
     }
 }
 
 @keyframes pulse {
-
-    0%,
-    100% {
+    0% {
         opacity: 1;
     }
 
     50% {
         opacity: 0.6;
+    }
+
+    100% {
+        opacity: 1;
     }
 }

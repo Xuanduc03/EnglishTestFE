@@ -31,6 +31,7 @@ interface Props {
         difficultyId?: string;
         content?: string;
     };
+    showCategory?: boolean;
 }
 
 export const BaseQuestionForm: React.FC<Props> = ({
@@ -49,9 +50,10 @@ export const BaseQuestionForm: React.FC<Props> = ({
     tags,
     onTagsChange,
     showContent = true,
+    showCategory = true,
     errors,
 }) => {
-    
+
     // 3. Xóa toàn bộ logic useEditor và useEffect ở đây 
     // (RichTextEditor đã tự xử lý bên trong rồi)
 
@@ -59,29 +61,31 @@ export const BaseQuestionForm: React.FC<Props> = ({
         <div className="base-question-form">
             {/* --- Row 1: Category & Difficulty --- */}
             <div className="form-row">
-                <div className={`form-group ${errors?.categoryId ? "has-error" : ""}`}>
-                    <label className="form-label">
-                        Danh mục <span className="required">*</span>
-                    </label>
-                    <Select
-                        value={categoryId}
-                        onChange={onCategoryChange}
-                        style={{ width: "100%" }}
-                        placeholder="Chọn danh mục"
-                        showSearch
-                        disabled={categories.length === 0}
-                        optionFilterProp="children"
-                    >
-                        {categories.map((c) => (
-                            <Option key={c.id} value={c.id}>
-                                {c.name}
-                            </Option>
-                        ))}
-                    </Select>
-                    {errors?.categoryId && (
-                        <div className="form-error">{errors.categoryId}</div>
-                    )}
-                </div>
+                {showCategory && (
+                    <div className={`form-group ${errors?.categoryId ? "has-error" : ""}`}>
+                        <label className="form-label">
+                            Danh mục <span className="required">*</span>
+                        </label>
+                        <Select
+                            value={categoryId}
+                            onChange={onCategoryChange}
+                            style={{ width: "100%" }}
+                            placeholder="Chọn danh mục"
+                            showSearch
+                            disabled={categories.length === 0}
+                            optionFilterProp="children"
+                        >
+                            {categories.map((c) => (
+                                <Option key={c.id} value={c.id}>
+                                    {c.name}
+                                </Option>
+                            ))}
+                        </Select>
+                        {errors?.categoryId && (
+                            <div className="form-error">{errors.categoryId}</div>
+                        )}
+                    </div>
+                )}
 
                 <div className="form-group">
                     <label className="form-label">
@@ -141,7 +145,7 @@ export const BaseQuestionForm: React.FC<Props> = ({
                         />
                     </div>
                     {errors?.content && (
-                         <div className="form-error">{errors.content}</div>
+                        <div className="form-error">{errors.content}</div>
                     )}
                 </div>
             )}

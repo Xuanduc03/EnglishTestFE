@@ -97,7 +97,7 @@ const RegisterPage: React.FC = () => {
 
   const onFinishFailed = (errorInfo: any) => {
     console.log("Register Failed:", errorInfo);
-    message.error("Vui lòng kiểm tra lại thông tin!");
+    toast.error("Vui lòng kiểm tra lại thông tin!");
   };
 
   return (
@@ -143,7 +143,11 @@ const RegisterPage: React.FC = () => {
             <Form.Item
               label="Họ và tên"
               name="fullname"
-              rules={[{ required: true, message: "Vui lòng nhập Họ và tên!" }]}
+              rules={[{ required: true, message: "Vui lòng nhập Họ và tên!" },
+                { max: 50, message: "Không quá 50 ký tự!" }, {min: 5, message: "Họ và tên phải ít nhất 5 ký tự!" },
+                { pattern: /^[a-zA-Z\s]+$/, message: "Họ và tên chỉ được chứa chữ cái và khoảng trắng!" },
+                { pattern: /^(?=.*[a-zA-Z])(?=.*\s).+$/, message: "Họ và tên phải chứa ít nhất một chữ cái và một khoảng trắng!" },
+              ]}
             >
               <Input prefix={<UserOutlined />} placeholder="Nhập Họ và tên" />
             </Form.Item>
@@ -155,6 +159,8 @@ const RegisterPage: React.FC = () => {
               rules={[
                 { required: true, message: "Vui lòng nhập email!" },
                 { type: "email", message: "Email không hợp lệ!" },
+                { max: 50, message: "Không quá 50 ký tự!" },
+                { pattern: /^[a-zA-Z0-9._%+-]+@gmail\.com$/, message: "Chỉ chấp nhận email Gmail!" },
               ]}
             >
               <Input prefix={<MailOutlined />} placeholder="Nhập email của bạn" />
@@ -167,6 +173,7 @@ const RegisterPage: React.FC = () => {
               rules={[
                 { required: true, message: "Vui lòng nhập mật khẩu!" },
                 { min: 6, message: "Mật khẩu ít nhất 6 ký tự!" },
+                {max : 55, message: "Mật khẩu không quá 55 ký tự!"},
                 {
                   pattern: /^(?=.*[A-Z])(?=.*\d).+$/,
                   message: "Cần ít nhất 1 chữ hoa và 1 số!",

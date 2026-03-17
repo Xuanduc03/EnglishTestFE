@@ -9,6 +9,7 @@ import SuggestSection from "../components/Vocabulary/Suggestion";
 import PracticeSection from "../components/Vocabulary/Practice";
 import ListTestFull from "../components/Test/ListTestFull";
 import FullTestPage from "../pages/Student/FullTest/FullTestPage";
+import FullTestResultPage from "../pages/Student/FullTest/FullTestResultPage";
 import ProfilePage from "../pages/Student/Profile/Index";
 import FlashCards from "../components/Vocabulary/FlashCard";
 import LearningPathPage from "../pages/Student/LearningPath";
@@ -20,6 +21,7 @@ import PracticeList from "../components/PracticeList";
 import SkillTabsWithParts from "../components/PracticeList/SkillPracticePage";
 import PracticeSession from "../components/Practice/PracticeSession";
 import PracticeResult from "../components/Practice/PracticeResult";
+import PracticeReview from "../components/Practice/PracticeReview";
 const PublicRoute: IRoute[] = [
 
     // student routes
@@ -41,13 +43,17 @@ const PublicRoute: IRoute[] = [
     // 3. Practice Result (Màn hình kết quả sau khi nộp bài)
     { path: "/practice/result/:sessionId", component: PracticeResult },
 
-    // 4. Practice History (Lịch sử làm bài)
+    // 4. Practice Review (Xem lại đáp án)
+    { path: "/practice/review/:sessionId", component: PracticeReview },
+
+    // 5. Practice History (Lịch sử làm bài)
     { path: "/practice/history", component: PracticeList },
 
 
     { path: "/full-test", component: ListTestFull },
-    { path: "/test", component: FullTestPage, layout: null },
-
+    // Route result phải đứng TRƯỚC :attemptId để tránh React Router match sai
+    { path: "/full-test/result/:attemptId", component: FullTestResultPage },
+    { path: "/full-test/:attemptId", component: FullTestPage, layout: null },
     { path: "/practice/grammar", component: GrammarPage },
     { path: "/learning-path", component: LearningPathPage },
     {

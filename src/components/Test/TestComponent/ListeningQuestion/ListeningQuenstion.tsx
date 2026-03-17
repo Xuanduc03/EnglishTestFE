@@ -8,75 +8,86 @@ interface ListeningQuestionProps {
   selectedAnswer: number | null;
   onAnswer: (index: number) => void;
   onAudioEnd: () => void;
+  globalQuestionIndex?: number;
+  currentQuestion?: number;
 }
+
+const LABELS = ['A', 'B', 'C', 'D'];
 
 const ListeningQuestion: React.FC<ListeningQuestionProps> = ({
   question,
   selectedAnswer,
   onAnswer,
   onAudioEnd,
+  globalQuestionIndex = 1,
+  currentQuestion = 1,
 }) => {
-  return (
-    <div className="listening-question-container">
-      {/* Audio Player - Auto-plays, no replay */}
-      <AudioPlayer
-        audioUrl={question.audio}
-        onAudioEnd={onAudioEnd}
-        autoPlay={true}
-      />
+  const isBlindMode = !!question.image;
 
-      {/* Instruction */}
-      <div className="listening-instruction">
-        <p className="instruction-text">
-          ⚠️ <strong>Lưu ý:</strong> Audio chỉ phát một lần. Câu hỏi sẽ tự động chuyển khi audio kết thúc.
-        </p>
+  return (
+    <div className="iig-question-wrapper">
+      {/* 1. Trình phát Audio: Đưa vào một góc nhỏ hoặc ẩn hẳn đi */}
+      {/* Nếu hệ thống của bạn tự động play, bạn có thể style cho class .hidden-audio */}
+      <div className="iig-audio-mini-container">
+        <AudioPlayer audioUrl={question.audio} onAudioEnd={onAudioEnd} />
       </div>
 
-      {/* Layout chia 2 cột chính */}
-      <div className="two-column-layout">
-        {/* Cột trái: Instruction + Content (Image/Table) */}
-        <div className="left-content-panel">
-          <p className="instruction-text">
-            Select the best response to each question.
-          </p>
+      <div className="iig-columns-layout">
+
+        {/* --- CỘT TRÁI: Hướng dẫn và Hình ảnh --- */}
+        <div className="iig-column iig-column-left">
+          <div className="iig-instruction">
+            Select the one statement that best describes what you see in the picture.
+          </div>
 
           {question.image && (
-            <div className="content-area">
-              <img
-                src={question.image}
-                alt="Question content"
-                className="question-content-image"
-              />
+            <div className="iig-image-wrapper">
+              <img src={question.image} alt="Question visual" />
             </div>
           )}
         </div>
 
-        {/* Cột phải: Question Panel */}
-        <div className="right-question-panel">
-          <h3 className="question-header">Question</h3>
+        {/* --- CỘT PHẢI: Câu hỏi và Checkbox Đáp án --- */}
+        <div className="iig-column iig-column-right">
+          <div className="iig-question-label">Question</div>
 
-          {/* Options */}
-          <div className="options-list">
-            {question.options.map((opt: string, idx: number) => (
-              <label
-                key={idx}
-                className={`option-item ${selectedAnswer === idx ? 'selected' : ''}`}
-              >
-                <input
-                  type="radio"
-                  name={`q${question.id}`}
-                  value={idx}
-                  checked={selectedAnswer === idx}
-                  onChange={() => onAnswer(idx)}
-                  className="radio-input"
-                />
-                <span className="option-content">
-                  <strong>({String.fromCharCode(65 + idx)})</strong> {opt}
-                </span>
-              </label>
-            ))}
+          {/* Tiêu đề câu hỏi */}
+          <div className="iig-question-text">
+            {question.question ? (
+              <span dangerouslySetInnerHTML={{ __html: question.question }} />
+            ) : (
+              <span>Question {currentQuestion}</span>
+            )}
+          </div>
+
+          <div className="iig-options-container">
+            {question.options.map((opt: string, idx: number) => {
+              const isSelected = selectedAnswer === idx;
+
+              return (
+                <label key={idx} className={`iig-option-row ${isSelected ? 'is-selected' : ''}`}>
+                  <input
+                    type="radio"
+                    name={`q-${question.id}`}
+                    checked={isSelected}
+                    onChange={() => onAnswer(idx)}
+                    className="iig-radio-input"
+                  />
+                  <span className="iig-option-letter">({LABELS[idx]})</span>
+
+                  {/* Chỉ hiện nội dung đáp án nếu KHÔNG có ảnh (Part 2) */}
+                  {!isBlindMode && opt && (
+                    <span
+                      className="iig-option-text"
+                      dangerouslySetInnerHTML={{ __html: opt }}
+                    />
+                  )}
+                </label>
+              );
+            })}
           </div>
         </div>
+
       </div>
     </div>
   );

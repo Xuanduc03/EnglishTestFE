@@ -71,6 +71,23 @@ export const questionService = {
   },
 
 
+  getHierarchy: async (params: {
+    page?: number;
+    pageSize?: number;
+    categoryId?: string;
+    keyword?: string;
+  }) => {
+    const res = await api.get('/api/questions/hierarchy', {
+      params: {
+        pageIndex: params.page ?? 1,
+        pageSize: params.pageSize ?? 50,
+        ...(params.categoryId && { categoryId: params.categoryId }),
+        ...(params.keyword && { keyword: params.keyword }),
+      }
+    });
+    return res.data?.data || res.data;
+  },
+
   getSingleQuestion: async (id: string) => {
     const res = await api.get(`/api/questions/single/${id}`);
     return res.data;

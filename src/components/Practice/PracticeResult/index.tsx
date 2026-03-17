@@ -8,28 +8,25 @@ import {
   CloseCircleOutlined,
   QuestionCircleOutlined,
   HomeOutlined,
-  RedoOutlined
+  RedoOutlined,
+  EyeOutlined,
 } from '@ant-design/icons';
 import './PracticeResult.scss';
 import type { PartResultDto, PracticeResultDto } from '../Types/practice.type';
 import { PracticeService } from '../Services/practice.service';
 
-// FIX: Helper format TimeSpan "00:18:30" → "18 phút 30 giây"
+// Helper: format TimeSpan "00:18:30" → "18 phút 30 giây"
 const formatDuration = (timeSpan: string): string => {
   if (!timeSpan) return '0 giây';
-
   const parts = timeSpan.split(':');
   if (parts.length !== 3) return timeSpan;
-
   const hours = parseInt(parts[0], 10);
   const minutes = parseInt(parts[1], 10);
   const seconds = parseInt(parts[2], 10);
-
   const result: string[] = [];
   if (hours > 0) result.push(`${hours} giờ`);
   if (minutes > 0) result.push(`${minutes} phút`);
   if (seconds > 0 || result.length === 0) result.push(`${seconds} giây`);
-
   return result.join(' ');
 };
 
@@ -45,7 +42,6 @@ const PracticeResult: React.FC = () => {
       navigate('/practice/list');
       return;
     }
-
     loadResult();
   }, [sessionId]);
 
@@ -81,27 +77,22 @@ const PracticeResult: React.FC = () => {
     );
   }
 
-  // Convert partResults object to array, sort by partNumber
   const partResultsArray = Object.values(result.partResults).sort(
     (a, b) => a.partNumber - b.partNumber
   );
 
-  // Determine score color
   const getScoreColor = (percentage: number) => {
     if (percentage >= 80) return '#52c41a';
     if (percentage >= 60) return '#faad14';
     return '#ff4d4f';
   };
 
-  // Table columns for part results
   const columns = [
     {
       title: 'Part',
       dataIndex: 'partName',
       key: 'partName',
-      render: (_: string, record: PartResultDto) => (
-        <strong>{record.partName}</strong>
-      )
+      render: (_: string, record: PartResultDto) => <strong>{record.partName}</strong>,
     },
     {
       title: 'Đúng',
@@ -112,7 +103,7 @@ const PracticeResult: React.FC = () => {
         <span style={{ color: '#52c41a' }}>
           <CheckCircleOutlined /> {val}
         </span>
-      )
+      ),
     },
     {
       title: 'Sai',
@@ -123,7 +114,7 @@ const PracticeResult: React.FC = () => {
         <span style={{ color: '#ff4d4f' }}>
           <CloseCircleOutlined /> {val}
         </span>
-      )
+      ),
     },
     {
       title: 'Chưa làm',
@@ -134,7 +125,7 @@ const PracticeResult: React.FC = () => {
         <span style={{ color: '#8c8c8c' }}>
           <QuestionCircleOutlined /> {val}
         </span>
-      )
+      ),
     },
     {
       title: 'Độ chính xác',
@@ -148,15 +139,15 @@ const PracticeResult: React.FC = () => {
           width={50}
           strokeColor={getScoreColor(val)}
         />
-      )
+      ),
     },
     {
       title: 'Thời gian TB/câu',
       dataIndex: 'averageTimePerQuestion',
       key: 'averageTimePerQuestion',
       align: 'center' as const,
-      render: (val: number) => `${Math.round(val)}s`
-    }
+      render: (val: number) => `${Math.round(val)}s`,
+    },
   ];
 
   return (
@@ -191,7 +182,6 @@ const PracticeResult: React.FC = () => {
 
             <Col xs={24} md={16}>
               <Row gutter={[16, 16]}>
-                {/* FIX: Bỏ hardcode "/ 990", chỉ hiển thị điểm practice */}
                 <Col span={12}>
                   <Statistic
                     title="Điểm luyện tập"
@@ -200,8 +190,6 @@ const PracticeResult: React.FC = () => {
                     valueStyle={{ color: getScoreColor(result.accuracyPercentage) }}
                   />
                 </Col>
-
-                {/* FIX: Format totalTime từ "00:18:30" thành dạng đọc được */}
                 <Col span={12}>
                   <Statistic
                     title="Thời gian hoàn thành"
@@ -209,7 +197,6 @@ const PracticeResult: React.FC = () => {
                     prefix={<ClockCircleOutlined />}
                   />
                 </Col>
-
                 <Col span={8}>
                   <Statistic
                     title="Đúng"
@@ -266,6 +253,14 @@ const PracticeResult: React.FC = () => {
           </Button>
 
           <Button
+            size="large"
+            icon={<EyeOutlined />}
+            onClick={() => navigate(`/practice/review/${sessionId}`)}
+          >
+            Xem lại đáp án
+          </Button>
+
+          <Button
             type="primary"
             size="large"
             icon={<RedoOutlined />}
@@ -275,16 +270,12 @@ const PracticeResult: React.FC = () => {
           </Button>
         </div>
 
-        {/* Encouragement Message */}
+        {/* Encouragement */}
         <div className="encouragement">
           {result.accuracyPercentage >= 80 ? (
-            <p className="excellent">
-              🎉 Xuất sắc! Bạn đã làm rất tốt. Hãy tiếp tục phát huy!
-            </p>
+            <p className="excellent">🎉 Xuất sắc! Bạn đã làm rất tốt. Hãy tiếp tục phát huy!</p>
           ) : result.accuracyPercentage >= 60 ? (
-            <p className="good">
-              👍 Tốt lắm! Bạn đang trên đà tiến bộ. Cố gắng lên!
-            </p>
+            <p className="good">👍 Tốt lắm! Bạn đang trên đà tiến bộ. Cố gắng lên!</p>
           ) : (
             <p className="need-improvement">
               💪 Đừng nản chí! Hãy xem lại lý thuyết và luyện tập thêm nhé!

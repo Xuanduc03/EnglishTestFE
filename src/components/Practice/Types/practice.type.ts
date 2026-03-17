@@ -40,23 +40,16 @@ export interface PracticeQuestionDto {
   orderIndex: number;
   questionNumber: number;
   partNumber: number;
-  // Group info (Part 3,4,6,7)
   groupId?: string;
   groupContent?: string;
   groupMedia?: PracticeMediaDto[];
   totalQuestionsInGroup?: number;
   questionIndexInGroup?: number;
   passages?: GroupPassageDto[];
-
   explanation?: string;
-  // Question content
   content: string;
   media: PracticeMediaDto[];
-
-  // Answers
   answers: PracticeAnswerDto[];
-
-  // User state
   selectedAnswerId?: string;
   isCorrect?: boolean;
   isMarkedForReview: boolean;
@@ -98,6 +91,24 @@ export interface SubmitPracticeAnswerRequest {
   isMarkedForReview?: boolean;
 }
 
+export interface AnswerSubmitItem {
+  questionId: string;
+  answerId: string | null;
+  isMarkedForReview: boolean;
+}
+
+export interface SubmitPracticeRequest {
+  sessionId: string;
+  answers: AnswerSubmitItem[];
+  totalTimeSeconds: number;
+}
+
+export interface AbandonPracticeRequest {
+  sessionId: string;
+  answers: AnswerSubmitItem[];
+  totalTimeSeconds: number;
+}
+
 // ============================================
 // RESULT TYPES
 // ============================================
@@ -135,6 +146,16 @@ export interface SubmitAnswerResult {
 // PRACTICE HISTORY
 // ============================================
 
+// FIX: dùng const object thay enum — tránh lỗi erasableSyntaxOnly
+export const PracticeStatus = {
+  InProgress: 0,
+  Submitted:  1,
+  Abandoned:  2,
+  TimedOut:   3,
+} as const;
+
+export type PracticeStatus = typeof PracticeStatus[keyof typeof PracticeStatus];
+
 export interface PracticeHistoryDto {
   sessionId: string;
   title: string;
@@ -144,7 +165,7 @@ export interface PracticeHistoryDto {
   correctAnswers: number;
   accuracyPercentage: number;
   score: number;
-  status: 'InProgress' | 'Submitted' | 'Abandoned' | 'TimedOut';
+  status: PracticeStatus; // 0 | 1 | 2 | 3
 }
 
 export interface PaginatedResult<T> {
@@ -155,6 +176,56 @@ export interface PaginatedResult<T> {
   totalPages: number;
   hasPrevious: boolean;
   hasNext: boolean;
+}
+
+// ============================================
+// IN-PROGRESS
+// ============================================
+
+export interface InProgressPracticeDto {
+  // Backend trả AttemptId, không phải sessionId
+  attemptId: string;
+  title: string;
+  categoryName: string;
+  progress: number;        // 0-100, đã tính sẵn
+  startedAt: string;
+  lastUpdated: string;     // UpdatedAt từ backend
+  timeLimitSeconds: number;
+  actualTimeSeconds: number;
+  // Fallback fields (phòng thay đổi backend)
+  sessionId?: string;
+  categoryId?: string;
+  totalQuestions?: number;
+  answeredCount?: number;
+}
+
+// ============================================
+// REVIEW
+// ============================================
+
+export interface ReviewAnswerDto {
+  answerId: string;
+  content: string;
+  isCorrect: boolean;
+  isSelected: boolean;
+  orderIndex: number;
+}
+
+export interface ReviewQuestionDto {
+  questionId: string;
+  questionNumber: number;
+  partNumber: number;
+  partName: string;
+  content: string;
+  explanation?: string;
+  isCorrect: boolean;
+  isAnswered: boolean;
+  isMarkedForReview: boolean;
+  selectedAnswerId?: string;
+  correctAnswerId: string;
+  answers: ReviewAnswerDto[];
+  imageUrl?: string;
+  audioUrl?: string;
 }
 
 // ============================================
@@ -195,43 +266,4 @@ export interface QuestionTimingInfo {
   questionId: string;
   startTime: Date;
   timeSpent: number;
-}
-
-
-// ==================== SUBMIT ====================
-
-// Submit toàn bộ 1 lần khi nộp bài
-export interface SubmitPracticeRequest {
-  sessionId: string;
-  answers: {
-    questionId: string;
-    answerId: string | null;
-    isMarkedForReview: boolean;
-  }[];
-  totalTimeSeconds: number;
-}
-
-// ==================== RESULT ====================
-
-export interface PartResultDto {
-  partName: string;
-  partNumber: number;
-  total: number;
-  correct: number;
-  incorrect: number;
-  unanswered: number;
-  percentage: number;
-  averageTimePerQuestion: number;
-}
-
-export interface PracticeResultDto {
-  sessionId: string;
-  totalQuestions: number;
-  correctAnswers: number;
-  incorrectAnswers: number;
-  unansweredQuestions: number;
-  score: number;
-  accuracyPercentage: number;
-  totalTime: string;
-  partResults: Record<string, PartResultDto>;
 }

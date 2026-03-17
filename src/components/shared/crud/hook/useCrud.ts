@@ -13,6 +13,7 @@ export function useCrud<T extends { id?: string | number }>(
   // --- STATE ---
   const [data, setData] = useState<T[]>([]);
   const [loading, setLoading] = useState(false);
+  const [meta, setMeta] = useState<any>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detail, setDetail] = useState<{ open: boolean; record?: T | null }>({
     open: false,
@@ -43,39 +44,58 @@ export function useCrud<T extends { id?: string | number }>(
   // 1. Fetch Data (Hỗ trợ phân trang)
   const fetchData = useCallback(async () => {
     setLoading(true);
+
     try {
-      // Gom params: filter hiện tại + phân trang hiện tại
       const params: PaginationParams = {
         page: pagination.current,
         pageSize: pagination.pageSize,
         ...filters,
         sortBy: sorter.field,
-        sortOrder: sorter.order === 'ascend' ? 'asc' : (sorter.order === 'descend' ? 'desc' : undefined)
+        sortOrder:
+          sorter.order === 'ascend'
+            ? 'asc'
+            : sorter.order === 'descend'
+              ? 'desc'
+              : undefined
       };
 
       const res = await service.getAll(params);
       const response = res as any;
 
-      if (response.data.items && Array.isArray(response.data.items)) {
+      // ===== CASE 1: API chuẩn pagination =====
+      if (response?.data?.items && Array.isArray(response.data.items)) {
         setData(response.data.items);
 
-        setPagination((prev) => ({
+        const metaData = response.data.meta || {};
+        setMeta(metaData);
+
+        setPagination(prev => ({
           ...prev,
-          total: response.data.meta?.total || 0
+          total: metaData.total ?? 0
         }));
       }
+
+      // ===== CASE 2: API trả array trực tiếp =====
       else if (Array.isArray(response?.data)) {
         setData(response.data);
+        setMeta(null);
+
         setPagination(prev => ({
           ...prev,
           total: response.data.length
         }));
       }
+
+      // ===== CASE 3: Sai format =====
       else {
-        // Fallback: nếu API trả về khác cấu trúc thì set rỗng
         console.warn("API response format không khớp:", res);
         setData([]);
-        setPagination((prev) => ({ ...prev, total: 0 }));
+        setMeta(null);
+
+        setPagination(prev => ({
+          ...prev,
+          total: 0
+        }));
       }
     } catch (error) {
       console.error(error);
@@ -128,20 +148,20 @@ export function useCrud<T extends { id?: string | number }>(
   // 5. Helper mở Modal Edit
   const openEditModal = async (record: T) => {
     if (record.id) {
-        try {
-            setLoading(true); 
-            const res = await service.getById(record.id);
-            const data = res.data || res; // Tùy cấu trúc trả về của BE
-            setModal({ open: true, record: data });
-        } catch (error) {
-            console.error("Lỗi lấy chi tiết:", error);
-            toast.error("Không thể lấy thông tin chi tiết");
-        } finally {
-            setLoading(false);
-        }
+      try {
+        setLoading(true);
+        const res = await service.getById(record.id);
+        const data = res.data || res; // Tùy cấu trúc trả về của BE
+        setModal({ open: true, record: data });
+      } catch (error) {
+        console.error("Lỗi lấy chi tiết:", error);
+        toast.error("Không thể lấy thông tin chi tiết");
+      } finally {
+        setLoading(false);
+      }
     } else {
-        // Fallback nếu ko có ID (hiếm gặp)
-        setModal({ open: true, record });
+      // Fallback nếu ko có ID (hiếm gặp)
+      setModal({ open: true, record });
     }
   };
 
@@ -176,6 +196,7 @@ export function useCrud<T extends { id?: string | number }>(
     // Data States
     data,
     loading,
+    meta,
 
     // Filter & Pagination States
     filters,

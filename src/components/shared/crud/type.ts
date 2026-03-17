@@ -16,7 +16,7 @@ export interface CrudConfig<T extends { id?: string | number }> {
   auditFields?: DetailFieldConfig<T>[];
   formFields: FormFieldConfig[];
   filters?: FilterConfig[];
-  stats?: (data: T[]) => StatCardConfig[];
+  stats?: (data: T[], meta?: any) => StatCardConfig[];
 
   viewMode?: 'table' | 'tree';
   tableConfig?: CrudTableConfig<T>['tableConfig'];
@@ -40,7 +40,7 @@ export interface ICrudService<T> {
   create: (data: Partial<T>) => Promise<any>;
   update: (id: string | number, data: Partial<T>) => Promise<any>;
   delete: (id: string | number) => Promise<void>;
-  bulkDelete?: (ids: (string|number)[]) => Promise<void>;
+  bulkDelete?: (ids: (string | number)[]) => Promise<void>;
 }
 
 /**
@@ -118,7 +118,7 @@ export interface FilterOption {
 
 export interface FilterConfig {
   name: string;
-  type: 'input' | 'select'  | 'rangeDate';
+  type: 'input' | 'select' | 'rangeDate';
   width: string;
   defaultValue?: any;
   initialValue?: any;

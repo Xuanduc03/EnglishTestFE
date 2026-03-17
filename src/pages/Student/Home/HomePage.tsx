@@ -7,7 +7,8 @@ import { ExamService } from '../../Admin/Exams/exams.service';
 import BentoDashboard from '../../../components/student/home/BentoDashboard';
 import QuickActions from '../../../components/student/home/QuickActions';
 import ActiveExams from '../../../components/student/home/ActiveExams';
-import RecentResults from '../../../components/student/home/RecentResults';
+import RecentResults, { type ResultItem } from '../../../components/student/home/RecentResults';
+import { PracticeService } from '../../../components/Practice/Services/practice.service';
 
 // Mock data
 const mockUserStats = {
@@ -23,8 +24,62 @@ const mockUserStats = {
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
+  const [recentResults, setRecentResults] = useState<ResultItem[]>([]);
+  const [loadingResults, setLoadingResults] = useState(false);
+
+  const fetchOpenExams = async () => {
+    try {
+      setLoadingExams(true);
+
+      const res = await ExamService.getAll({
+        page: 1,
+        pageSize: 5,
+        status: 'Published'
+      });
+
+      setOpenExams(res.data.items);
+    } catch (error) {
+      console.error('Failed to fetch exams', error);
+    } finally {
+      setLoadingExams(false);
+    }
+  };
+  const fetchRecentResults = async () => {
+    try {
+      setLoadingResults(true);
+      const res = await PracticeService.getHistory({
+        pageSize: 5, // lấy 5 kết quả gần nhất
+        page: 1,
+      });
+      // res là PaginatedResult<PracticeHistoryDto>
+      const items = res.items.map(dto => ({
+        id: dto.sessionId,
+        examTitle: dto.title,
+        date: new Date(dto.startedAt).toLocaleDateString('vi-VN'),
+        score: dto.score,
+        total: dto.totalQuestions,
+        accuracy: dto.accuracyPercentage,
+        timeSpent: dto.submittedAt ? calculateTimeSpent(dto.startedAt, dto.submittedAt) : 'Chưa hoàn thành',
+      }));
+      setRecentResults(items);
+    } catch (error) {
+      console.error('Failed to fetch recent results', error);
+    } finally {
+      setLoadingResults(false);
+    }
+  };
 
 
+  const calculateTimeSpent = (start: string, end: string): string => {
+    const diff = new Date(end).getTime() - new Date(start).getTime();
+    const minutes = Math.floor(diff / 60000);
+    return `${minutes} phút`;
+  };
+
+  useEffect(() => {
+    fetchRecentResults();
+    fetchOpenExams();
+  }, []);
   const leaderboardData = [
     { rank: 1, name: "Trần Văn B", score: 950, exams: 15, streak: 21 },
     { rank: 2, name: "Lê Thị C", score: 925, exams: 12, streak: 18 },
@@ -58,28 +113,8 @@ const Home: React.FC = () => {
   const [loadingExams, setLoadingExams] = useState(false);
 
 
-  const fetchOpenExams = async () => {
-    try {
-      setLoadingExams(true);
-
-      const res = await ExamService.getAll({
-        page: 1,
-        pageSize: 5,
-        status: 'Published'
-      });
-
-      setOpenExams(res.data.items);
-    } catch (error) {
-      console.error('Failed to fetch exams', error);
-    } finally {
-      setLoadingExams(false);
-    }
-  };
 
 
-  useEffect(() => {
-    fetchOpenExams();
-  }, []);
 
 
   return (
@@ -101,7 +136,7 @@ const Home: React.FC = () => {
             <ActiveExams exams={openExams} isLoading={loadingExams} />
 
             {/* Component Recent Results đã tách */}
-            <RecentResults results={mockRecentResults} />
+            <RecentResults  results={recentResults} isLoading={loadingResults}  />
           </div>
 
           {/* CỘT PHẢI (1/3) */}
@@ -203,3 +238,7 @@ const Home: React.FC = () => {
 };
 
 export default Home;
+
+function calculateTimeSpent(startedAt: string, submittedAt: string): any {
+  throw new Error('Function not implemented.');
+}

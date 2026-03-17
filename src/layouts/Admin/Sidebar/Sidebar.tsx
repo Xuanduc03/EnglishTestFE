@@ -14,6 +14,12 @@ interface SidebarProps {
   mobile?: boolean;
 }
 
+/**
+ * Sidebar Admin
+ * @param param0 
+ * @returns 
+ */
+
 export const SideBar: React.FC<SidebarProps> = ({ 
   selectedMenu, 
   collapsed = false,

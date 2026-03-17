@@ -37,7 +37,12 @@ export const UserService = {
     return data;
   },
   create: async (data: Partial<UserListDto>) => {
-    return await api.post('/api/users', data);
+    const transformData = {
+    ...data,
+    roleIds: data.roles ? data.roles.map((r: any) => r.id) : [],
+  };
+  
+  return await api.post('/api/users', transformData);
   },
 
   update: async (id: string | number, data: Partial<UserUpdateDto>) => {
