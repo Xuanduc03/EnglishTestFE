@@ -34,13 +34,13 @@ const RecentResults: React.FC<RecentResultsProps> = ({ results, isLoading = fals
             <div className="card-header">
                 <div className="header-title">
                     <span className="icon">📊</span>
-                    <h3>Kết quả gần đây</h3>
+                    <h3>Recent Results</h3>
                 </div>
                 <button
                     className="link-all"
                     onClick={() => navigate('/history')}
                 >
-                    Lịch sử đầy đủ →
+                    Full History →
                 </button>
             </div>
 
@@ -48,12 +48,12 @@ const RecentResults: React.FC<RecentResultsProps> = ({ results, isLoading = fals
             <div className="results-list">
 
                 {isLoading && (
-                    <div className="empty-state">⏳ Đang tải kết quả...</div>
+                    <div className="empty-state">⏳ Loading results...</div>
                 )}
 
                 {!isLoading && results.length === 0 && (
                     <div className="empty-state">
-                        📝 Bạn chưa hoàn thành bài thi nào. Hãy thử làm 1 bài nhé!
+                        📝 You haven't completed any exams yet. Give one a try!
                     </div>
                 )}
 

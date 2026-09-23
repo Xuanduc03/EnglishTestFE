@@ -1,0 +1,97 @@
+/* =========================================================
+   BỘ KHUNG LỚN CHO LISTENING (Chuẩn Study4 - No Variables)
+   ========================================================= */
+
+.idp-listening-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 1100px;
+    /* Đừng để nó dãn ngoác ra hết màn hình, 1100px là vừa đẹp */
+    margin: 0 auto;
+    padding: 24px;
+    background: #f8f9fa;
+    /* Nền xám thật nhạt cho dịu mắt */
+    min-height: calc(100vh - 120px);
+
+    /* --- Khu vực Thanh Audio Player --- */
+    .idp-audio-bar {
+        margin-bottom: 24px;
+        background: #fff;
+        border: 1px solid #e8e8e8;
+        border-radius: 8px;
+        padding: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    /* --- Khu vực Nội dung Câu hỏi --- */
+    .idp-content-area {
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+        /* Khoảng cách lớn giữa các khối (block) câu hỏi */
+
+        .idp-question-block {
+            background: #fff;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+
+            /* Hộp Hướng dẫn (Instruction Box) - Rất quan trọng */
+            .idp-instruction-box {
+                background: #e6f0fa;
+                /* Nền xanh dương cực nhạt - Chuẩn IDP */
+                padding: 16px 24px;
+                border-bottom: 2px solid #0050A0;
+                /* Vạch kẻ xanh đậm ngăn cách */
+
+                .range-label {
+                    color: #0050A0;
+                    /* Chữ xanh đậm */
+                    font-size: 16px;
+                    margin-bottom: 8px;
+
+                    strong {
+                        font-weight: 700;
+                    }
+                }
+
+                p {
+                    color: #333;
+                    font-size: 15px;
+                    line-height: 1.5;
+                    margin: 0;
+
+                    strong {
+                        font-weight: 700;
+                        color: #111;
+                    }
+                }
+            }
+
+            /* Khung bọc các câu hỏi con */
+            .idp-questions-wrapper {
+                padding: 24px;
+            }
+
+            /* Đường kẻ ngang ngăn cách giữa các block (nếu có) */
+            .idp-divider {
+                border: none;
+                border-top: 2px dashed #e8e8e8;
+                margin: 0 24px;
+            }
+        }
+    }
+}
+
+/* Đáp ứng màn hình nhỏ (Mobile/Tablet) */
+@media (max-width: 768px) {
+    .idp-listening-container {
+        padding: 12px;
+
+        .idp-content-area .idp-question-block .idp-questions-wrapper {
+            padding: 12px;
+        }
+    }
+}

@@ -165,47 +165,7 @@
       margin-left: 0;
       border-radius: 8px;
 
-      .question-navigation {
-        display: flex;
-        justify-content: space-between;
-        gap: 12px;
-        margin-top: 32px;
-        padding-top: 24px;
-        border-top: 1px solid #f0f0f0;
-
-        .nav-btn {
-          flex: 1;
-          padding: 12px 24px;
-          border: 1px solid #d9d9d9;
-          background: white;
-          border-radius: 4px;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          font-size: 14px;
-
-          &:hover:not(:disabled) {
-            border-color: #1890ff;
-            color: #1890ff;
-          }
-
-          &:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-          }
-
-          &.mark {
-            border-color: #faad14;
-            color: #faad14;
-
-            &:hover {
-              background: #fffbe6;
-            }
-          }
-        }
-      }
+      // Removed .question-navigation
     }
   }
 }
@@ -294,15 +254,7 @@
         margin: 8px;
         padding: 16px;
         
-        .question-navigation {
-          flex-wrap: wrap;
-          gap: 8px;
-          
-          .nav-btn {
-            padding: 10px 12px;
-            font-size: 13px;
-          }
-        }
+        // Removed question-navigation
       }
     }
   }
@@ -333,12 +285,7 @@
     
     .practice-content {
       .question-area {
-        .question-navigation {
-          .nav-btn {
-            padding: 8px 10px;
-            font-size: 12px;
-          }
-        }
+        // Removed question-navigation
       }
     }
   }

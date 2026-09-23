@@ -23,7 +23,7 @@ const ActiveExams: React.FC<ActiveExamsProps> = ({ exams, isLoading }) => {
     // Định dạng ngày tháng cho đẹp (VD: 20/12/2026)
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
-        return new Intl.DateTimeFormat('vi-VN').format(date);
+        return new Intl.DateTimeFormat('en-GB').format(date);
     };
 
     return (
@@ -32,13 +32,13 @@ const ActiveExams: React.FC<ActiveExamsProps> = ({ exams, isLoading }) => {
             <div className="card-header">
                 <div className="header-title">
                     <span className="icon">⏰</span>
-                    <h3>Bài thi đang mở</h3>
+                    <h3>Open Exams</h3>
                 </div>
                 <button
                     className="link-all"
                     onClick={() => navigate('/exams')}
                 >
-                    Xem tất cả →
+                    View all →
                 </button>
             </div>
 
@@ -48,14 +48,14 @@ const ActiveExams: React.FC<ActiveExamsProps> = ({ exams, isLoading }) => {
                 {/* State: Đang call API */}
                 {isLoading && (
                     <div className="loading-state">
-                        ⏳ Đang tải danh sách bài thi...
+                        ⏳ Loading exams...
                     </div>
                 )}
 
                 {/* State: API trả về mảng rỗng */}
                 {!isLoading && exams.length === 0 && (
                     <div className="empty-state">
-                        📭 Hiện chưa có bài thi nào đang mở. Hãy quay lại sau nhé!
+                        📭 No exams are currently open. Check back later!
                     </div>
                 )}
 
@@ -71,11 +71,11 @@ const ActiveExams: React.FC<ActiveExamsProps> = ({ exams, isLoading }) => {
                             <div className="exam-meta">
                                 <span className="code-badge">{exam.code}</span>
                                 <span className="dot">•</span>
-                                <span>{exam.duration} phút</span>
+                                <span>{exam.duration} mins</span>
                                 <span className="dot">•</span>
-                                <span>{exam.questionCount} câu</span>
+                                <span>{exam.questionCount} questions</span>
                                 <span className="dot">•</span>
-                                <span>Đăng ngày: {formatDate(exam.createdAt)}</span>
+                                <span>Posted: {formatDate(exam.createdAt)}</span>
                             </div>
                         </div>
 
@@ -84,7 +84,7 @@ const ActiveExams: React.FC<ActiveExamsProps> = ({ exams, isLoading }) => {
                             className="btn-action"
                             onClick={() => navigate(`/full-test/${exam.id}`)}
                         >
-                            Vào thi ngay
+                            Take Exam
                         </button>
                     </div>
                 ))}

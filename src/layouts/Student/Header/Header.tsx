@@ -22,8 +22,7 @@ import {
   LogoutOutlined,
   SettingOutlined,
   UserOutlined,
-  DownOutlined,
-  CrownFilled
+  DownOutlined
 } from '@ant-design/icons';
 
 import './Header.scss'; // Link tới file SCSS mới
@@ -55,7 +54,7 @@ const AppHeader: React.FC = () => {
   const [searchFocused, setSearchFocused] = useState(false); // Thêm state cho Focus
 
   const [notifications, setNotifications] = useState<NotificationItem[]>([
-    { id: 1, title: 'Bài test mới', message: 'TOEIC Full Test tháng 12 đã có', time: '5 phút trước', read: false, type: 'test' },
+    { id: 1, title: 'New Test Available', message: 'December TOEIC Full Test is now available', time: '5 mins ago', read: false, type: 'test' },
   ]);
 
   // Hiệu ứng kính mờ khi cuộn chuột
@@ -83,10 +82,10 @@ const AppHeader: React.FC = () => {
 
   // Menu Dropdown của User (Đã rút gọn)
   const userMenuItems = [
-    { key: 'profile', label: 'Hồ sơ cá nhân', icon: <UserOutlined /> },
-    { key: 'settings', label: 'Cài đặt tài khoản', icon: <SettingOutlined /> },
+    { key: 'profile', label: 'My Profile', icon: <UserOutlined /> },
+    { key: 'settings', label: 'Account Settings', icon: <SettingOutlined /> },
     { type: 'divider' },
-    { key: 'logout', label: 'Đăng xuất', icon: <LogoutOutlined />, danger: true },
+    { key: 'logout', label: 'Logout', icon: <LogoutOutlined />, danger: true },
   ];
 
   const handleUserMenuClick = ({ key }: { key: string }) => {
@@ -95,7 +94,7 @@ const AppHeader: React.FC = () => {
       logout();
       setIsLoggedIn(false);
       setUser(null);
-      notification.success({ message: 'Đăng xuất thành công' });
+      notification.success({ message: 'Logged out successfully' });
       navigate("/login");
     } else {
       navigate(`/${key}`);
@@ -122,10 +121,10 @@ const AppHeader: React.FC = () => {
           <nav className="header-nav desktop-only">
             {/* Tối ưu: Dùng NavLink hoặc logic active đơn giản thay vì Menu Antd xổ ra 1 đống */}
             {[
-              { path: '/home', label: 'Trang chủ' },
-              { path: '/full-test', label: 'Thi thử' },
-              { path: '/practice/list', label: 'Luyện tập' },
-              { path: '/vocabulary', label: 'Từ vựng' }
+              { path: '/home', label: 'Home' },
+              { path: '/full-test', label: 'Mock Test' },
+              { path: '/practice/list', label: 'Practice' },
+              { path: '/vocabulary', label: 'Vocabulary' }
             ].map((nav) => (
               <div 
                 key={nav.path}
@@ -144,7 +143,7 @@ const AppHeader: React.FC = () => {
             <div className={`search-box desktop-only ${searchFocused ? 'focused' : ''}`}>
               <SearchOutlined className="search-icon" />
               <Input 
-                placeholder="Tìm kiếm bộ đề, bài học..." 
+                placeholder="Search tests, lessons..." 
                 bordered={false}
                 onFocus={() => setSearchFocused(true)}
                 onBlur={() => setSearchFocused(false)}
@@ -161,17 +160,10 @@ const AppHeader: React.FC = () => {
 
             {isLoggedIn ? (
               <>
-                {/* B. Nút Premium (Kích thích mua hàng) */}
-                <button 
-                  className="btn-premium desktop-only"
-                  onClick={() => navigate('/pricing')}
-                >
-                  <CrownFilled style={{ color: '#d97706', marginRight: 6 }} /> 
-                  Lên Premium
-                </button>
+                {/* Removed Premium button */}
 
                 {/* C. Chuông thông báo */}
-                <Dropdown trigger={['click']} menu={{ items: [{key: '1', label: 'Không có thông báo'}] }}>
+                <Dropdown trigger={['click']} menu={{ items: [{key: '1', label: 'No notifications'}] }}>
                   <Badge count={unreadCount} size="small" offset={[-4, 4]}>
                     <button className="btn-icon noti-btn">
                       <BellOutlined />
@@ -194,25 +186,19 @@ const AppHeader: React.FC = () => {
             ) : (
               <Space className="auth-buttons">
                 <Button type="text" onClick={() => navigate('/login')} className="login-text">
-                  Đăng nhập
+                  Login
                 </Button>
                 <Button type="primary" onClick={() => navigate('/register')} className="register-btn">
-                  Đăng ký
+                  Register
                 </Button>
               </Space>
             )}
 
-            {/* Nút Hamburger cho Mobile */}
-            <Button 
-              type="text" 
-              icon={<MenuOutlined />} 
-              className="mobile-only btn-icon"
-              onClick={() => setMobileMenuVisible(true)} 
-            />
+            {/* Removed Hamburger menu */}
           </div>
         </div>
 
-        {/* ... (Phần Drawer Mobile Search & Mobile Menu tôi giữ nguyên logic của ông nhưng ông tự apply style nhé) ... */}
+        {/* Removed Mobile Menu Drawer */}
         
       </Header>
     </>

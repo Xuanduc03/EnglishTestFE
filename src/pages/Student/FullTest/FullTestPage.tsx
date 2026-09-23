@@ -87,6 +87,8 @@ const FullTestPage: React.FC = () => {
 
   const [examResult, setExamResult] = useState<SubmitExamResult | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isExiting, setIsExiting] = useState(false);
   const [isNavCollapsed, setIsNavCollapsed] = useState(false);
   const [audioHasEnded, setAudioHasEnded] = useState(false);
   const [showSectionTransition, setShowSectionTransition] = useState(false);
@@ -224,15 +226,14 @@ const FullTestPage: React.FC = () => {
           examQuestionId: apiQuestion.examQuestionId,
           selectedAnswerId: selectedAnswer.id,
         });
+
+        // Chỉ next câu sau khi call API lưu thành công
+        handleNext();
       } catch (err) {
         console.warn('Auto-save failed:', err);
       }
-    }, 500);
-
-    if (testState.currentSection === 'reading') {
-      setTimeout(() => handleNext(), 300);
-    }
-  }, [testState.currentSection, handleNext, examData, attemptId]);
+    }, 300);
+  }, [handleNext, examData, attemptId]);
 
   // ── FIX 5: handleMarkToggle và handleExit phải khai báo TRƯỚC conditional return
   const handleMarkToggle = useCallback(() => {
@@ -247,10 +248,11 @@ const FullTestPage: React.FC = () => {
   }, []);
 
   const handleSubmit = useCallback(async () => {
-    if (!attemptId) return;
+    if (!attemptId || isSubmitting) return;
+    setIsSubmitting(true);
     try {
       const result = await examAttemptService.submitExam(attemptId);
-      messageApi.success('Nộp bài thành công!', 2);
+      messageApi.success('Submitted successfully!', 2);
       sessionStorage.removeItem(STORAGE_KEY);
       sessionStorage.removeItem(EXAM_DATA_KEY);
       setExamResult(result);
@@ -262,16 +264,19 @@ const FullTestPage: React.FC = () => {
       console.error('Submit failed:', err);
       sessionStorage.removeItem(STORAGE_KEY);
       sessionStorage.removeItem(EXAM_DATA_KEY);
-      const errorMsg = err?.response?.data?.message || 'Có lỗi xảy ra khi nộp bài. Vui lòng thử lại!';
+      const errorMsg = err?.response?.data?.message || 'An error occurred while submitting. Please try again!';
       messageApi.error(errorMsg, 5);
+    } finally {
+      setIsSubmitting(false);
     }
-  }, [attemptId, navigate, STORAGE_KEY, EXAM_DATA_KEY, messageApi]);
+  }, [attemptId, isSubmitting, navigate, STORAGE_KEY, EXAM_DATA_KEY, messageApi]);
 
   const handleExit = useCallback(async () => {
     const confirmed = window.confirm(
-      'Bạn có chắc muốn thoát? Bài thi sẽ được NỘP NGAY và không thể làm tiếp.'
+      'Are you sure you want to exit? The exam will be SUBMITTED immediately and cannot be retaken.'
     );
     if (!confirmed) return;
+    setIsExiting(true);
     try {
       await examAttemptService.submitExam(attemptId!);
     } catch (err) {
@@ -279,6 +284,7 @@ const FullTestPage: React.FC = () => {
     } finally {
       sessionStorage.removeItem(STORAGE_KEY);
       sessionStorage.removeItem(EXAM_DATA_KEY);
+      setIsExiting(false);
       navigate('/full-test');
     }
   }, [navigate, attemptId, STORAGE_KEY, EXAM_DATA_KEY]);
@@ -344,6 +350,8 @@ const FullTestPage: React.FC = () => {
         timeLeft={testState.timeLeft}
         onSubmit={() => setIsModalOpen(true)}
         onExit={handleExit}
+        isSubmitting={isSubmitting}
+        isExiting={isExiting}
         answeredCount={answeredCount}
         totalQuestions={examData?.totalQuestions ?? TOTAL_QUESTIONS}
         currentQuestion={testState.currentQuestion}
@@ -405,7 +413,6 @@ const FullTestPage: React.FC = () => {
         totalQuestions={examData?.totalQuestions ?? 200}
         sections={examData?.sections ?? []}
         isListening={testState.currentSection === 'listening'}
-        isListeningLocked={testState.isListeningLocked}
       />
 
       {/* Confirmation Modal */}
@@ -413,6 +420,7 @@ const FullTestPage: React.FC = () => {
         isOpen={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         onConfirm={handleSubmit}
+        isSubmitting={isSubmitting}
       />
     </div>
   );

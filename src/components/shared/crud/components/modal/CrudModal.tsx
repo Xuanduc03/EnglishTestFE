@@ -56,7 +56,6 @@ export const CrudModal = <T extends { id?: string | number }>
       }
 
       console.error("Submit Error:", error);
-      toast.error(error.message || "Có lỗi xảy ra");
     } finally {
       setSubmitting(false);
     }

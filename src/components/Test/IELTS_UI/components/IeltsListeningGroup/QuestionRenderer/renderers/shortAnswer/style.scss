@@ -1,0 +1,81 @@
+/* =========================================================
+   SENTENCE COMPLETION (Chuẩn Study4 - No Variables)
+   ========================================================= */
+
+.idp-sentence-completion-list {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+
+    .ielts-q-card {
+        display: flex;
+        align-items: flex-start;
+        padding: 24px 20px;
+        border-bottom: 1px solid #e8e8e8;
+        transition: background-color 0.2s;
+
+        /* Câu cuối cùng thì bỏ vạch kẻ ngang dưới đáy */
+        &:last-child {
+            border-bottom: none;
+        }
+
+        /* Khối chứa Số thứ tự */
+        .q-card-badge {
+            flex-shrink: 0;
+            width: 44px;
+
+            .badge-number {
+                width: 30px;
+                height: 30px;
+                background: #0050A0;
+                /* Màu xanh Study4 / IDP */
+                color: #fff;
+                font-weight: bold;
+                font-size: 14px;
+                border-radius: 4px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        /* Khối chứa Nội dung */
+        .q-card-content {
+            flex: 1;
+
+            .q-text {
+                font-size: 15.5px;
+                color: #333;
+                line-height: 1.6;
+                margin-bottom: 14px;
+                font-weight: 500;
+            }
+
+            /* Ô Input */
+            .q-input-wrapper {
+                .idp-standard-input {
+                    width: 100%;
+                    max-width: 360px;
+                    /* Độ rộng vừa phải, không kéo dài hết màn hình */
+                    height: 40px;
+                    padding: 0 14px;
+                    border: 2px solid #d9d9d9;
+                    border-radius: 4px;
+                    font-size: 15px;
+                    outline: none;
+                    transition: border-color 0.2s, box-shadow 0.2s;
+
+                    &:focus {
+                        border-color: #0050A0;
+                        /* Đổi viền xanh khi nhấp chuột vào */
+                        box-shadow: 0 0 0 3px rgba(0, 80, 160, 0.1);
+                    }
+                }
+            }
+        }
+    }
+}

@@ -15,7 +15,7 @@ export const categorieservice: ICrudService<CategoryDto> & {
     getByCodeType: (codeType: string, parentId: string) => Promise<CategoryDto[]>;
     getRootIdByCodeType(codeType: string): Promise<string | null>;
     getSelectCategory: (
-        parentId?: string
+        parentId?: string, examType?: string,
     ) => Promise<{ label: string; value: string }[]>;
 } = {
     getAll: async (params: CategoryParams) => {
@@ -90,8 +90,13 @@ export const categorieservice: ICrudService<CategoryDto> & {
         return items[0]?.id || null;
     },
 
-    getSelectCategory: async (codeType?: string) => {
-        const res = await api.get('/api/categories/select', { params: { codeType } });
+    getSelectCategory: async (codeType?: string, examType?: string) => {
+        const res = await api.get('/api/categories/select', {
+            params: {
+                ...(codeType ? { codeType } : {}),
+                ...(examType ? { examType } : {}),  
+            }
+        });
         return res.data.data || [];
     }
 };

@@ -5,9 +5,7 @@
   top: 0;
   z-index: 1000;
   background: rgba(255, 255, 255, 0.9) !important;
-  /* Đè màu đen mặc định của Layout.Header */
   backdrop-filter: blur(12px);
-  /* Hiệu ứng kính mờ */
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-light, #e2e8f0);
   height: 72px !important;

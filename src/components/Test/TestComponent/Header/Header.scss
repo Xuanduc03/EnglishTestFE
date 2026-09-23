@@ -107,13 +107,43 @@
 
     /* Nút Submit */
     .btn-submit {
-      background-color: #f97316; /* Cam đất */
+      background-color: #f97316;
       color: #ffffff;
       padding: 0 24px;
       cursor: pointer;
-      &:hover { background-color: #ea580c; }
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      &:hover:not(:disabled) { background-color: #ea580c; }
+      &:disabled { opacity: 0.7; cursor: not-allowed; }
+      &--loading { background-color: #c2501a; }
+    }
+
+    /* Inline spinner for submit/exit loading state */
+    .iig-btn-spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #ffffff;
+      border-radius: 50%;
+      animation: iig-spin 0.7s linear infinite;
+      flex-shrink: 0;
     }
   }
+
+}
+
+/* ── Spinner keyframe ─────────────────────────────────────────── */
+@keyframes iig-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Exit button loading state ───────────────────────────────── */
+.iig-header .iig-exit-btn {
+  transition: opacity 0.2s;
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &--loading { opacity: 0.7; }
 }
 
 /* ==================== RESPONSIVE ==================== */
@@ -137,7 +167,7 @@
     }
 
     .iig-header-center {
-      display: none; /* Ẩn tiêu đề trên mobile để có chỗ cho nút */
+      display: none;
     }
 
     .iig-header-right {

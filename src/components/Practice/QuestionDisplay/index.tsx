@@ -10,6 +10,7 @@ interface QuestionDisplayProps {
   markedSet: Set<string>;
   onSelectAnswer: (questionId: string, answerId: string) => void;
   onMarkForReview: (questionId: string) => void;
+  isReviewMode?: boolean;
 }
 
 const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
@@ -19,6 +20,7 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
   markedSet,
   onSelectAnswer,
   onMarkForReview,
+  isReviewMode = false,
 }) => {
   const [showExplanation, setShowExplanation] = useState<Record<string, boolean>>({});
 
@@ -32,7 +34,7 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
   const renderAudioPlayer = (url: string, key?: string) => (
     <div className="qd-audio-player" key={key}>
       <audio controls src={url} preload="metadata">
-        Trình duyệt của bạn không hỗ trợ file âm thanh này.
+        Your browser does not support the audio element.
       </audio>
     </div>
   );
@@ -63,7 +65,7 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
             {groupData.groupMedia.map((media) => renderAudioPlayer(media.url, media.id))}
             {groupData.groupContent && (
               <details className="qd-transcript">
-                <summary>Xem transcript</summary>
+                <summary>View Transcript</summary>
                 <div dangerouslySetInnerHTML={{ __html: groupData.groupContent }} />
               </details>
             )}
@@ -92,6 +94,11 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
 
     const getAnswerState = (answerId: string, isCorrect: boolean) => {
       if (!hasAnswered) return "default";
+
+      if (!isReviewMode) {
+        return answerId === selectedAnswerId ? "selected" : "default";
+      }
+
       if (answerId === selectedAnswerId) return isCorrect ? "correct" : "wrong";
       if (isCorrect) return "correct";
       return "default";
@@ -103,7 +110,7 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
         {/* Header: số câu + flag — full width */}
         <div className="qd-header">
           <span className="qd-question-number">
-            Câu {q.questionNumber}
+            Question {q.questionNumber}
             {q.totalQuestionsInGroup && (
               <span className="qd-group-badge">
                 {q.questionIndexInGroup}/{q.totalQuestionsInGroup}
@@ -113,7 +120,7 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
           <button
             className={`qd-flag-btn ${isMarked ? "active" : ""}`}
             onClick={() => onMarkForReview(q.questionId)}
-            title={isMarked ? "Bỏ đánh dấu" : "Đánh dấu xem lại"}
+            title={isMarked ? "Unmark" : "Mark for Review"}
           >
             <FlagFilled />
           </button>
@@ -132,7 +139,7 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
                 {q.hasAudio && q.audioUrl && (
                   <div className="qd-audio-container">
                     <audio controls src={q.audioUrl} preload="auto">
-                      Trình duyệt không hỗ trợ audio.
+                      Your browser does not support the audio element.
                     </audio>
                   </div>
                 )}
@@ -155,7 +162,7 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
                   <div
                     key={answer.id}
                     className={`qd-answer-row qd-answer-row--${state} ${isBlindListening ? "qd-blind-row" : ""}`}
-                    onClick={() => !hasAnswered && onSelectAnswer(q.questionId, answer.id)}
+                    onClick={() => !isReviewMode && onSelectAnswer(q.questionId, answer.id)}
                   >
                     <div className="qd-answer-left">
                       <span className={`qd-answer-radio qd-answer-radio--${state}`}>
@@ -165,14 +172,14 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
                         {state === "wrong" && (
                           <span className="qd-icon qd-icon--wrong">✕</span>
                         )}
-                        {state === "default" && (
-                          <span className={`qd-radio-dot ${selectedAnswerId === answer.id ? "checked" : ""}`} />
+                        {(state === "default" || state === "selected") && (
+                          <span className={`qd-radio-dot ${(state === "selected" || selectedAnswerId === answer.id) ? "checked" : ""}`} />
                         )}
                       </span>
                       <span className="qd-answer-label">{letterLabel}.</span>
                     </div>
 
-                    {(!isBlindListening || hasAnswered) && (
+                    {(!isBlindListening || hasAnswered || isReviewMode) && (
                       <div className="qd-answer-content">
                         {answer.media && answer.media.length > 0 ? (
                           <div className="qd-answer-media">
@@ -189,11 +196,11 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
               })}
             </div>
 
-            {/* Result Panel */}
-            {hasAnswered && (
+            {/* Result Panel — only visible in review mode */}
+            {isReviewMode && (
               <div className="qd-result-panel">
                 <div className="qd-correct-answer">
-                  <span className="qd-result-label">Đáp án đúng:</span>
+                  <span className="qd-result-label">Correct Answer:</span>
                   <span className="qd-result-value">{correctLetter}</span>
                 </div>
 
@@ -208,7 +215,7 @@ const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
                         }))
                       }
                     >
-                      {showExplanation[q.questionId] ? "Ẩn giải thích ▲" : "Xem giải thích ▼"}
+                      {showExplanation[q.questionId] ? "Hide Explanation ▲" : "Show Explanation ▼"}
                     </button>
                     {showExplanation[q.questionId] && (
                       <div

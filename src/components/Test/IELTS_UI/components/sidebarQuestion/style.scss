@@ -1,0 +1,215 @@
+// ══════════════════════════════════════════════════════════
+// IELTS Sidebar — Right-side panel (inline in flex row)
+// ══════════════════════════════════════════════════════════
+
+$sidebar-width:     220px;
+$blue:              #1a73e8;
+$orange:            #f97316;
+$orange-dark:       #ea580c;
+$answered-bg:       #dbeafe;
+$answered-border:   #93c5fd;
+$answered-color:    #1d4ed8;
+$current-bg:        #1d4ed8;
+$current-color:     #ffffff;
+$gray-bg:           #f9fafb;
+$gray-border:       #e5e7eb;
+$text-primary:      #111827;
+$text-secondary:    #6b7280;
+$white:             #ffffff;
+$radius-sm:         4px;
+$radius-md:         8px;
+
+// ── Outer wrapper — inline flex child, right side ─────────
+.ielts-sidebar {
+    width: $sidebar-width;
+    flex-shrink: 0;          // never shrink
+    height: 100%;            // match parent idp-body-row
+    background: $white;
+    border-left: 1px solid $gray-border;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: -2px 0 6px rgba(0, 0, 0, .05);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    // NO position:fixed — sits naturally in flex row
+
+    // ── Timer block ─────────────────────────────────────
+    .sidebar-timer {
+        padding: 12px 14px 8px;
+        border-bottom: 1px solid $gray-border;
+        background: $gray-bg;
+        text-align: center;
+
+        &__label {
+            font-size: 10px;
+            color: $text-secondary;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-bottom: 2px;
+        }
+
+        &__value {
+            font-size: 24px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            color: $text-primary;
+            letter-spacing: 2px;
+            line-height: 1.2;
+
+            &--warning { color: #d97706; }
+            &--danger  { color: #dc2626; animation: blink .9s infinite; }
+        }
+    }
+
+    // ── NỘP BÀI button ──────────────────────────────────
+    .sidebar-submit {
+        margin: 10px 12px 4px;
+        padding: 10px 0;
+        background: $orange;
+        color: $white;
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: .5px;
+        border: none;
+        border-radius: $radius-md;
+        cursor: pointer;
+        width: calc(100% - 24px);
+        text-align: center;
+        transition: background .18s ease;
+        flex-shrink: 0;
+
+        &:hover  { background: $orange-dark; }
+        &:active { transform: translateY(1px); }
+    }
+
+    // ── Review hint ─────────────────────────────────────
+    .sidebar-review-hint {
+        font-size: 11px;
+        color: $orange;
+        text-align: center;
+        padding: 2px 12px 8px;
+        line-height: 1.5;
+        cursor: pointer;
+        flex-shrink: 0;
+        border-bottom: 1px solid $gray-border;
+
+        &:hover { text-decoration: underline; }
+    }
+
+    // ── Scrollable questions container ───────────────────
+    .sidebar-questions-container {
+        flex: 1;
+        overflow-y: auto;
+        padding-bottom: 8px;
+
+        &::-webkit-scrollbar       { width: 4px; }
+        &::-webkit-scrollbar-track { background: transparent; }
+        &::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 3px;
+        }
+    }
+
+    // ── Section group ────────────────────────────────────
+    .sidebar-section-group {
+        padding: 8px 0 4px;
+        border-bottom: 1px solid $gray-border;
+
+        &:last-child { border-bottom: none; }
+    }
+
+    .sidebar-section-title {
+        font-size: 10.5px;
+        font-weight: 700;
+        color: $text-secondary;
+        text-transform: uppercase;
+        letter-spacing: .4px;
+        padding: 0 12px 5px;
+    }
+
+    // ── Question number grid — 5 columns ─────────────────
+    .sidebar-section-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 4px;
+        padding: 0 10px 6px;
+    }
+
+    // ── Individual question button ───────────────────────
+    .sidebar-q-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 28px;
+        border: 1px solid #d1d5db;
+        background: $white;
+        color: #374151;
+        font-size: 11.5px;
+        font-weight: 500;
+        border-radius: $radius-sm;
+        cursor: pointer;
+        transition: all .13s ease;
+        padding: 0;
+
+        &:hover {
+            border-color: #9ca3af;
+            background: #f3f4f6;
+        }
+
+        &.answered {
+            background: $answered-bg;
+            border-color: $answered-border;
+            color: $answered-color;
+        }
+
+        &.current {
+            background: $current-bg;
+            border-color: $current-bg;
+            color: $current-color;
+            font-weight: 700;
+            box-shadow: 0 0 0 2px rgba(29, 78, 216, .25);
+        }
+
+        &.current.answered {
+            background: $current-bg;
+            color: $current-color;
+        }
+    }
+
+    // ── Navigation ◀ ▶ — pinned to bottom ───────────────
+    .sidebar-nav {
+        display: flex;
+        gap: 6px;
+        padding: 8px 12px;
+        border-top: 1px solid $gray-border;
+        background: $gray-bg;
+        flex-shrink: 0;
+
+        button {
+            flex: 1;
+            padding: 6px 0;
+            border: 1px solid #d1d5db;
+            background: $white;
+            border-radius: $radius-sm;
+            font-weight: 700;
+            font-size: 13px;
+            color: #374151;
+            cursor: pointer;
+            transition: all .14s ease;
+
+            &:hover:not(:disabled) {
+                background: #e5e7eb;
+            }
+
+            &:disabled {
+                opacity: .33;
+                cursor: not-allowed;
+            }
+        }
+    }
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: .45; }
+}

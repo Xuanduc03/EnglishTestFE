@@ -1,4 +1,19 @@
 // ListTestFull.scss
+
+.idp-fulltest-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* Chiếm toàn bộ 100% chiều cao màn hình */
+  overflow: hidden;
+
+  /* CỨU TINH CHÍNH LÀ ĐÂY: Ép vùng chứa câu hỏi chiếm hết khoảng trống */
+  .idp-main-workspace {
+    flex: 1; 
+    overflow-y: auto; /* Cho phép cuộn lên xuống nếu câu hỏi dài */
+    background-color: #f4f5f7;
+    padding: 20px;
+  }
+}
 .tests-section {
   background-color: #f5f7fa; // nền giống login
   min-height: 100vh;

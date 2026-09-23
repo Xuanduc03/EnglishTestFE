@@ -87,12 +87,11 @@ const PracticeSession: React.FC = () => {
         totalTimeSeconds,
       });
 
-      sessionStorage.removeItem(STORAGE_KEY);
-      message.success("Nộp bài thành công!");
+      message.success("Practice session submitted successfully!");
       navigate(`/practice/result/${sessionId}`);
     } catch (error: any) {
       console.error("Submit practice error:", error);
-      message.error("Nộp bài thất bại. Vui lòng thử lại.");
+      message.error("Failed to submit practice session. Please try again.");
       setState((prev) => ({ ...prev, isSubmitting: false }));
     }
   }, [sessionId, navigate, state.session, state.answers, state.markedForReview, state.startTime]);
@@ -175,19 +174,19 @@ const PracticeSession: React.FC = () => {
 
     if (unanswered > 0) {
       openConfirmModal(
-        "Xác nhận nộp bài",
-        `Bạn còn ${unanswered} câu chưa trả lời. Bạn có chắc muốn nộp bài?`,
+        "Confirm Submission",
+        `You have ${unanswered} unanswered questions. Are you sure you want to submit?`,
         () => submitPractice(),
-        "Nộp bài",
-        "Tiếp tục làm"
+        "Submit",
+        "Continue"
       );
     } else {
       openConfirmModal(
-        "Xác nhận nộp bài",
-        "Bạn đã hoàn thành tất cả câu hỏi. Xác nhận nộp bài?",
+        "Confirm Submission",
+        "You have answered all questions. Confirm submission?",
         () => submitPractice(),
-        "Nộp bài",
-        "Xem lại"
+        "Submit",
+        "Review"
       );
     }
   }, [submitPractice, state.session, state.answers.size]);
@@ -198,8 +197,8 @@ const PracticeSession: React.FC = () => {
       timerRef.current = null;
     }
     openConfirmModal(
-      "Hết giờ!",
-      "Thời gian luyện tập đã hết. Bài thi sẽ được tự động nộp.",
+      "Time's up!",
+      "Practice time is over. Your session will be automatically submitted.",
       () => submitPractice(),
       "OK",
       ""
@@ -212,7 +211,7 @@ const PracticeSession: React.FC = () => {
 
   useEffect(() => {
     if (!sessionId) {
-      message.error("Session ID không hợp lệ");
+      message.error("Invalid Session ID");
       navigate("/practice");
       return;
     }
@@ -266,7 +265,7 @@ const PracticeSession: React.FC = () => {
         }
       } catch (error: any) {
         console.error("Load session error:", error);
-        toast.error("Không thể tải session practice");
+        toast.error("Failed to load practice session");
         navigate("/practice");
       } finally {
         setLoading(false);
@@ -378,8 +377,8 @@ const PracticeSession: React.FC = () => {
   // ─────────────────────────────────────────────
   const handleAbandon = () => {
     openConfirmModal(
-      "Thoát khỏi bài luyện tập?",
-      "Tiến trình của bạn sẽ được lưu lại. Bạn có thể tiếp tục sau.",
+      "Exit Practice Session?",
+      "Your progress will be saved. You can continue later.",
       async () => {
         try {
           const formattedAnswers = Array.from(state.answers.entries()).map(([qId, aId]) => ({
@@ -399,8 +398,8 @@ const PracticeSession: React.FC = () => {
           navigate("/practice/list");
         }
       },
-      "Thoát",
-      "Ở lại"
+      "Exit",
+      "Stay"
     );
   };
 
@@ -413,7 +412,7 @@ const PracticeSession: React.FC = () => {
       <div className="practice-session loading">
         <div className="loading-spinner">
           <div className="spinner" />
-          <p>Đang tải bài luyện tập...</p>
+          <p>Loading practice session...</p>
         </div>
       </div>
     );
@@ -422,7 +421,7 @@ const PracticeSession: React.FC = () => {
   if (!state.session || !currentQuestion) {
     return (
       <div className="practice-session error">
-        <p>Không tìm thấy session</p>
+        <p>Session not found</p>
       </div>
     );
   }
@@ -436,7 +435,7 @@ const PracticeSession: React.FC = () => {
       <div className="practice-header">
         <div className="header-left">
           <button className="back-btn" onClick={handleAbandon}>
-            <LeftOutlined /> Thoát
+            <LeftOutlined /> Exit
           </button>
           <h2 className="session-title">{state.session.title}</h2>
         </div>
@@ -466,7 +465,7 @@ const PracticeSession: React.FC = () => {
             onClick={handleSubmit}
             disabled={state.isSubmitting}
           >
-            {state.isSubmitting ? "Đang nộp bài..." : "Nộp bài"}
+            {state.isSubmitting ? "Submitting..." : "Submit"}
           </button>
         </div>
       </div>
@@ -486,39 +485,6 @@ const PracticeSession: React.FC = () => {
             />
           )}
 
-          {/* Navigation Buttons */}
-          <div className="question-navigation">
-            <button
-              className="nav-btn prev"
-              onClick={handlePrevPage}
-              disabled={activePageIndex === 0}
-            >
-              <LeftOutlined /> Câu trước
-            </button>
-
-            <button
-              className={`nav-btn mark ${state.markedForReview.has(currentQuestion.questionId)
-                ? "active"
-                : ""
-                }`}
-              onClick={() =>
-                handleMarkForReview(currentQuestion.questionId)
-              }
-            >
-              <FlagOutlined />
-              {state.markedForReview.has(currentQuestion.questionId)
-                ? "Bỏ đánh dấu"
-                : "Đánh dấu xem lại"}
-            </button>
-
-            <button
-              className="nav-btn next"
-              onClick={handleNextPage}
-              disabled={activePageIndex === displayPages.length - 1}
-            >
-              Câu sau <RightOutlined />
-            </button>
-          </div>
         </div>
       </div>
 
@@ -529,6 +495,12 @@ const PracticeSession: React.FC = () => {
         answers={state.answers}
         markedForReview={state.markedForReview}
         onNavigate={goToQuestion}
+        onPrevPage={handlePrevPage}
+        onNextPage={handleNextPage}
+        isFirstPage={activePageIndex === 0}
+        isLastPage={activePageIndex === displayPages.length - 1}
+        onMarkReview={() => handleMarkForReview(currentQuestion.questionId)}
+        isMarked={state.markedForReview.has(currentQuestion.questionId)}
       />
 
       {/* Modal xác nhận thoát */}

@@ -4,47 +4,61 @@ import { api } from '../../../configs/axios-custom';
 import { examAttemptService } from '../services/examAttemptApi';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import type { CompletedAttemptDto } from '../../../pages/Student/FullTest/examAttempt.types';
+import type { CompletedAttemptDto, ExamHistoryItem } from '../../../pages/Student/FullTest/examAttempt.types';
+import { ieltsAttemptService } from '../services/IELTS/ieltsAttemp.services';
 
-// ── Types ─────────────────────────────────────────────────────
-interface Test {
-  id: string;
-  title: string;
-  type: 'free' | 'new' | 'premium';
-  totalScore: number;
-  userScore?: number;
-  questionCount: number;
-  activeUserCount: number;
-  hasExplanation: boolean;
-  status: 'not-started' | 'in-progress' | 'completed';
-  progress?: number;
-}
+export const ExamType = {
+  TOEIC: 1,
+  IELTS: 2,
+  TOEFL: 3,
+  SAT: 4,
+  Other: 99
+} as const;
 
+
+export type ExamType = typeof ExamType[keyof typeof ExamType];
+// ── Types 
 interface ExamSummaryDto {
   id: string;
   code: string;
   title: string;
   description?: string;
   duration: number;
+  timeLimitSeconds?: number;
   totalScore: number;
   questionCount: number;
   activeUserCount: number;
-  status: string;
+  status: number;
+  type: ExamType;
   version: number;
   createdAt: string;
 }
 
+interface Test {
+  id: string;
+  title: string;
+  typeBadge: 'free' | 'new' | 'premium';
+  examType: ExamType;
+  totalScore: number;
+  userScore?: number;
+  questionCount: number;
+  activeUserCount: number;
+  hasExplanation: boolean;
+  status: 'not-started' | 'in-progress' | 'completed';
+  duration: number; // display minutes
+}
+
 interface TestCardProps {
   test: Test;
-  onStartTest: (testId: string) => void;
-  onContinueTest: (testId: string) => void;
-  onRetryTest: (testId: string) => void;
+  onStartTest: (testId: string, examType: ExamType) => void;
+  onContinueTest: (testId: string, examType: ExamType) => void;
+  onRetryTest: (testId: string, examType: ExamType) => void;
 }
 
 // ── TestCard ───────────────────────────────────────────────────
 const TestCard: React.FC<TestCardProps> = ({ test, onStartTest, onContinueTest, onRetryTest }) => {
   const getBadgeText = () => {
-    switch (test.type) {
+    switch (test.typeBadge) {
       case 'free': return 'Free';
       case 'new': return 'New';
       case 'premium': return 'Premium';
@@ -54,18 +68,18 @@ const TestCard: React.FC<TestCardProps> = ({ test, onStartTest, onContinueTest, 
 
   const getButtonText = () => {
     switch (test.status) {
-      case 'not-started': return 'Làm ngay';
-      case 'in-progress': return 'Tiếp tục';
-      case 'completed': return 'Thử lại';
-      default: return 'Làm ngay';
+      case 'not-started': return 'Start Now';
+      case 'in-progress': return 'Continue';
+      case 'completed': return 'Retry';
+      default: return 'Start Now';
     }
   };
 
   const handleButtonClick = () => {
     switch (test.status) {
-      case 'not-started': onStartTest(test.id); break;
-      case 'in-progress': onContinueTest(test.id); break;
-      case 'completed':   onRetryTest(test.id); break;
+      case 'not-started': onStartTest(test.id, test.examType); break;
+      case 'in-progress': onContinueTest(test.id, test.examType); break;
+      case 'completed': onRetryTest(test.id, test.examType); break;
     }
   };
 
@@ -79,16 +93,31 @@ const TestCard: React.FC<TestCardProps> = ({ test, onStartTest, onContinueTest, 
     }
     return (
       <div className="score-section">
-        <p className="score-text">Điểm của bạn</p>
+        <p className="score-text">Your Score</p>
         <p className="score-value">{test.userScore}/{test.totalScore}</p>
       </div>
     );
   };
 
   return (
-    <div className={`test-card ${test.type}`}>
-      <div className={`card-badge ${test.type}`}>{getBadgeText()}</div>
-      <div className="card-content">
+    <div className={`test-card ${test.typeBadge}`}>
+      <div className="card-badges-wrapper" style={{ display: 'flex', gap: '8px', position: 'absolute', top: '12px', left: '12px', zIndex: 2 }}>
+        <div className={`card-badge ${test.typeBadge}`} style={{ position: 'relative', top: 0, left: 0 }}>
+          {getBadgeText()}
+        </div>
+
+        {/* Nhãn phân loại TOEIC / IELTS */}
+        <div
+          style={{
+            backgroundColor: test.examType === ExamType.IELTS ? '#0050A0' : '#cf1322',
+            color: 'white', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center'
+          }}
+        >
+          {test.examType === ExamType.IELTS ? 'IELTS' : 'TOEIC'}
+        </div>
+      </div>
+
+      <div className="card-content" style={{ marginTop: '16px' }}>
         <h3 className="test-title">{test.title}</h3>
         {getScoreDisplay()}
         <div className="test-info">
@@ -101,8 +130,8 @@ const TestCard: React.FC<TestCardProps> = ({ test, onStartTest, onContinueTest, 
             <span className="info-text">{test.activeUserCount.toLocaleString()} participants</span>
           </div>
           <div className="info-item">
-            <span className="info-icon">💡</span>
-            <span className="info-text">{test.hasExplanation ? 'Free explanation' : 'No explanation'}</span>
+            <span className="info-icon">⏱️</span>
+            <span className="info-text">{test.duration} mins</span>
           </div>
         </div>
         <button className="action-button" onClick={handleButtonClick}>
@@ -113,22 +142,34 @@ const TestCard: React.FC<TestCardProps> = ({ test, onStartTest, onContinueTest, 
   );
 };
 
-// ── HistoryCard ────────────────────────────────────────────────
+// ── HistoryCard (Giữ nguyên) ───────────────────────────────────
 interface HistoryCardProps {
-  attempt: CompletedAttemptDto;
-  onViewResult: (attemptId: string) => void;
+  attempt: ExamHistoryItem;
+  onViewResult: (attemptId: string, isIelts: boolean) => void;
   onRetry: (examId: string) => void;
 }
 
 const HistoryCard: React.FC<HistoryCardProps> = ({ attempt, onViewResult, onRetry }) => {
-  const scorePercent = Math.round(attempt.scorePercent);
+  const accuracy = attempt.accuracyPercent ?? 0;
+  const scorePercent = Math.round(accuracy);
   const getScoreColor = () => {
     if (scorePercent >= 80) return '#52c41a';
     if (scorePercent >= 60) return '#1677ff';
     if (scorePercent >= 40) return '#faad14';
     return '#ff4d4f';
   };
+  const isIelts = attempt.examCode?.includes('IELTS') || attempt.examTitle?.includes('IELTS');
+  const maxScore = isIelts ? '9.0' : '990';
 
+  let currentScore: string | number = attempt.totalScore || 0;
+  if (isIelts && attempt.totalScore != null) {
+    currentScore = (attempt.totalScore / 10).toFixed(1); // IELTS lưu 85 -> hiển thị 8.5
+  } else if (attempt.status === 'InProgress' || attempt.totalScore == null) {
+    currentScore = '-'; // Chưa nộp bài thì hiện dấu gạch ngang
+  }
+
+  // 3. FIX SỐ CÂU SAI: Tổng câu - câu đúng (để gom cả số câu chưa làm vào)
+  const wrongCount = (attempt.totalQuestions || 0) - (attempt.correctAnswers || 0);
   const formatDate = (isoStr: string) => {
     try {
       return new Date(isoStr).toLocaleDateString('vi-VN', {
@@ -142,58 +183,36 @@ const HistoryCard: React.FC<HistoryCardProps> = ({ attempt, onViewResult, onRetr
 
   return (
     <div className="history-card">
-      {/* Header */}
       <div className="history-card__header">
         <div className="history-card__title-group">
           <h3 className="history-card__title">{attempt.examTitle}</h3>
-          <span className="history-card__date">🗓 {formatDate(attempt.submittedAt)}</span>
+          <span className="history-card__date">{formatDate(attempt.submittedAt || '')}</span>
         </div>
         <div className="history-card__score-badge" style={{ color: getScoreColor(), borderColor: getScoreColor() }}>
           <span className="score-num">{attempt.totalScore}</span>
-          <span className="score-max">/{attempt.maxScore}</span>
+          <span className="score-max">/{maxScore}</span>
         </div>
       </div>
 
-      {/* Progress bar */}
       <div className="history-card__progress">
         <div className="progress-meta">
-          <span className="progress-label">Tỉ lệ đúng</span>
+          <span className="progress-label">Accuracy</span>
           <span className="progress-pct" style={{ color: getScoreColor() }}>{scorePercent}%</span>
         </div>
         <div className="progress-track">
-          <div
-            className="progress-fill"
-            style={{ width: `${scorePercent}%`, background: getScoreColor() }}
-          />
+          <div className="progress-fill" style={{ width: `${scorePercent}%`, background: getScoreColor() }} />
         </div>
       </div>
 
-      {/* Stats */}
       <div className="history-card__stats">
-        <div className="stat-chip correct">
-          <span className="stat-icon">✅</span>
-          <span>{attempt.correctAnswers} đúng</span>
-        </div>
-        <div className="stat-chip wrong">
-          <span className="stat-icon">❌</span>
-          <span>{attempt.totalQuestions - attempt.correctAnswers} sai</span>
-        </div>
-        <div className="stat-chip total">
-          <span className="stat-icon">📝</span>
-          <span>{attempt.totalQuestions} câu</span>
-        </div>
+        <div className="stat-chip correct"><span className="stat-icon">✅</span><span>{attempt.correctAnswers} correct</span></div>
+        <div className="stat-chip wrong"><span className="stat-icon">❌</span><span>{attempt.totalQuestions - attempt.correctAnswers} wrong</span></div>
+        <div className="stat-chip total"><span className="stat-icon">📝</span><span>{attempt.totalQuestions} items</span></div>
       </div>
 
-      {/* Actions */}
       <div className="history-card__actions">
-        <button className="hc-btn hc-btn--primary" onClick={() => onViewResult(attempt.attemptId)}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-          Xem kết quả
-        </button>
-        <button className="hc-btn hc-btn--secondary" onClick={() => onRetry(attempt.examId)}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-          Làm lại
-        </button>
+        <button className="hc-btn hc-btn--primary" onClick={() => onViewResult(attempt.attemptId, isIelts)}>Review Result</button>
+        <button className="hc-btn hc-btn--secondary" onClick={() => onRetry(attempt.examId)}>Retry</button>
       </div>
     </div>
   );
@@ -201,6 +220,7 @@ const HistoryCard: React.FC<HistoryCardProps> = ({ attempt, onViewResult, onRetr
 
 // ── Main component ─────────────────────────────────────────────
 type ActiveTab = 'list' | 'history';
+type FilterType = 'ALL' | typeof ExamType.TOEIC | typeof ExamType.IELTS;
 
 const ListTestFull: React.FC = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('list');
@@ -208,206 +228,199 @@ const ListTestFull: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState<'all' | 'free' | 'new' | 'premium'>('all');
 
-  const [history, setHistory] = useState<CompletedAttemptDto[]>([]);
+  // State Lọc theo Loại Kỳ Thi (TOEIC / IELTS / TẤT CẢ)
+  const [activeFilter, setActiveFilter] = useState<FilterType>('ALL');
+
+  const [history, setHistory] = useState<ExamHistoryItem[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [historyError, setHistoryError] = useState<string | null>(null);
 
   const navigate = useNavigate();
 
-  // Filter
-  const filteredTests = tests.filter((test) => {
-    const matchesSearch = test.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = activeFilter === 'all' || test.type === activeFilter;
-    return matchesSearch && matchesFilter;
-  });
+  const filteredTests = tests.filter((test) =>
+    test.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-  // ── Fetch exam list ──────────────────────────────────────────
-  const fetchFullTests = async (): Promise<Test[]> => {
-    const response = await api.get<ExamSummaryDto[]>('/api/exams/full-tests');
-    return response.data.map((exam) => {
-      const isPremium = exam.code?.toLowerCase().includes('premium') || false;
-      const isNew = new Date(exam.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-      let type: 'free' | 'new' | 'premium' = 'free';
-      if (isPremium) type = 'premium';
-      else if (isNew) type = 'new';
-      return {
-        id: exam.id,
-        title: exam.title,
-        type,
-        totalScore: exam.totalScore,
-        userScore: undefined,
-        questionCount: exam.questionCount,
-        activeUserCount: exam.activeUserCount,
-        hasExplanation: true,
-        status: 'not-started',
-      };
-    });
+  // ── 1. Fetch exam list CÓ TRUYỀN PARAM ?type= ──────────────────
+  const fetchFullTests = async (filterType: FilterType) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Ghép param vào URL nếu có lọc
+      const url = filterType === 'ALL'
+        ? '/api/exams/full-tests'
+        : `/api/exams/full-tests?type=${filterType}`;
+
+      const response = await api.get<ExamSummaryDto[]>(url);
+
+      const mappedData: Test[] = response.data.map((exam) => {
+        const isPremium = exam.code?.toLowerCase().includes('premium') || false;
+        const isNew = new Date(exam.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+        let typeBadge: 'free' | 'new' | 'premium' = 'free';
+        if (isPremium) typeBadge = 'premium';
+        else if (isNew) typeBadge = 'new';
+
+        // Prefer timeLimitSeconds from API (converts to minutes), fallback to duration
+          const durationMins = exam.timeLimitSeconds
+            ? Math.round(exam.timeLimitSeconds / 60)
+            : exam.duration;
+
+          return {
+            id: exam.id,
+            title: exam.title,
+            typeBadge,
+            examType: exam.type,
+            totalScore: exam.totalScore,
+            questionCount: exam.questionCount,
+            activeUserCount: exam.activeUserCount,
+            hasExplanation: true,
+            status: 'not-started',
+            duration: durationMins
+          };
+      });
+
+      setTests(mappedData);
+    } catch {
+      setError('Could not load test list. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // Tự động gọi API lại khi học viên bấm đổi bộ lọc TOEIC / IELTS
   useEffect(() => {
-    const load = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        setTests(await fetchFullTests());
-      } catch {
-        setError('Không thể tải danh sách đề thi. Vui lòng thử lại sau.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
-  }, []);
+    fetchFullTests(activeFilter);
+  }, [activeFilter]);
 
-  // ── Fetch completed history ──────────────────────────────────
+  // ── 2. Fetch completed history VÀ FIX LỖI THIẾU setHistory ─────
   const fetchHistory = async () => {
     try {
       setHistoryLoading(true);
       setHistoryError(null);
-      const data = await examAttemptService.getCompletedAttempts();
-      setHistory(data);
+
+      // Gọi API từ service
+      const data = await examAttemptService.getHistory();
+
+      setHistory(data.items || []);
+
     } catch {
-      setHistoryError('Không thể tải lịch sử làm bài. Vui lòng thử lại sau.');
+      setHistoryError('Could not load exam history. Please try again later.');
     } finally {
       setHistoryLoading(false);
     }
   };
 
-  // Load history khi chuyển sang tab lịch sử
   useEffect(() => {
     if (activeTab === 'history' && history.length === 0 && !historyLoading) {
       fetchHistory();
     }
   }, [activeTab]);
 
-  // ── Handlers ────────────────────────────────────────────────
-  const handleStartTest = async (testId: string) => {
+  const handleStartTest = async (testId: string, examType: ExamType) => {
     try {
-      const attempt = await examAttemptService.startExam({ examId: testId });
-      navigate(`/full-test/${attempt.attemptId}`, { state: { examData: attempt } });
+      if (examType === ExamType.IELTS) {
+        const ieltsAttempt = await ieltsAttemptService.startExam({ examId: testId });
+        navigate(`/ielts-test/${ieltsAttempt.attemptId}`, { state: { examData: ieltsAttempt } });
+      } else {
+        const toeicAttempt = await examAttemptService.startExam({ examId: testId });
+        navigate(`/full-test/${toeicAttempt.attemptId}`, { state: { examData: toeicAttempt } });
+      }
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Không thể bắt đầu bài thi');
+      toast.error(error?.response?.data?.message || 'Cannot start the exam right now');
     }
   };
 
-  const handleContinueTest = async (testId: string) => {
-    console.log('Continuing test:', testId);
+  const handleContinueTest = async (testId: string, examType: ExamType) => {
+    toast.info("Continue feature is currently being updated!");
   };
 
-  const handleRetryTest = async (testId: string) => {
-    try {
-      const attempt = await examAttemptService.startExam({ examId: testId });
-      navigate(`/full-test/${attempt.attemptId}`, { state: { examData: attempt } });
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Không thể bắt đầu bài thi');
+  const handleRetryTest = async (testId: string, examType: ExamType) => {
+    handleStartTest(testId, examType); // Tái sử dụng logic của StartTest
+  };
+
+  const handleViewResult = (attemptId: string, isIelts: boolean) => {
+    if (isIelts) {
+      navigate(`/ielts-test/review/${attemptId}`);
+    } else {
+      navigate(`/full-test/${attemptId}/review`);
     }
   };
 
-  const handleViewResult = (attemptId: string) => {
-    navigate(`/full-test/result`, { state: { attemptId } });
-  };
-
-  const handleRetry = async (examId: string) => {
-    try {
-      const newAttempt = await examAttemptService.startExam({ examId });
-      navigate(`/full-test/${newAttempt.attemptId}`, { state: { examData: newAttempt } });
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message || 'Không thể bắt đầu bài thi');
-    }
+  const handleRetryHistory = async (examId: string) => {
+    toast.info("Please go back to the list tab to restart the test.");
   };
 
   // ── Render ───────────────────────────────────────────────────
   return (
     <section className="tests-section">
       <div className="tests-container">
-        {/* Section Header */}
         <div className="section-header">
-          <h1 className="section-title">📚 Đề Thi TOEIC</h1>
-          <p className="section-subtitle">Luyện tập với các đề thi TOEIC mới nhất và hoàn toàn miễn phí</p>
+          <h1 className="section-title">📚 Test Library</h1>
+          <p className="section-subtitle">Practice with the latest certification exams completely free!</p>
         </div>
 
-        {/* ── Tab Navigation ── */}
         <div className="tabs-nav">
-          <button
-            className={`tab-btn ${activeTab === 'list' ? 'active' : ''}`}
-            onClick={() => setActiveTab('list')}
-          >
-            <span className="tab-icon">📋</span>
-            Danh Sách Đề Thi
+          <button className={`tab-btn ${activeTab === 'list' ? 'active' : ''}`} onClick={() => setActiveTab('list')}>
+            <span className="tab-icon">📋</span> Test List
           </button>
-          <button
-            className={`tab-btn ${activeTab === 'history' ? 'active' : ''}`}
-            onClick={() => setActiveTab('history')}
-          >
-            <span className="tab-icon">🏆</span>
-            Lịch Sử Làm Bài
+          <button className={`tab-btn ${activeTab === 'history' ? 'active' : ''}`} onClick={() => setActiveTab('history')}>
+            <span className="tab-icon">🏆</span> History
           </button>
         </div>
 
-        {/* ══ TAB 1: DANH SÁCH ĐỀ THI ══ */}
         {activeTab === 'list' && (
           <>
-            {loading && (
+            {loading ? (
               <div className="tests-loading">
-                {[...Array(8)].map((_, i) => (
-                  <div key={i} className="test-card-skeleton" />
-                ))}
+                {[...Array(8)].map((_, i) => <div key={i} className="test-card-skeleton" />)}
               </div>
-            )}
-
-            {error && !loading && (
+            ) : error ? (
               <div className="tests-empty">
                 <div className="empty-icon">⚠️</div>
-                <h3 className="empty-title">Đã xảy ra lỗi</h3>
+                <h3 className="empty-title">Oops! Error occurred</h3>
                 <p className="empty-description">{error}</p>
-                <button onClick={() => window.location.reload()} className="retry-button">Thử lại</button>
+                <button onClick={() => fetchFullTests(activeFilter)} className="retry-button">Retry</button>
               </div>
-            )}
-
-            {!loading && !error && (
+            ) : (
               <>
-                {/* Search & Filter */}
                 <div className="search-filter-bar">
                   <div className="search-wrapper">
                     <span className="search-icon">🔍</span>
                     <input
                       type="text"
                       className="search-input"
-                      placeholder="Tìm kiếm đề thi theo tên..."
+                      placeholder="Search for tests..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
-                    {searchQuery && (
-                      <button className="search-clear-btn" onClick={() => setSearchQuery('')}>✕</button>
-                    )}
+                    {searchQuery && <button className="search-clear-btn" onClick={() => setSearchQuery('')}>✕</button>}
                   </div>
+
+                  {/* BỘ LỌC ĐÃ CẬP NHẬT LÊN API */}
                   <div className="filter-pills">
-                    {(['all', 'free', 'new', 'premium'] as const).map((f) => (
-                      <button
-                        key={f}
-                        className={`filter-pill ${f} ${activeFilter === f ? 'active' : ''}`}
-                        onClick={() => setActiveFilter(f)}
-                      >
-                        {f === 'all' ? 'Tất cả' : f === 'free' ? 'Miễn phí' : f === 'new' ? 'Mới' : 'Premium'}
-                      </button>
-                    ))}
+                    <button
+                      className={`filter-pill ${activeFilter === 'ALL' ? 'active' : ''}`}
+                      onClick={() => setActiveFilter('ALL')}
+                    >All</button>
+                    <button
+                      className={`filter-pill ${activeFilter === ExamType.TOEIC ? 'active' : ''}`}
+                      onClick={() => setActiveFilter(ExamType.TOEIC)}
+                    >TOEIC</button>
+                    <button
+                      className={`filter-pill ${activeFilter === ExamType.IELTS ? 'active' : ''}`}
+                      onClick={() => setActiveFilter(ExamType.IELTS)}
+                    >IELTS</button>
                   </div>
-                  <p className="result-count">{filteredTests.length} / {tests.length} đề thi</p>
+                  <p className="result-count">{filteredTests.length} tests</p>
                 </div>
 
                 {filteredTests.length === 0 ? (
                   <div className="tests-empty">
                     <div className="empty-icon">🔎</div>
-                    <h3 className="empty-title">Không tìm thấy đề thi</h3>
-                    <p className="empty-description">
-                      Không có đề thi nào khớp với từ khóa <strong>"{searchQuery}"</strong>
-                      {activeFilter !== 'all' && ` trong nhóm "${activeFilter}"`}.
-                    </p>
-                    <button className="retry-button" onClick={() => { setSearchQuery(''); setActiveFilter('all'); }}>
-                      Xóa bộ lọc
-                    </button>
+                    <h3 className="empty-title">No results found</h3>
                   </div>
                 ) : (
                   <div className="tests-grid">
@@ -427,48 +440,30 @@ const ListTestFull: React.FC = () => {
           </>
         )}
 
-        {/* ══ TAB 2: LỊCH SỬ LÀM BÀI ══ */}
         {activeTab === 'history' && (
           <>
-            {historyLoading && (
+            {historyLoading ? (
               <div className="tests-loading">
-                {[...Array(4)].map((_, i) => (
-                  <div key={i} className="test-card-skeleton history-skeleton" />
-                ))}
+                {[...Array(4)].map((_, i) => <div key={i} className="test-card-skeleton history-skeleton" />)}
               </div>
-            )}
-
-            {historyError && !historyLoading && (
+            ) : historyError ? (
               <div className="tests-empty">
                 <div className="empty-icon">⚠️</div>
-                <h3 className="empty-title">Đã xảy ra lỗi</h3>
+                <h3 className="empty-title">Oops! Error occurred</h3>
                 <p className="empty-description">{historyError}</p>
-                <button onClick={fetchHistory} className="retry-button">Thử lại</button>
+                <button onClick={fetchHistory} className="retry-button">Retry</button>
               </div>
-            )}
-
-            {!historyLoading && !historyError && history.length === 0 && (
+            ) : history.length === 0 ? (
               <div className="tests-empty">
                 <div className="empty-icon">📭</div>
-                <h3 className="empty-title">Chưa có lịch sử làm bài</h3>
-                <p className="empty-description">
-                  Bạn chưa hoàn thành đề thi nào. Hãy thử làm một đề thi để xem kết quả ở đây!
-                </p>
-                <button className="retry-button" onClick={() => setActiveTab('list')}>
-                  Xem danh sách đề thi
-                </button>
+                <h3 className="empty-title">No history found</h3>
+                <button className="retry-button" onClick={() => setActiveTab('list')}>View Test List</button>
               </div>
-            )}
-
-            {!historyLoading && !historyError && history.length > 0 && (
+            ) : (
               <>
                 <div className="history-summary-bar">
-                  <span className="history-count">
-                    🎯 Bạn đã hoàn thành <strong>{history.length}</strong> bài thi
-                  </span>
-                  <button className="refresh-btn" onClick={fetchHistory} title="Tải lại">
-                    🔄 Làm mới
-                  </button>
+                  <span className="history-count">🎯 You've completed <strong>{history.length}</strong> tests</span>
+                  <button className="refresh-btn" onClick={fetchHistory} title="Refresh">🔄 Refresh</button>
                 </div>
                 <div className="history-grid">
                   {history.map((attempt) => (
@@ -476,7 +471,7 @@ const ListTestFull: React.FC = () => {
                       key={attempt.attemptId}
                       attempt={attempt}
                       onViewResult={handleViewResult}
-                      onRetry={handleRetry}
+                      onRetry={handleRetryHistory}
                     />
                   ))}
                 </div>

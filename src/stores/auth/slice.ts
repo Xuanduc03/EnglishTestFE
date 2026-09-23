@@ -266,7 +266,6 @@ export const createAuthSlice: StateCreator<AuthState> = (set, get) => ({
         isLoading: false,
         toastMessage: 'Profile updated successfully!'
       });
-
     } catch (error) {
       set({
         isLoading: false,

@@ -8,10 +8,9 @@ import { ToeicPart4Editor } from "./TOEIC/ToeicPart4Editor";
 import { ToeicPart5Editor } from "./TOEIC/ToeicPart5Editor";
 import ToeicPart6Editor from "./TOEIC/ToeicPart6Editor";
 import ToeicPart7Editor from "./TOEIC/ToeicPart7Editor";
-import { WritingEditor } from "./TOEIC/WritingEditor";
-import { SpeakingEditor } from "./TOEIC/SpeakingEditor"; 
 import type { EditorKey, EditorProps } from "./editor.type";
-import { IeltsReadingEditor } from "./IELTS/IeltsListeningEditor";
+import { IeltsListeningEditor } from "./IELTS/IeltsListeningEditor";
+import { IeltsReadingEditor } from "./IELTS/IeltsReadingEditor";
 
 export const EDITOR_REGISTRY: Record<EditorKey, React.FC<EditorProps>> = {
   TOEIC_PART_1: ToeicPart1Editor,
@@ -21,10 +20,15 @@ export const EDITOR_REGISTRY: Record<EditorKey, React.FC<EditorProps>> = {
   TOEIC_PART_5: ToeicPart5Editor,
   TOEIC_PART_6: ToeicPart6Editor,
   TOEIC_PART_7: ToeicPart7Editor,
-  TOEIC_WRITING: WritingEditor,  
-  TOEIC_SPEAKING: SpeakingEditor,
-   IELTS_LISTENING: IeltsReadingEditor,
-  IELTS_READING:   IeltsReadingEditor,
+  
+  IELTS_LISTENING_PART_1: IeltsListeningEditor,
+  IELTS_LISTENING_PART_2: IeltsListeningEditor,
+  IELTS_LISTENING_PART_3: IeltsListeningEditor,
+  IELTS_LISTENING_PART_4: IeltsListeningEditor,
+  
+  IELTS_READING_PASSAGE_1: IeltsReadingEditor,
+  IELTS_READING_PASSAGE_2: IeltsReadingEditor,
+  IELTS_READING_PASSAGE_3: IeltsReadingEditor,
 };
 
 interface Props {

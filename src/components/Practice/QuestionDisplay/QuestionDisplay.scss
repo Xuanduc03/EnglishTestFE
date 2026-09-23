@@ -309,8 +309,8 @@
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
 
-  // Hover chỉ khi chưa trả lời
-  &:not(.qd-answer-row--correct):not(.qd-answer-row--wrong):not(.qd-answer-row--default):hover {
+  // Hover cho phép đổi đáp án (trừ lúc xem lại - đúng/sai)
+  &:not(.qd-answer-row--correct):not(.qd-answer-row--wrong):hover {
     background: #f0f5ff;
     border-color: #adc6ff;
   }
@@ -327,8 +327,9 @@
     cursor: default;
   }
 
-  &--default {
-    cursor: default;
+  &--selected {
+    background: #e6f4ff;
+    border-color: var(--qd-primary);
   }
 }
 
@@ -358,6 +359,10 @@
   &--wrong {
     border-color: var(--qd-wrong);
     background: var(--qd-wrong);
+  }
+
+  &--selected {
+    border-color: var(--qd-primary);
   }
 }
 

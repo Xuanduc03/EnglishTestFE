@@ -1,0 +1,110 @@
+/* =========================================================
+   MULTIPLE CHOICE QUESTION (MCQ) - Chuẩn Study4
+   ========================================================= */
+
+.idp-mcq-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    /* Khoảng cách giữa các câu hỏi lớn */
+
+    .ielts-q-card {
+        display: flex;
+        align-items: flex-start;
+        background: #fff;
+        border: 1px solid #e8e8e8;
+        border-radius: 8px;
+        padding: 24px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+
+        /* Cục Số thứ tự hình tròn nền xanh nhạt */
+        .q-card-badge {
+            flex-shrink: 0;
+            width: 48px;
+
+            .badge-number-circle {
+                width: 32px;
+                height: 32px;
+                background: #e8f0fe;
+                /* Xanh lơ nhạt */
+                color: #1a73e8;
+                /* Xanh dương đậm */
+                font-weight: 700;
+                font-size: 14px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        .q-card-content {
+            flex: 1;
+
+            .q-text {
+                font-size: 15.5px;
+                color: #333;
+                line-height: 1.6;
+                margin-bottom: 16px;
+                font-weight: 500;
+            }
+
+            /* Khung chứa các đáp án */
+            .mcq-options-list {
+                display: flex;
+                flex-direction: column;
+                /* Ép xếp dọc */
+                gap: 12px;
+
+                /* Từng dòng đáp án */
+                .mcq-option-label {
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 12px;
+                    padding: 12px 16px;
+                    border: 1.5px solid #e8e8e8;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    background: #fafafa;
+                    /* Xám cực nhạt */
+
+                    /* Custom lại checkbox/radio gốc một xíu cho đẹp */
+                    input[type="radio"],
+                    input[type="checkbox"] {
+                        margin-top: 4px;
+                        width: 18px;
+                        height: 18px;
+                        accent-color: #1a73e8;
+                        /* Đổi màu tick xanh chuẩn Study4 */
+                        cursor: pointer;
+                        flex-shrink: 0;
+                    }
+
+                    .opt-text {
+                        font-size: 15px;
+                        line-height: 1.5;
+                        color: #444;
+                    }
+
+                    /* Hiệu ứng di chuột */
+                    &:hover {
+                        border-color: #b3d4ff;
+                        background: #f4f8ff;
+                    }
+
+                    /* Khi được chọn */
+                    &.selected {
+                        border-color: #1a73e8;
+                        background: #e8f0fe;
+
+                        .opt-text {
+                            color: #111;
+                            font-weight: 500;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

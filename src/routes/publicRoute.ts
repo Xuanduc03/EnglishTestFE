@@ -22,6 +22,10 @@ import SkillTabsWithParts from "../components/PracticeList/SkillPracticePage";
 import PracticeSession from "../components/Practice/PracticeSession";
 import PracticeResult from "../components/Practice/PracticeResult";
 import PracticeReview from "../components/Practice/PracticeReview";
+import IeltsFullTestPage from "../components/Test/IELTS_UI/layout";
+import IeltsFullTestResultPage from "../components/Test/IELTS_UI/components/resultPage";
+import IeltsReviewPage from "../components/Test/IELTS_UI/ReviewPage/IeltsReviewPage";
+import ToeicReviewPage from "../components/Test/ReviewMode/ToeicReviewPage";
 const PublicRoute: IRoute[] = [
 
     // student routes
@@ -53,7 +57,16 @@ const PublicRoute: IRoute[] = [
     { path: "/full-test", component: ListTestFull },
     // Route result phải đứng TRƯỚC :attemptId để tránh React Router match sai
     { path: "/full-test/result/:attemptId", component: FullTestResultPage },
+    // Review route MUST be before :attemptId to avoid React Router matching 'review' as the param
+    { path: "/full-test/:attemptId/review", component: ToeicReviewPage, layout: null },
     { path: "/full-test/:attemptId", component: FullTestPage, layout: null },
+
+
+    { path: "/ielts-test/result/:attemptId", component: IeltsFullTestResultPage },
+    { path: "/ielts-test/review/:attemptId", component: IeltsReviewPage },
+    { path: "/ielts-test/:attemptId", component: IeltsFullTestPage, layout: null },
+
+    
     { path: "/practice/grammar", component: GrammarPage },
     { path: "/learning-path", component: LearningPathPage },
     {

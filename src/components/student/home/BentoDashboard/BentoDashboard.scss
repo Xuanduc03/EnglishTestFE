@@ -1,105 +1,69 @@
-/* BentoDashboard.scss */
+/* BentoDashboard.scss — Fixed version */
 .bento-dashboard-wrapper {
-    --primary: #4f46e5;
-    --primary-hover: #4338ca;
-    --primary-light: #e0e7ff;
-    --success: #10b981;
-    --warning: #f59e0b;
-    --text-main: #0f172a;
-    --text-muted: #64748b;
-    --bg-body: #f4f6f8;
-    --bg-card: #ffffff;
+    --primary: #2563EB;
+    --primary-hover: #1D4ED8;
+    --primary-light: #EFF6FF;
+    --success: #16A34A;
+    --warning: #D97706;
+    --text-main: #0F172A;
+    --text-muted: #64748B;
+    --bg-body: #F4F6F8;
+    --bg-card: #FFFFFF;
+    --border-light: #E2E8F0;
 
-    --radius-xl: 24px;
-    --radius-lg: 16px;
-    --shadow-soft: 0 4px 20px rgba(149, 157, 171, 0.08);
-    --shadow-hover: 0 12px 28px rgba(149, 157, 171, 0.15);
+    --radius-xl: 20px;
+    --radius-lg: 14px;
+    --shadow-soft: 0 1px 4px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.04);
 
     font-family: 'Plus Jakarta Sans', sans-serif;
     color: var(--text-main);
 
+    /* ── Grid ─────────────────────────────────────── */
     .bento-grid {
         display: grid;
         grid-template-columns: repeat(12, 1fr);
-        grid-auto-rows: minmax(120px, auto);
-        gap: 24px;
-        margin-bottom: 56px;
+        grid-template-rows: auto auto;
+        /* 2 hàng tự co */
+        align-items: stretch;
+        /* ★ FIX: tất cả card trong cùng row bằng chiều cao */
+        gap: 20px;
+        margin-bottom: 40px;
 
-        /* ========== RESPONSIVE RULES BẮT ĐẦU TỪ ĐÂY ========== */
-
-        /* TABLET (Dưới 1024px) */
         @media (max-width: 1024px) {
             grid-template-columns: repeat(2, 1fr);
-            /* Chia thành 2 cột đều nhau */
             grid-auto-rows: auto;
 
             .card-hero {
                 grid-column: span 2;
-                /* Trải dài hết 2 cột */
-                min-height: 250px;
             }
 
             .card-stats {
                 grid-column: span 1;
-                /* Nằm 1 nửa */
             }
 
             .card-continue {
                 grid-column: span 1;
-                /* Nằm 1 nửa */
             }
 
             .card-quest {
                 grid-column: span 1;
-                /* Nằm 1 nửa */
             }
 
             .card-streak {
                 grid-column: span 1;
-                /* Nằm 1 nửa */
             }
         }
 
-        /* MOBILE (Dưới 768px) */
         @media (max-width: 768px) {
             display: flex;
             flex-direction: column;
-            gap: 16px;
-            margin-bottom: 32px;
+            gap: 14px;
+            margin-bottom: 28px;
 
-            .bento-card {
-                padding: 20px;
-                border-radius: 20px;
-            }
-
-            /* Chỉnh lại thẻ Hero cho Mobile */
-            .card-hero {
-                min-height: 220px;
-
-                &::before {
-                    width: 300px;
-                    /* Thu nhỏ quầng sáng */
-                    height: 300px;
-                    right: -50%;
-                }
-
-                .hero-main h1 {
-                    font-size: 24px;
-                    /* Chữ nhỏ lại */
-                }
-
-                .hero-main p {
-                    max-width: 100%;
-                    font-size: 14px;
-                }
-            }
-
-            /* Chỉnh lại thẻ Continue Learning cho Mobile */
             .card-continue {
                 flex-direction: column;
-                /* Cho ảnh và text rớt dòng */
                 align-items: flex-start;
-                gap: 16px;
+                gap: 14px;
 
                 .continue-info {
                     width: 100%;
@@ -107,65 +71,78 @@
 
                 button {
                     width: 100%;
-                    /* Nút full ngang */
                 }
             }
         }
     }
 
-    /* CHUNG CỦA BENTO CARD */
+    /* ── Base card ────────────────────────────────── */
     .bento-card {
         background: var(--bg-card);
         border-radius: var(--radius-xl);
         padding: 24px;
         box-shadow: var(--shadow-soft);
-        border: 1px solid rgba(255, 255, 255, 0.8);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid var(--border-light);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
         position: relative;
         overflow: hidden;
 
         &:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04);
         }
     }
 
-    /* 1. Hero Card (Desktop) */
+    /* ── 1. Hero card ─────────────────────────────── */
+    /* ★ FIX: bỏ gradient, dùng màu solid #0F172A     */
     .card-hero {
         grid-column: span 8;
         grid-row: span 2;
-        background: linear-gradient(120deg, #0f172a 0%, #1e1b4b 100%);
+        background: #0F172A;
+        /* solid, không gradient */
         color: white;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+        border-color: #1E293B;
 
+        /* accent geometry — chỉ dùng opacity, không gradient */
         &::before {
             content: '';
             position: absolute;
-            top: -50%;
-            right: -20%;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, rgba(0, 0, 0, 0) 70%);
+            top: -60px;
+            right: -60px;
+            width: 260px;
+            height: 260px;
             border-radius: 50%;
+            background: rgba(99, 102, 241, 0.12);
+            pointer-events: none;
+        }
+
+        &::after {
+            content: '';
+            position: absolute;
+            bottom: -40px;
+            left: 30%;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: rgba(37, 99, 235, 0.08);
             pointer-events: none;
         }
 
         .hero-top {
             display: flex;
             justify-content: space-between;
-            z-index: 1;
             position: relative;
+            z-index: 1;
             flex-wrap: wrap;
-            /* Tránh text bị tràn trên màn nhỏ */
             gap: 10px;
         }
 
         .hero-badge {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 7px 14px;
             border-radius: 20px;
             font-size: 13px;
             font-weight: 600;
@@ -173,42 +150,57 @@
         }
 
         .hero-main {
-            z-index: 1;
             position: relative;
+            z-index: 1;
             margin-top: 20px;
-            /* Đẩy ra xa góc trên 1 tí */
 
             h1 {
-                font-size: 32px;
+                font-size: 30px;
                 font-weight: 800;
                 margin-bottom: 8px;
-                line-height: 1.2;
+                line-height: 1.25;
             }
 
             p {
-                color: #94a3b8;
-                font-size: 15px;
-                max-width: 80%;
+                color: #94A3B8;
+                font-size: 14px;
+                max-width: 76%;
+                line-height: 1.6;
             }
         }
     }
 
-    /* 2. Stats Card */
+    /* ── 2. Stats card ────────────────────────────── */
+    /* ★ FIX: bỏ gradient, dùng bg trắng thuần        */
     .card-stats {
         grid-column: span 4;
         grid-row: span 2;
-        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        background: var(--bg-card);
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
         text-align: center;
+        gap: 4px;
 
+        .stats-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* ★ FIX: thu nhỏ chart, tăng stroke rõ hơn   */
         .circular-chart {
             position: relative;
-            width: 140px;
-            height: 140px;
-            margin-bottom: 20px;
+            width: 120px;
+            height: 120px;
+            margin-bottom: 16px;
+            flex-shrink: 0;
 
             svg {
                 width: 100%;
@@ -218,15 +210,15 @@
 
             .circle-bg {
                 fill: none;
-                stroke: #e2e8f0;
-                stroke-width: 8;
+                stroke: var(--border-light);
+                stroke-width: 9;
             }
 
             .circle-fill {
                 fill: none;
                 stroke: var(--primary);
-                stroke-width: 8;
-                stroke-dasharray: 250;
+                stroke-width: 9;
+                stroke-dasharray: 251.2;
                 stroke-linecap: round;
                 transition: stroke-dashoffset 1s ease;
             }
@@ -238,7 +230,7 @@
                 transform: translate(-50%, -50%);
 
                 h2 {
-                    font-size: 28px;
+                    font-size: 26px;
                     font-weight: 800;
                     color: var(--text-main);
                     line-height: 1;
@@ -246,151 +238,249 @@
                 }
 
                 span {
-                    font-size: 12px;
+                    font-size: 11px;
                     color: var(--text-muted);
                     font-weight: 600;
                 }
             }
         }
+
+        .stats-progress-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+
+            strong {
+                color: var(--primary);
+            }
+        }
+
+        .stats-delta {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--success);
+            margin-top: 4px;
+        }
     }
 
-    /* 3. Continue Learning Card */
+    /* ── 3. Continue card ─────────────────────────── */
     .card-continue {
         grid-column: span 6;
         display: flex;
         align-items: center;
-        gap: 20px;
+        gap: 18px;
 
         .continue-img {
-            width: 80px;
-            height: 80px;
+            width: 72px;
+            height: 72px;
             background: var(--primary-light);
             color: var(--primary);
             border-radius: var(--radius-lg);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 32px;
+            font-size: 30px;
             flex-shrink: 0;
         }
 
         .continue-info {
             flex: 1;
+            min-width: 0;
+
+            .continue-status {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 6px;
+            }
+
+            .continue-label {
+                font-size: 11px;
+                font-weight: 700;
+                color: var(--primary);
+                text-transform: uppercase;
+                letter-spacing: 0.06em;
+            }
+
+            .continue-pct {
+                font-size: 12px;
+                font-weight: 700;
+                color: var(--text-muted);
+            }
 
             h3 {
-                font-size: 18px;
-                margin-bottom: 4px;
+                font-size: 16px;
+                font-weight: 700;
+                margin-bottom: 3px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
 
             p {
                 font-size: 13px;
                 color: var(--text-muted);
-                margin-bottom: 12px;
+                margin-bottom: 10px;
             }
 
             .progress-bar {
                 width: 100%;
-                height: 8px;
+                height: 6px;
                 background: var(--border-light);
-                border-radius: 4px;
+                border-radius: 3px;
                 overflow: hidden;
 
                 div {
                     height: 100%;
                     background: var(--primary);
-                    border-radius: 4px;
+                    border-radius: 3px;
+                    transition: width 0.6s ease;
                 }
+            }
+        }
+
+        .btn-continue {
+            background: var(--text-main);
+            color: white;
+            border: none;
+            padding: 11px 18px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+            transition: background 0.15s;
+
+            &:hover {
+                background: #1E293B;
             }
         }
     }
 
-    /* 4. Daily Quest Card */
+    /* ── 4. Quest card ────────────────────────────── */
+    /* ★ FIX: bỏ nền vàng, dùng trắng + border accent */
     .card-quest {
         grid-column: span 3;
-        background: #fffbeb;
-        border: 1px solid #fde68a;
+        background: var(--bg-card);
+        border-left: 3px solid var(--warning);
+        border-radius: var(--radius-xl);
 
-        h3 {
-            font-size: 16px;
-            color: #b45309;
+        .quest-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
             margin-bottom: 16px;
             display: flex;
             align-items: center;
             gap: 8px;
+
+            .quest-icon {
+                font-size: 16px;
+            }
+        }
+
+        .quest-items {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
         .quest-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 14px;
-            font-weight: 600;
-            color: #92400e;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-main);
+
+            &.done {
+                color: var(--text-muted);
+            }
 
             .checkbox {
-                width: 24px;
-                height: 24px;
+                width: 22px;
+                height: 22px;
                 border-radius: 6px;
-                border: 2px solid var(--warning);
+                border: 2px solid var(--border-light);
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                font-size: 11px;
                 color: transparent;
+                flex-shrink: 0;
+                background: var(--bg-card);
             }
 
             .checkbox.done {
-                background: var(--warning);
+                background: var(--success);
+                border-color: var(--success);
                 color: white;
             }
         }
     }
 
-    /* 5. Streak Card */
+    /* ── 5. Streak card ───────────────────────────── */
+    /* ★ FIX: bỏ nền hồng, dùng trắng + border accent */
     .card-streak {
         grid-column: span 3;
-        background: #fff1f2;
-        border: 1px solid #fecdd3;
+        background: var(--bg-card);
+        border-left: 3px solid #EF4444;
+        border-radius: var(--radius-xl);
         text-align: center;
         display: flex;
         flex-direction: column;
         justify-content: center;
+        align-items: center;
+        gap: 4px;
 
-        h2 {
-            font-size: 36px;
-            font-weight: 800;
-            color: #e11d48;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            margin: 8px 0;
+        .streak-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
         }
 
-        p {
-            color: #be123c;
-            font-size: 14px;
-            font-weight: 700;
-            margin: 0;
-            letter-spacing: 0.5px;
+        .streak-count {
+            font-size: 40px;
+            font-weight: 800;
+            color: #EF4444;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            line-height: 1;
+            margin: 6px 0;
+
+            .streak-fire {
+                font-size: 28px;
+            }
         }
 
         .streak-days {
             display: flex;
             justify-content: center;
-            gap: 6px;
-            margin-top: 16px;
+            gap: 5px;
+            margin-top: 10px;
 
             .day-dot {
-                width: 16px;
-                height: 16px;
+                width: 10px;
+                height: 10px;
                 border-radius: 50%;
-                background: #fda4af;
+                background: var(--border-light);
+                position: relative;
+                cursor: default;
             }
 
             .day-dot.active {
-                background: #e11d48;
-                box-shadow: 0 0 8px rgba(225, 29, 72, 0.4);
+                background: #EF4444;
             }
+        }
+
+        .streak-hint {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 6px;
         }
     }
 }

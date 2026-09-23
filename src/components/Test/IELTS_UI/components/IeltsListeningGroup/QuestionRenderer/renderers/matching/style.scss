@@ -1,0 +1,157 @@
+// MatchingRender.scss
+
+.matching-render {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    padding: 24px;
+    margin-bottom: 24px;
+
+    // Legend (danh sách options chung)
+    .matching-legend {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 20px 24px;
+        margin-bottom: 28px;
+        border: 1px solid #e9eef3;
+
+        &__title {
+            font-weight: 600;
+            font-size: 16px;
+            color: #0b355c;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed #d0dfec;
+        }
+
+        &__item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+            line-height: 1.45;
+        }
+
+        &__letter {
+            font-weight: 700;
+            font-size: 15px;
+            color: #2c5a8c;
+            min-width: 28px;
+            letter-spacing: 0.5px;
+        }
+
+        &__text {
+            font-size: 14px;
+            color: #1e2f3e;
+            flex: 1;
+        }
+    }
+
+    // Khu vực câu hỏi
+    .matching-questions {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .matching-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 16px;
+        padding: 12px 0;
+        border-bottom: 1px solid #edf2f7;
+
+        &:last-child {
+            border-bottom: none;
+        }
+
+        &__content {
+            flex: 2;
+            min-width: 220px;
+            display: flex;
+            gap: 12px;
+            align-items: baseline;
+        }
+
+        &__num {
+            font-weight: 700;
+            font-size: 16px;
+            color: #1e4a76;
+            background: #eef3fc;
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 40px;
+            flex-shrink: 0;
+        }
+
+        &__text {
+            font-size: 15px;
+            line-height: 1.5;
+            color: #1e2f3e;
+            flex: 1;
+        }
+    }
+
+    // Dropdown select
+    .matching-select {
+        background-color: #fff;
+        border: 1px solid #cbdde9;
+        border-radius: 40px;
+        padding: 8px 32px 8px 18px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #1e2f3e;
+        cursor: pointer;
+        min-width: 180px;
+        transition: all 0.2s ease;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235b7c9e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 14px center;
+        background-size: 14px;
+
+        &:hover {
+            border-color: #1e88e5;
+            background-color: #fafcff;
+        }
+
+        &:focus {
+            outline: none;
+            border-color: #1e88e5;
+            box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.1);
+        }
+
+        &--answered {
+            border-color: #2e7d32;
+            background-color: #f1f8e9;
+            color: #1e4a2f;
+        }
+    }
+}
+
+// Responsive: trên màn hình nhỏ
+@media (max-width: 768px) {
+    .matching-render {
+        padding: 16px;
+
+        .matching-row {
+            flex-direction: column;
+            gap: 12px;
+            align-items: stretch;
+        }
+
+        .matching-select {
+            width: 100%;
+            min-width: unset;
+        }
+
+        .matching-legend__item {
+            flex-wrap: wrap;
+        }
+    }
+}

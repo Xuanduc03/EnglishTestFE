@@ -71,36 +71,82 @@ export const SIDEBAR_CONFIG: SidebarItem[] = [
             type: "group",
           },
         ],
-        
       },
-       {
-        id: "toeic-writing",
-        label: "Writing",
-        icon: "fa-solid fa-pen-nib",
+    ],
+  },
+
+  // 🔥 IELTS thêm vào đây
+  {
+    id: "ielts",
+    label: "IELTS",
+    icon: "fa-solid fa-globe",
+    children: [
+      // 🎧 LISTENING
+      {
+        id: "ielts-listening",
+        label: "Listening",
+        icon: "fa-solid fa-headphones",
         children: [
           {
-            id: "toeic-writing-q",
-            label: "Writing Questions",
-            icon: "fa-solid fa-file-pen",
-            editorKey: "TOEIC_WRITING",
-            type: "single",
+            id: "ielts-listening-part-1",
+            label: "Part 1 - Form Completion",
+            icon: "fa-solid fa-file-lines",
+            editorKey: "IELTS_LISTENING_PART_1",
+            type: "group",
+          },
+          {
+            id: "ielts-listening-part-2",
+            label: "Part 2 - Monologue",
+            icon: "fa-solid fa-person-chalkboard",
+            editorKey: "IELTS_LISTENING_PART_2",
+            type: "group",
+          },
+          {
+            id: "ielts-listening-part-3",
+            label: "Part 3 - Conversation",
+            icon: "fa-solid fa-comments",
+            editorKey: "IELTS_LISTENING_PART_3",
+            type: "group",
+          },
+          {
+            id: "ielts-listening-part-4",
+            label: "Part 4 - Lecture",
+            icon: "fa-solid fa-graduation-cap",
+            editorKey: "IELTS_LISTENING_PART_4",
+            type: "group",
           },
         ],
       },
+
+      // 📖 READING
       {
-        id: "toeic-speaking",
-        label: "Speaking",
-        icon: "fa-solid fa-microphone",
+        id: "ielts-reading",
+        label: "Reading",
+        icon: "fa-solid fa-book-open",
         children: [
           {
-            id: "toeic-speaking-q",
-            label: "Speaking Questions",
-            icon: "fa-solid fa-comment-dots",
-            editorKey: "TOEIC_SPEAKING",
-            type: "single",
+            id: "ielts-reading-passage-1",
+            label: "Passage 1",
+            icon: "fa-solid fa-file-lines",
+            editorKey: "IELTS_READING_PASSAGE_1",
+            type: "group",
           },
-        ]
-      }
+          {
+            id: "ielts-reading-passage-2",
+            label: "Passage 2",
+            icon: "fa-solid fa-file-lines",
+            editorKey: "IELTS_READING_PASSAGE_2",
+            type: "group",
+          },
+          {
+            id: "ielts-reading-passage-3",
+            label: "Passage 3",
+            icon: "fa-solid fa-file-lines",
+            editorKey: "IELTS_READING_PASSAGE_3",
+            type: "group",
+          },
+        ],
+      },
     ],
   },
 ];

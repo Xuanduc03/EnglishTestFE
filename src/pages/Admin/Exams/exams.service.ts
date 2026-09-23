@@ -1,10 +1,7 @@
+import { toast } from 'react-toastify';
 import type { PaginationParams } from "../../../components/shared/crud/type";
 import { api } from "../../../configs/axios-custom";
 import type {
-  ExamSummaryDto,
-  ExamDetailDto,
-  CreateExamDto,
-  UpdateExamDto,
   CreateExamSectionDto,
   AddQuestionToExamDto
 } from "./exam.types";
@@ -17,114 +14,165 @@ export interface ExamParams extends PaginationParams {
   scope?: number;
 }
 
+export interface HomeExamParams {
+  pageIndex?: number;
+  pageSize?: number;
+  type?: number; // 1: TOEIC, 2: IELTS
+}
+
+const handleError = (err: any) => {
+  const msg = err?.response?.data?.message || 'Có lỗi xảy ra!';
+  toast.error(msg);
+  throw err; // ⚠️ vẫn throw để component xử lý tiếp
+};
+
 export const ExamService = {
-  // ============================================
-  // CRUD CƠ BẢN (CHO SCREEN 1: DANH SÁCH)
-  // ============================================
 
   getAll: async (params: ExamParams) => {
-    const res = await api.get('/api/exams', {
-      params: {
-        pageIndex: params.page ?? 1,
-        pageSize: params.pageSize ?? 10,
-        ...(params.keyword && { keyword: params.keyword }),
-        ...(params.status && params.status !== 'all' && { status: params.status }),
-        ...(params.type && { type: params.type }),
-        ...(params.category && { category: params.category }),
-        ...(params.scope && { scope: params.scope })
-      }
-    });
-    return res.data;
+    try {
+      const res = await api.get('/api/exams', {
+        params: {
+          pageIndex: params.page ?? 1,
+          pageSize: params.pageSize ?? 10,
+          ...(params.keyword && { keyword: params.keyword }),
+          ...(params.status && params.status !== 'all' && { status: params.status }),
+          ...(params.type && { type: params.type }),
+          ...(params.category && { category: params.category }),
+          ...(params.scope && { scope: params.scope })
+        }
+      });
+      return res.data;
+    } catch (err) {
+      handleError(err);
+    }
   },
 
   getById: async (id: string | number): Promise<any> => {
-    const res = await api.get(`/api/exams/${id}`);
-    return res.data?.data || res.data;
+    try {
+      const res = await api.get(`/api/exams/${id}`);
+      return res.data?.data || res.data;
+    } catch (err) {
+      handleError(err);
+    }
   },
 
   create: async (data: any) => {
-    return await api.post('/api/exams', data);
+    try {
+      return await api.post('/api/exams', data);
+    } catch (err) {
+      handleError(err);
+    }
   },
 
   update: async (id: string | number, data: any) => {
-    return await api.put(`/api/exams/${id}`, data);
+    try {
+      return await api.put(`/api/exams/${id}`, data);
+    } catch (err) {
+      handleError(err);
+    }
   },
 
   delete: async (id: string | number) => {
-    await api.delete(`/api/exams/${id}`);
+    try {
+      await api.delete(`/api/exams/${id}`);
+    } catch (err) {
+      handleError(err);
+    }
   },
-
-  // ============================================
-  // EXAM ACTIONS (PUBLISH, ARCHIVE...)
-  // ============================================
 
   publish: async (id: string) => {
-    return await api.post(`/api/exams/${id}/publish`);
+    try {
+      return await api.post(`/api/exams/${id}/publish`);
+    } catch (err) {
+      handleError(err);
+    }
   },
 
-  // PATCH /api/exams/{id}/status
   changeStatus: async (id: string, newStatus: number, reason?: string) => {
-    return await api.patch(`/api/exams/${id}/status`, { newStatus, reason });
+    try {
+      return await api.patch(`/api/exams/${id}/status`, { newStatus, reason });
+    } catch (err) {
+      handleError(err);
+    }
   },
 
-  // nhân bản đề thi
   duplicate: async (id: string, newCode: string, newTitle: string) => {
-    return await api.post(`/api/exams/${id}/duplicate`, {
-      newCode,
-      newTitle
-    });
+    try {
+      return await api.post(`/api/exams/${id}/duplicate`, {
+        newCode,
+        newTitle
+      });
+    } catch (err) {
+      handleError(err);
+    }
   },
 
-
-  // Api xem trước đề thi (UC: preview exam)
   getPreview: async (examId: string, showCorrectAnswers = true) => {
-    const res = await api.get(`/api/exams/${examId}/preview`, {
-      params: { showCorrectAnswers }
-    });
-    return res.data?.data || res.data;
+    try {
+      const res = await api.get(`/api/exams/${examId}/preview`, {
+        params: { showCorrectAnswers }
+      });
+      return res.data?.data || res.data;
+    } catch (err) {
+      handleError(err);
+    }
   },
-
-  // ============================================
-  // SECTION MANAGEMENT (CHO SCREEN 2: CẤU TRÚC)
-  // ============================================
 
   addSection: async (examId: string, data: CreateExamSectionDto) => {
-    return await api.post(`/api/exams/${examId}/sections`, data);
+    try {
+      return await api.post(`/api/exams/${examId}/sections`, data);
+    } catch (err) {
+      handleError(err);
+    }
   },
 
   updateSection: async (sectionId: string, data: Partial<CreateExamSectionDto>) => {
-    return await api.put(`/api/exams/sections/${sectionId}`, data);
+    try {
+      return await api.put(`/api/exams/sections/${sectionId}`, data);
+    } catch (err) {
+      handleError(err);
+    }
   },
 
   deleteSection: async (examId: string, sectionId: string) => {
-    return await api.delete(`/api/exams/${examId}/sections/${sectionId}`);
+    try {
+      return await api.delete(`/api/exams/${examId}/sections/${sectionId}`);
+    } catch (err) {
+      handleError(err);
+    }
   },
 
-  // xóa nhiều câu hỏi trong section
-  // Trong ExamService, thêm:
   bulkDeleteQuestions: async (examId: string, examQuestionIds: string[]) => {
-    return await api.delete(`/api/exams/${examId}/questions`, {
-      data: examQuestionIds // axios gửi body trong DELETE cần đặt trong data
-    });
+    try {
+      return await api.delete(`/api/exams/${examId}/questions`, {
+        data: examQuestionIds
+      });
+    } catch (err) {
+      handleError(err);
+    }
   },
-
-  // ============================================
-  // QUESTION MANAGEMENT (CHO SCREEN 2: CẤU TRÚC)
-  // ============================================
 
   addQuestionsToSection: async (
     examId: string,
     sectionId: string,
     data: AddQuestionToExamDto
   ) => {
-    return await api.post(
-      `/api/exams/${examId}/sections/${sectionId}/questions`,
-      data
-    );
+    try {
+      return await api.post(
+        `/api/exams/${examId}/sections/${sectionId}/questions`,
+        data
+      );
+    } catch (err) {
+      handleError(err);
+    }
   },
 
   removeQuestion: async (examId: string, examQuestionId: string) => {
-    return await api.delete(`/api/exams/${examId}/questions/${examQuestionId}`);
+    try {
+      return await api.delete(`/api/exams/${examId}/questions/${examQuestionId}`);
+    } catch (err) {
+      handleError(err);
+    }
   },
 
   reorderQuestions: async (
@@ -132,10 +180,14 @@ export const ExamService = {
     sectionId: string,
     items: { examQuestionId: string; orderIndex: number }[]
   ) => {
-    return await api.put(
-      `/api/exams/${examId}/sections/${sectionId}/questions/reorder`,
-      { items }
-    );
+    try {
+      return await api.put(
+        `/api/exams/${examId}/sections/${sectionId}/questions/reorder`,
+        { items }
+      );
+    } catch (err) {
+      handleError(err);
+    }
   },
 
   updateQuestionPoint: async (
@@ -143,9 +195,29 @@ export const ExamService = {
     examQuestionId: string,
     point: number
   ) => {
-    return await api.patch(
-      `/api/exams/${examId}/questions/${examQuestionId}/point`,
-      { point }
-    );
-  }
+    try {
+      return await api.patch(
+        `/api/exams/${examId}/questions/${examQuestionId}/point`,
+        { point }
+      );
+    } catch (err) {
+      handleError(err);
+    }
+  },
+  getHomeExams: async (params: HomeExamParams) => {
+    try {
+      const res = await api.get('/api/exams/home', {
+        params: {
+          pageIndex: params.pageIndex ?? 1,
+          pageSize: params.pageSize ?? 8, // Mặc định lấy 8 đề
+          ...(params.type && { type: params.type })
+        }
+      });
+      // Trả về thẳng res.data (chính là object PagedResult có chứa Items, TotalCount...)
+      return res.data;
+    } catch (err) {
+      handleError(err);
+    }
+  },
+
 };

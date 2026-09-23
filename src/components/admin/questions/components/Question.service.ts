@@ -144,4 +144,15 @@ export const questionService = {
   },
 
 
+  /// export excel 
+  exportExcel: async (params?: any) => {
+    const res = await api.get("/api/questions/export-excel", {
+      params,
+      responseType: "blob", // QUAN TRỌNG
+    });
+
+    return res;
+  },
+
+
 };

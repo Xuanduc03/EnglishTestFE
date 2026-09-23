@@ -1,0 +1,106 @@
+// TrueFalseRender.scss
+
+.tfng-render {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+
+    .tfng-row {
+        border-bottom: 1px solid #eef2f6;
+        padding-bottom: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+
+        &:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .tfng-statement {
+            flex: 2;
+            min-width: 240px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            line-height: 1.5;
+
+            .tfng-num {
+                font-weight: 600;
+                color: #0056b3;
+                background: #eef3fc;
+                width: 28px;
+                height: 28px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 20px;
+                font-size: 14px;
+                flex-shrink: 0;
+                margin-top: 2px;
+            }
+
+            .tfng-text {
+                font-size: 16px;
+                color: #1a2c3e;
+                font-weight: 500;
+            }
+        }
+
+        .tfng-options {
+            flex: 1;
+            min-width: 260px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+
+            .tfng-opt {
+                background: #f8fafd;
+                border: 1px solid #d4e0ec;
+                border-radius: 40px;
+                padding: 8px 20px;
+                font-size: 14px;
+                font-weight: 600;
+                color: #2c3e66;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                background-color: #ffffff;
+
+                &:hover {
+                    background: #eef3fc;
+                    border-color: #b0c4de;
+                    color: #0056b3;
+                }
+
+                &.tfng-opt--selected {
+                    background: #0056b3;
+                    border-color: #0056b3;
+                    color: white;
+                    box-shadow: 0 4px 8px rgba(0, 86, 179, 0.2);
+                }
+            }
+        }
+    }
+}
+
+// Responsive: trên màn hình nhỏ, xếp các options xuống dưới
+@media (max-width: 768px) {
+    .tfng-render .tfng-row {
+        flex-direction: column;
+
+        .tfng-statement {
+            width: 100%;
+        }
+
+        .tfng-options {
+            width: 100%;
+            justify-content: flex-start;
+            margin-top: 8px;
+        }
+    }
+}

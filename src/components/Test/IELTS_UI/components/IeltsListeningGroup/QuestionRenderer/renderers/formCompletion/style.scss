@@ -1,0 +1,167 @@
+// ── FormCompletion Style (Study4 / IDP) ──────────────────────
+$blue: #0050A0;
+$badge-bg: #E8F0F8;
+$badge-text: #1a5fa8;
+$border: #e0e0e0;
+$input-bd: #c8d6e5;
+$bg-left: #f7f9fc;
+$white: #ffffff;
+$text: #333333;
+$radius: 6px;
+
+// ── Template mode (inline {{N}}) ──────────────────────────────
+.fc-template-card {
+    padding: 24px 28px;
+    background: $bg-left;
+    border: 1px solid $border;
+    border-radius: $radius;
+    font-size: 15px;
+    line-height: 2.6;
+    color: $text;
+
+    .fc-inline-wrap {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        vertical-align: middle;
+        margin: 0 6px;
+    }
+
+    .fc-inline-input {
+        height: 34px;
+        width: 150px;
+        padding: 0 10px;
+        border: 1.5px solid $input-bd;
+        border-radius: 4px;
+        font-size: 14px;
+        outline: none;
+        background: $white;
+        transition: border-color .15s;
+
+        &:focus {
+            border-color: $blue;
+            box-shadow: 0 0 0 2px rgba($blue, .1);
+        }
+    }
+}
+
+// ── Two-column mode (Study4 chuẩn) ───────────────────────────
+.fc-two-col {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    min-height: 300px;
+    background: $white;
+    border: 1px solid $border;
+    border-radius: $radius;
+    overflow: hidden;
+}
+
+// LEFT: nội dung form
+.fc-left {
+    background: $bg-left;
+    border-right: 1px solid $border;
+    padding: 8px 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.fc-left-row {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    min-height: 52px;
+    border-bottom: 1px solid $border;
+    font-size: 14px;
+    line-height: 1.6;
+    color: $text;
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    .fc-left-text {
+
+        // text có thể có <strong>, <em>...
+        strong {
+            font-weight: 600;
+        }
+    }
+}
+
+// RIGHT: badge + input
+.fc-right {
+    background: $bg-left;
+    padding: 8px 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.fc-right-row {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 16px;
+    min-height: 52px;
+    border-bottom: 1px solid $border;
+
+    &:last-child {
+        border-bottom: none;
+    }
+}
+
+// Badge số (circle xanh nhạt)
+.fc-badge {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: $badge-bg;
+    color: $badge-text;
+    font-size: 13px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+
+
+.badge-number {
+    width: 32px;
+    height: 32px;
+    background: #e8f0fe;
+    color: #1a73e8;
+    font-weight: 700;
+    font-size: 14px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+// Input ô điền
+.fc-input {
+    flex: 1;
+    height: 36px;
+    padding: 0 12px;
+    border: 1.5px solid $input-bd;
+    border-radius: 4px;
+    font-size: 14px;
+    color: $text;
+    background: $white;
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+
+    &:focus {
+        border-color: $blue;
+        box-shadow: 0 0 0 2px rgba($blue, .1);
+    }
+
+    &::placeholder {
+        color: #bbb;
+        font-size: 12px;
+        font-style: italic;
+    }
+}

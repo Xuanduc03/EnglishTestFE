@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FlagFilled, MenuOutlined, RedoOutlined } from '@ant-design/icons';
+import { FlagFilled, MenuOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import './QuestionNavigator.scss';
 import type { PracticeSessionDto } from '../Types/practice.type';
 
@@ -9,6 +9,12 @@ interface QuestionNavigatorProps {
   answers: Map<string, string>;
   markedForReview: Set<string>;
   onNavigate: (index: number) => void;
+  onPrevPage: () => void;
+  onNextPage: () => void;
+  isFirstPage: boolean;
+  isLastPage: boolean;
+  onMarkReview: () => void;
+  isMarked: boolean;
 }
 
 const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
@@ -16,7 +22,13 @@ const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
   currentIndex,
   answers,
   markedForReview,
-  onNavigate
+  onNavigate,
+  onPrevPage,
+  onNextPage,
+  isFirstPage,
+  isLastPage,
+  onMarkReview,
+  isMarked
 }) => {
   const [isOpen, setIsOpen] = useState(true);
 
@@ -62,12 +74,23 @@ const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
   return (
     <div className={`question-navigator ${isOpen ? 'open' : 'closed'}`}>
       <div className="navigator-header">
-        <span className="title">Câu hỏi 1-{total}</span>
-        <div className="header-actions">
-          <button className="restart-btn" onClick={() => {}}>
-            <RedoOutlined /> Làm lại
+        <div className="nav-controls">
+          <button className="nav-btn prev" onClick={onPrevPage} disabled={isFirstPage}>
+            <LeftOutlined /> Previous
           </button>
-          <button className="toggle-btn" onClick={() => setIsOpen(!isOpen)}>
+          
+          <button className={`nav-btn mark ${isMarked ? 'active' : ''}`} onClick={onMarkReview}>
+            <FlagFilled /> {isMarked ? 'Unmark' : 'Mark'}
+          </button>
+
+          <button className="nav-btn next" onClick={onNextPage} disabled={isLastPage}>
+            Next <RightOutlined />
+          </button>
+        </div>
+
+        <div className="header-actions">
+          <span className="title">Question {currentIndex + 1}/{total}</span>
+          <button className="toggle-btn" onClick={() => setIsOpen(!isOpen)} title="Toggle question list">
             <MenuOutlined />
           </button>
         </div>
@@ -77,16 +100,16 @@ const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
         <>
           <div className="stats">
             <div className="stat-item">
-              <span className="stat-label">Đã trả lời</span>
+              <span className="stat-label">Answered</span>
               <span className="stat-value answered">{answered}</span>
             </div>
             <div className="stat-item">
-              <span className="stat-label">Chưa trả lời</span>
+              <span className="stat-label">Unanswered</span>
               <span className="stat-value">{unanswered}</span>
             </div>
             {marked > 0 && (
               <div className="stat-item">
-                <span className="stat-label">Đánh dấu</span>
+                <span className="stat-label">Marked</span>
                 <span className="stat-value marked">{marked}</span>
               </div>
             )}
@@ -104,7 +127,7 @@ const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
                     ${isAnswered ? 'answered' : 'unanswered'}
                     ${isMarked ? 'marked' : ''}`}
                   onClick={() => onNavigate(q.index)}
-                  title={`Câu ${q.questionNumber}${isMarked ? ' (Đánh dấu)' : ''}${isAnswered ? ' (Đã trả lời)' : ''}`}
+                  title={`Question ${q.questionNumber}${isMarked ? ' (Marked)' : ''}${isAnswered ? ' (Answered)' : ''}`}
                 >
                   <span className="question-num">{q.questionNumber}</span>
                   {isMarked && <FlagFilled className="flag-icon" />}

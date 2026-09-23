@@ -15,18 +15,18 @@ import './PracticeResult.scss';
 import type { PartResultDto, PracticeResultDto } from '../Types/practice.type';
 import { PracticeService } from '../Services/practice.service';
 
-// Helper: format TimeSpan "00:18:30" → "18 phút 30 giây"
+// Helper: format TimeSpan "00:18:30" → "18m 30s"
 const formatDuration = (timeSpan: string): string => {
-  if (!timeSpan) return '0 giây';
+  if (!timeSpan) return '0s';
   const parts = timeSpan.split(':');
   if (parts.length !== 3) return timeSpan;
   const hours = parseInt(parts[0], 10);
   const minutes = parseInt(parts[1], 10);
   const seconds = parseInt(parts[2], 10);
   const result: string[] = [];
-  if (hours > 0) result.push(`${hours} giờ`);
-  if (minutes > 0) result.push(`${minutes} phút`);
-  if (seconds > 0 || result.length === 0) result.push(`${seconds} giây`);
+  if (hours > 0) result.push(`${hours}h`);
+  if (minutes > 0) result.push(`${minutes}m`);
+  if (seconds > 0 || result.length === 0) result.push(`${seconds}s`);
   return result.join(' ');
 };
 
@@ -63,7 +63,7 @@ const PracticeResult: React.FC = () => {
       <div className="practice-result loading">
         <div className="loading-spinner">
           <div className="spinner"></div>
-          <p>Đang tải kết quả...</p>
+          <p>Loading results...</p>
         </div>
       </div>
     );
@@ -72,7 +72,7 @@ const PracticeResult: React.FC = () => {
   if (!result) {
     return (
       <div className="practice-result error">
-        <p>Không tìm thấy kết quả</p>
+        <p>Result not found</p>
       </div>
     );
   }
@@ -95,7 +95,7 @@ const PracticeResult: React.FC = () => {
       render: (_: string, record: PartResultDto) => <strong>{record.partName}</strong>,
     },
     {
-      title: 'Đúng',
+      title: 'Correct',
       dataIndex: 'correct',
       key: 'correct',
       align: 'center' as const,
@@ -106,7 +106,7 @@ const PracticeResult: React.FC = () => {
       ),
     },
     {
-      title: 'Sai',
+      title: 'Incorrect',
       dataIndex: 'incorrect',
       key: 'incorrect',
       align: 'center' as const,
@@ -117,7 +117,7 @@ const PracticeResult: React.FC = () => {
       ),
     },
     {
-      title: 'Chưa làm',
+      title: 'Unanswered',
       dataIndex: 'unanswered',
       key: 'unanswered',
       align: 'center' as const,
@@ -128,7 +128,7 @@ const PracticeResult: React.FC = () => {
       ),
     },
     {
-      title: 'Độ chính xác',
+      title: 'Accuracy',
       dataIndex: 'percentage',
       key: 'percentage',
       align: 'center' as const,
@@ -142,7 +142,7 @@ const PracticeResult: React.FC = () => {
       ),
     },
     {
-      title: 'Thời gian TB/câu',
+      title: 'Avg. Time/Q',
       dataIndex: 'averageTimePerQuestion',
       key: 'averageTimePerQuestion',
       align: 'center' as const,
@@ -156,7 +156,7 @@ const PracticeResult: React.FC = () => {
         {/* Header */}
         <div className="result-header">
           <TrophyOutlined className="trophy-icon" />
-          <h1>Kết quả luyện tập</h1>
+          <h1>Practice Result</h1>
         </div>
 
         {/* Overall Score */}
@@ -173,7 +173,7 @@ const PracticeResult: React.FC = () => {
                   format={(percent) => (
                     <div className="score-content">
                       <div className="score-value">{percent}%</div>
-                      <div className="score-label">Độ chính xác</div>
+                      <div className="score-label">Accuracy</div>
                     </div>
                   )}
                 />
@@ -184,7 +184,7 @@ const PracticeResult: React.FC = () => {
               <Row gutter={[16, 16]}>
                 <Col span={12}>
                   <Statistic
-                    title="Điểm luyện tập"
+                    title="Practice Score"
                     value={result.score}
                     precision={0}
                     valueStyle={{ color: getScoreColor(result.accuracyPercentage) }}
@@ -192,14 +192,14 @@ const PracticeResult: React.FC = () => {
                 </Col>
                 <Col span={12}>
                   <Statistic
-                    title="Thời gian hoàn thành"
+                    title="Completion Time"
                     value={formatDuration(result.totalTime)}
                     prefix={<ClockCircleOutlined />}
                   />
                 </Col>
                 <Col span={8}>
                   <Statistic
-                    title="Đúng"
+                    title="Correct"
                     value={result.correctAnswers}
                     suffix={`/ ${result.totalQuestions}`}
                     valueStyle={{ color: '#52c41a' }}
@@ -208,7 +208,7 @@ const PracticeResult: React.FC = () => {
                 </Col>
                 <Col span={8}>
                   <Statistic
-                    title="Sai"
+                    title="Incorrect"
                     value={result.incorrectAnswers}
                     suffix={`/ ${result.totalQuestions}`}
                     valueStyle={{ color: '#ff4d4f' }}
@@ -217,7 +217,7 @@ const PracticeResult: React.FC = () => {
                 </Col>
                 <Col span={8}>
                   <Statistic
-                    title="Chưa làm"
+                    title="Unanswered"
                     value={result.unansweredQuestions}
                     suffix={`/ ${result.totalQuestions}`}
                     valueStyle={{ color: '#8c8c8c' }}
@@ -232,7 +232,7 @@ const PracticeResult: React.FC = () => {
         <Divider />
 
         {/* Part Results Table */}
-        <Card title="Chi tiết từng Part" className="parts-card">
+        <Card title="Part Details" className="parts-card">
           <Table
             columns={columns}
             dataSource={partResultsArray}
@@ -249,7 +249,7 @@ const PracticeResult: React.FC = () => {
             icon={<HomeOutlined />}
             onClick={() => navigate('/practice/list')}
           >
-            Về trang luyện tập
+            Back to Practice
           </Button>
 
           <Button
@@ -257,7 +257,7 @@ const PracticeResult: React.FC = () => {
             icon={<EyeOutlined />}
             onClick={() => navigate(`/practice/review/${sessionId}`)}
           >
-            Xem lại đáp án
+            Review Answers
           </Button>
 
           <Button
@@ -266,19 +266,19 @@ const PracticeResult: React.FC = () => {
             icon={<RedoOutlined />}
             onClick={() => navigate('/practice/list')}
           >
-            Luyện tập mới
+            New Practice
           </Button>
         </div>
 
         {/* Encouragement */}
         <div className="encouragement">
           {result.accuracyPercentage >= 80 ? (
-            <p className="excellent">🎉 Xuất sắc! Bạn đã làm rất tốt. Hãy tiếp tục phát huy!</p>
+            <p className="excellent">🎉 Excellent! You did a great job. Keep it up!</p>
           ) : result.accuracyPercentage >= 60 ? (
-            <p className="good">👍 Tốt lắm! Bạn đang trên đà tiến bộ. Cố gắng lên!</p>
+            <p className="good">👍 Good job! You're making progress. Keep going!</p>
           ) : (
             <p className="need-improvement">
-              💪 Đừng nản chí! Hãy xem lại lý thuyết và luyện tập thêm nhé!
+              💪 Don't give up! Review the theory and practice more!
             </p>
           )}
         </div>

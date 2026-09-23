@@ -35,7 +35,7 @@ const PracticeList: React.FC<PracticeListProps> = ({
   onStartTest,
   onContinueTest,
   onViewResult,
-  emptyMessage = "Hiện chưa có bài luyện tập nào."
+  emptyMessage = "No practice sessions available."
 }) => {
   if (loading) {
     return (
@@ -43,7 +43,7 @@ const PracticeList: React.FC<PracticeListProps> = ({
         <div className="practice-list-loading">
           <div className="loading-spinner">
             <div className="spinner"></div>
-            <p>Đang tải bài luyện tập...</p>
+            <p>Loading practice sessions...</p>
           </div>
         </div>
       </div>
@@ -68,17 +68,17 @@ const PracticeList: React.FC<PracticeListProps> = ({
 
   const getDifficultyLabel = (difficulty?: string) => {
     switch (difficulty) {
-      case 'easy': return 'Dễ';
-      case 'medium': return 'Trung bình';
-      case 'hard': return 'Khó';
-      default: return 'Trung bình';
+      case 'easy': return 'Easy';
+      case 'medium': return 'Medium';
+      case 'hard': return 'Hard';
+      default: return 'Medium';
     }
   };
 
   const getStatusLabel = (status?: string) => {
     switch (status) {
-      case 'in-progress': return 'Đang làm dở';
-      case 'completed': return 'Đã hoàn thành';
+      case 'in-progress': return 'In Progress';
+      case 'completed': return 'Completed';
       default: return '';
     }
   };
@@ -101,8 +101,8 @@ const PracticeList: React.FC<PracticeListProps> = ({
                 d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
             </svg>
           </div>
-          <h3>Chưa có bài luyện tập</h3>
-          <p>{activeSkill ? `Chưa có bài luyện tập cho ${activeSkill.name}.` : emptyMessage}</p>
+          <h3>No Practice Available</h3>
+          <p>{activeSkill ? `No practice available for ${activeSkill.name}.` : emptyMessage}</p>
         </div>
       ) : (
         <div className="practice-cards">
@@ -152,7 +152,7 @@ const PracticeList: React.FC<PracticeListProps> = ({
                 <div className="card-progress">
                   <div className="progress-info">
                     <span className="progress-label">
-                      {test.status === 'completed' ? 'Điểm số' : 'Tiến độ'}
+                      {test.status === 'completed' ? 'Score' : 'Progress'}
                     </span>
                     <span className="progress-percentage">{test.correctRate}%</span>
                   </div>
@@ -181,7 +181,7 @@ const PracticeList: React.FC<PracticeListProps> = ({
                   </div>
                   <div className="stat-box-content">
                     <span className="stat-box-value">{test.questionCount}</span>
-                    <span className="stat-box-label">Câu hỏi</span>
+                    <span className="stat-box-label">Questions</span>
                   </div>
                 </div>
 
@@ -195,7 +195,7 @@ const PracticeList: React.FC<PracticeListProps> = ({
                     </div>
                     <div className="stat-box-content">
                       <span className="stat-box-value">{test.timeEstimate}</span>
-                      <span className="stat-box-label">Thời gian</span>
+                      <span className="stat-box-label">Time</span>
                     </div>
                   </div>
                 )}
@@ -215,7 +215,7 @@ const PracticeList: React.FC<PracticeListProps> = ({
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
                           d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                       </svg>
-                      <span>Xem kết quả</span>
+                      <span>View Result</span>
                     </button>
                     <button
                       className="btn btn-secondary"
@@ -225,7 +225,7 @@ const PracticeList: React.FC<PracticeListProps> = ({
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
                           d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                       </svg>
-                      <span>Làm lại</span>
+                      <span>Retry</span>
                     </button>
                   </>
                 ) : test.status === 'in-progress' ? (
@@ -237,7 +237,7 @@ const PracticeList: React.FC<PracticeListProps> = ({
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <span>Tiếp tục bài làm</span>
+                    <span>Continue Practice</span>
                   </button>
                 ) : (
                   <button
@@ -250,7 +250,7 @@ const PracticeList: React.FC<PracticeListProps> = ({
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
                         d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <span>Bắt đầu luyện tập</span>
+                    <span>Start Practice</span>
                   </button>
                 )}
               </div>

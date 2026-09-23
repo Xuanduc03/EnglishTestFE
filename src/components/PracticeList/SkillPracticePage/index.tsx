@@ -1,7 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Modal, InputNumber, Switch, message, Tabs, Form, Row, Col, Card, Statistic, Progress } from 'antd';
-import { TrophyOutlined, FireOutlined } from '@ant-design/icons';
+import { Modal, InputNumber, Switch, message, Tabs, Form, Row, Col } from 'antd';
 import type { CategoryDto } from '../../../pages/Admin/Categories/category.config';
 import { PracticeService } from '../../Practice/Services/practice.service';
 import type { CreatePracticeRequest, PracticeHistoryDto } from '../../Practice/Types/practice.type';
@@ -31,7 +30,6 @@ export default function SkillTabsWithParts() {
   const [configModalVisible, setConfigModalVisible] = useState(false);
   const [selectedPartId, setSelectedPartId] = useState<string | null>(null);
 
-  // FIX: Form.useWatch thay vì state riêng isTimedEnabled
   const isTimed = Form.useWatch('isTimed', form);
 
   // ── Fetch ────────────────────────────────────────────
@@ -39,7 +37,6 @@ export default function SkillTabsWithParts() {
     const fetchInitialData = async () => {
       try {
         setLoading(true);
-        // FIX: bỏ getStatistics (endpoint không tồn tại), tính stats từ history
         const [resSkills, resInProgress, resHistoryResult] = await Promise.all([
           PracticeService.getByCodeType('SKILL', SKILL_PARENT_ID),
           PracticeService.getInProgressPractices().catch(() => []),
@@ -51,7 +48,6 @@ export default function SkillTabsWithParts() {
 
         const historyList: PracticeHistoryDto[] = resHistoryResult.items;
 
-        // FIX: status là số nguyên (1 = Submitted, 3 = TimedOut)
         const completed = historyList.filter(
           (h) => h.status === PracticeStatus.Submitted || h.status === PracticeStatus.TimedOut
         );
@@ -59,13 +55,19 @@ export default function SkillTabsWithParts() {
           ? Math.round(completed.reduce((s, h) => s + (h.accuracyPercentage ?? 0), 0) / completed.length)
           : 0;
 
-        setSkills(resSkills);
+        // Filter out IELTS, Speaking, and Writing skills
+        const EXCLUDED = ['ielts', 'speaking', 'writing'];
+        const filteredSkills = resSkills.filter(
+          (s) => !EXCLUDED.some(kw => s.name.toLowerCase().includes(kw))
+        );
+
+        setSkills(filteredSkills);
         setInProgressItems(resInProgress);
         setHistoryItems(historyList);
         setOverallStats({ totalCompleted: completed.length, averageAccuracy: avgAccuracy, studyStreak: 0 });
-        if (resSkills.length > 0) setActiveSkillId(resSkills[0].id);
+        if (filteredSkills.length > 0) setActiveSkillId(filteredSkills[0].id);
       } catch {
-        message.error('Không thể tải dữ liệu luyện tập');
+        message.error('Failed to load practice data');
       } finally {
         setLoading(false);
       }
@@ -73,16 +75,15 @@ export default function SkillTabsWithParts() {
     fetchInitialData();
   }, []);
 
-  // ── useMemo formatters ───────────────────────────────
+  // ── Formatter ───────────────────────────────
 
   const roadmapItems = useMemo((): PracticeItem[] => {
     const activeSkill = skills.find((s) => s.id === activeSkillId);
     if (!activeSkill?.children?.length) return [];
     const qEst: Record<number, number> = { 1:6, 2:25, 3:39, 4:30, 5:30, 6:16, 7:54 };
-    const tEst: Record<number, string> = { 1:'3 phút', 2:'12 phút', 3:'20 phút', 4:'15 phút', 5:'15 phút', 6:'16 phút', 7:'40 phút' };
+    const tEst: Record<number, string> = { 1:'3 mins', 2:'12 mins', 3:'20 mins', 4:'15 mins', 5:'15 mins', 6:'16 mins', 7:'40 mins' };
     return activeSkill.children.map((part) => {
       const pn = parseInt(part.name.replace(/\D/g, '')) || 0;
-      // Backend trả categoryName, không có categoryId — match bằng tên part
       const ip = inProgressItems.find((x) =>
         x.categoryId === part.id ||
         x.categoryName?.toLowerCase() === part.name?.toLowerCase()
@@ -90,8 +91,7 @@ export default function SkillTabsWithParts() {
       const sid = ip ? (ip.attemptId ?? ip.sessionId ?? ip.id) : undefined;
       return {
         id: part.id, title: part.name, partId: part.id,
-        subtitle: ip ? `Đang làm dở: ${ip.title || ''}` : `${activeSkill.name} • ${part.code}`,
-        // Backend trả progress trực tiếp
+        subtitle: ip ? `In Progress: ${ip.title || ''}` : `${activeSkill.name} • ${part.code}`,
         correctRate: ip ? Math.round(ip.progress ?? 0) : 0,
         questionCount: qEst[pn] || 20, participants: 100 + pn * 50,
         status: ip ? 'in-progress' as const : 'not-started' as const,
@@ -103,7 +103,6 @@ export default function SkillTabsWithParts() {
 
   const inProgressFormatted = useMemo((): PracticeItem[] =>
     inProgressItems.map((item) => {
-      // Backend trả AttemptId (không phải sessionId)
       const sid = item.attemptId ?? item.sessionId ?? item.id ?? '';
       const lastUpdated = item.lastUpdated ?? item.lastAccessedAt;
       const timeLimit = item.timeLimitSeconds > 0
@@ -112,13 +111,12 @@ export default function SkillTabsWithParts() {
       return {
         id: sid,
         sessionId: sid,
-        title: item.title || 'Bài tập đang làm',
+        title: item.title || 'In Progress Practice',
         subtitle: lastUpdated
-          ? `Lần cuối: ${new Date(lastUpdated).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`
+          ? `Last Updated: ${new Date(lastUpdated).toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`
           : item.startedAt
-          ? `Bắt đầu: ${new Date(item.startedAt).toLocaleDateString('vi-VN')}`
+          ? `Started: ${new Date(item.startedAt).toLocaleDateString('en-US')}`
           : '',
-        // Backend trả Progress trực tiếp (0-100), không cần tính lại
         correctRate: Math.round(item.progress ?? 0),
         questionCount: item.totalQuestions || 0,
         participants: 0,
@@ -128,29 +126,27 @@ export default function SkillTabsWithParts() {
     })
   , [inProgressItems]);
 
-  // FIX CHÍNH: status từ API là số (0/1/2/3), không phải string
   const historyFormatted = useMemo((): PracticeItem[] =>
     historyItems.map((item): PracticeItem => {
       const statusLabel =
-        item.status === PracticeStatus.Abandoned ? ' · Đã bỏ dở' :
-        item.status === PracticeStatus.TimedOut  ? ' · Hết giờ'  : '';
+        item.status === PracticeStatus.Abandoned ? ' · Abandoned' :
+        item.status === PracticeStatus.TimedOut  ? ' · Time Out'  : '';
 
       const dateStr = item.submittedAt
-        ? `Hoàn thành: ${new Date(item.submittedAt).toLocaleDateString('vi-VN', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' })}${statusLabel}`
-        : `Bắt đầu: ${new Date(item.startedAt).toLocaleDateString('vi-VN')}${statusLabel}`;
+        ? `Completed: ${new Date(item.submittedAt).toLocaleDateString('en-US', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' })}${statusLabel}`
+        : `Started: ${new Date(item.startedAt).toLocaleDateString('en-US')}${statusLabel}`;
 
       return {
         id: item.sessionId,
         sessionId: item.sessionId,
-        title: item.title || 'Bài tập',
+        title: item.title || 'Practice',
         subtitle: dateStr,
         correctRate: Math.round(item.accuracyPercentage ?? 0),
         questionCount: item.totalQuestions || 0,
         participants: 0,
-        // status=1 (Submitted) hoặc 3 (TimedOut) → completed; status=0 → in-progress
         status: item.status === PracticeStatus.InProgress ? 'in-progress' : 'completed',
         difficulty: 'medium',
-        timeEstimate: `${item.totalQuestions} câu`,
+        timeEstimate: `${item.totalQuestions} questions`,
       };
     })
   , [historyItems]);
@@ -176,11 +172,11 @@ export default function SkillTabsWithParts() {
         isTimed: values.isTimed,
         timeLimitMinutes: values.isTimed ? values.timeLimitMinutes : undefined,
       });
-      message.success('Đã tạo bài luyện tập!');
+      message.success('Practice session created!');
       navigate(`/practice/session/${session.sessionId}`);
     } catch (error: any) {
       if (!error.errorFields)
-        message.error(error?.response?.data?.message || 'Không thể tạo bài luyện tập');
+        message.error(error?.response?.data?.message || 'Failed to create practice session');
     } finally {
       setLoading(false);
       setConfigModalVisible(false);
@@ -201,74 +197,97 @@ export default function SkillTabsWithParts() {
 
   const mainTabItems = [
     {
-      key: 'roadmap', label: 'Lộ trình kỹ năng',
+      key: 'roadmap', label: 'Skill Roadmap',
       children: (
         <Tabs activeKey={activeSkillId} onChange={setActiveSkillId}
-          items={roadmapTabItems} tabPosition="left" />
+          items={roadmapTabItems} tabPosition="left" className="custom-practice-tabs-left" />
       ),
     },
     {
       key: 'in-progress',
-      label: `Đang làm dở (${inProgressItems.length})`,
+      label: `In Progress (${inProgressItems.length})`,
       children: (
         <PracticeList tests={inProgressFormatted} loading={loading}
           onContinueTest={handleContinueTest}
-          emptyMessage="Bạn không có bài luyện tập nào đang làm dở." />
+          emptyMessage="You have no in-progress practice sessions." />
       ),
     },
     {
       key: 'history',
-      label: `Lịch sử đã làm (${historyItems.length})`,
+      label: `History (${historyItems.length})`,
       children: (
         <PracticeList tests={historyFormatted} loading={loading}
           onStartTest={handleStartTestClick} onViewResult={handleViewResult}
-          emptyMessage="Bạn chưa hoàn thành bài luyện tập nào." />
+          emptyMessage="You have not completed any practice sessions." />
       ),
     },
   ];
 
   // ── Render ───────────────────────────────────────────
   return (
-    <div className="practice-dashboard" style={{ padding: '24px', maxWidth: 1400, margin: '0 auto' }}>
+    <div className="practice-dashboard">
+      
+      {/* ── Custom Hero Header ── */}
+      <div className="practice-hero">
+        <div className="hero-content">
+          <div className="hero-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            Practice Hub
+          </div>
+          <h1 className="hero-title">Master your skills every day</h1>
+          <p className="hero-description">
+            Track your practice progress and improve your TOEIC score through dedicated section exercises.
+          </p>
+        </div>
 
-      <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-        <Col xs={24} sm={8}>
-          <Card bordered={false}>
-            <Statistic title="Tổng bài đã hoàn thành" value={overallStats.totalCompleted}
-              prefix={<TrophyOutlined style={{ color: '#faad14' }} />} />
-          </Card>
-        </Col>
-        <Col xs={24} sm={8}>
-          <Card bordered={false}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-              <span style={{ color: 'rgba(0,0,0,0.45)' }}>Độ chính xác trung bình</span>
-              <strong>{overallStats.averageAccuracy}%</strong>
+        <div className="hero-stats">
+          <div className="stat-item">
+            <div className="stat-icon">
+              <span style={{ fontSize: 24 }}>🏆</span>
             </div>
-            <Progress percent={overallStats.averageAccuracy} strokeColor="#52c41a" status="active" />
-          </Card>
-        </Col>
-        <Col xs={24} sm={8}>
-          <Card bordered={false}>
-            <Statistic title="Chuỗi ngày học (Streak)" value={overallStats.studyStreak}
-              suffix="ngày" prefix={<FireOutlined style={{ color: '#ff4d4f' }} />} />
-          </Card>
-        </Col>
-      </Row>
+            <div className="stat-info">
+              <span className="stat-value">{overallStats.totalCompleted}</span>
+              <span className="stat-label">Completed Sessions</span>
+            </div>
+          </div>
+          <div className="stat-item">
+            <div className="stat-icon">
+              <span style={{ fontSize: 24 }}>🎯</span>
+            </div>
+            <div className="stat-info">
+              <span className="stat-value">{overallStats.averageAccuracy}%</span>
+              <span className="stat-label">Average Accuracy</span>
+            </div>
+          </div>
+          <div className="stat-item">
+            <div className="stat-icon">
+              <span style={{ fontSize: 24 }}>🔥</span>
+            </div>
+            <div className="stat-info">
+              <span className="stat-value">{overallStats.studyStreak}</span>
+              <span className="stat-label">Study Streak</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      <Card bordered={false}>
-        <Tabs items={mainTabItems} size="large" />
-      </Card>
+      {/* ── Tabs Container ── */}
+      <div className="practice-content-wrapper">
+        <Tabs items={mainTabItems} size="large" className="custom-practice-tabs" />
+      </div>
 
       <Modal
-        title="Cấu hình bài luyện tập"
+        title="Practice Configuration"
         open={configModalVisible} onOk={handleConfirmStart}
         onCancel={() => setConfigModalVisible(false)}
-        okText="Bắt đầu" cancelText="Hủy"
+        okText="Start" cancelText="Cancel"
         confirmLoading={loading} destroyOnClose
       >
         <Form form={form} layout="vertical" style={{ marginTop: 24 }}>
-          <Form.Item label="Số lượng câu hỏi" name="questionsPerPart"
-            rules={[{ required: true, message: 'Vui lòng nhập số câu hỏi' }]}>
+          <Form.Item label="Number of Questions" name="questionsPerPart"
+            rules={[{ required: true, message: 'Please enter number of questions' }]}>
             <InputNumber min={5} max={50} style={{ width: '100%' }} />
           </Form.Item>
 
@@ -279,13 +298,13 @@ export default function SkillTabsWithParts() {
                   <Switch />
                 </Form.Item>
               </Col>
-              <Col><span>Giới hạn thời gian</span></Col>
+              <Col><span>Time limit</span></Col>
             </Row>
           </Form.Item>
 
           {isTimed && (
-            <Form.Item label="Thời gian (phút)" name="timeLimitMinutes"
-              rules={[{ required: true, message: 'Vui lòng nhập thời gian' }]}>
+            <Form.Item label="Time (minutes)" name="timeLimitMinutes"
+              rules={[{ required: true, message: 'Please enter time' }]}>
               <InputNumber min={5} max={120} style={{ width: '100%' }} />
             </Form.Item>
           )}

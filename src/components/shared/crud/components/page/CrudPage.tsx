@@ -110,6 +110,15 @@ export const CrudPage = <T extends { id?: string | number }>
     return null;
   }, [config.tableConfig, config.treeConfig, currentViewMode]);
 
+  const enrichedData = useMemo(() => {
+    return crud.data.map((item: any) => ({
+      ...item,
+      __triggerEdit: () => crud.setModal({ open: true, record: item }),
+      __triggerDelete: () => item.id && crud.handleDelete(item.id),
+      __triggerView: () => item.id && crud.handleGetDetail(item.id)
+    }));
+  }, [crud.data, crud.setModal, crud.handleDelete, crud.handleGetDetail]);
+
   return (
     <div className="crud-page">
       {/* Header */}
@@ -194,7 +203,7 @@ export const CrudPage = <T extends { id?: string | number }>
         ) : (
           <CrudTable<T>
             viewMode={currentViewMode}
-            data={crud.data}
+            data={enrichedData}
             loading={crud.loading}
             tableConfig={{
               ...config.tableConfig!,

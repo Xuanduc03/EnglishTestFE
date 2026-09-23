@@ -1,4 +1,5 @@
 export type EditorKey =
+  // TOEIC
   | "TOEIC_PART_1"
   | "TOEIC_PART_2"
   | "TOEIC_PART_3"
@@ -6,10 +7,17 @@ export type EditorKey =
   | "TOEIC_PART_5"
   | "TOEIC_PART_6"
   | "TOEIC_PART_7"
-  | "TOEIC_WRITING"
-  | "TOEIC_SPEAKING"
-  | "IELTS_LISTENING"   // Section 1-4 — audio + MCQ/Fill-in
-  | "IELTS_READING"; ;
+
+  // IELTS Listening
+  | "IELTS_LISTENING_PART_1"
+  | "IELTS_LISTENING_PART_2"
+  | "IELTS_LISTENING_PART_3"
+  | "IELTS_LISTENING_PART_4"
+
+  // IELTS Reading
+  | "IELTS_READING_PASSAGE_1"
+  | "IELTS_READING_PASSAGE_2"
+  | "IELTS_READING_PASSAGE_3";
 
 
 // Cấu hình của từng editor

@@ -47,17 +47,15 @@ const mapCategoryIdToEditorKey = (
     if (code === "PART 5") return "TOEIC_PART_5";
     if (code === "PART 6") return "TOEIC_PART_6";
     if (code === "PART 7") return "TOEIC_PART_7";
-    if (code.startsWith("IELTS_L")) return "IELTS_LISTENING";
-    if (code.startsWith("IELTS_R")) return "IELTS_READING";
-    if (code.startsWith("IELTS_W")) return "TOEIC_WRITING";
-    if (code.startsWith("IELTS_SP")) return "TOEIC_SPEAKING";
-    if (code === "WRITING") return "TOEIC_WRITING";
-    if (code === "SPEAKING") return "TOEIC_SPEAKING";
+    if (code.startsWith("IELTS_W")) return "IELTS_READING"; // hoặc fallback
+    if (code.startsWith("IELTS_SP")) return "IELTS_LISTENING"; // hoặc fallback
+    if (code.startsWith("IELTS_W")) return "IELTS_READING_PASSAGE_1"; // hoặc fallback
+    if (code.startsWith("IELTS_SP")) return "IELTS_LISTENING_PART_1"; // hoặc fallback
   }
 
   // ── Fallback dùng name ───────────────────────────────────
-  if (name.includes("section")) return "IELTS_LISTENING";
-  if (name.includes("passage")) return "IELTS_READING";
+  if (name.includes("section")) return "IELTS_LISTENING_PART_1";
+  if (name.includes("passage")) return "IELTS_READING_PASSAGE_1";
   if (name.includes("part 1") && !name.includes("ielts")) return "TOEIC_PART_1";
   if (name.includes("part 2") && !name.includes("ielts")) return "TOEIC_PART_2";
   if (name.includes("part 3") && !name.includes("ielts")) return "TOEIC_PART_3";
@@ -65,8 +63,6 @@ const mapCategoryIdToEditorKey = (
   if (name.includes("part 5")) return "TOEIC_PART_5";
   if (name.includes("part 6")) return "TOEIC_PART_6";
   if (name.includes("part 7")) return "TOEIC_PART_7";
-  if (name.includes("viết") || name.includes("writing")) return "TOEIC_WRITING";
-  if (name.includes("nói") || name.includes("speaking")) return "TOEIC_SPEAKING";
 
   return "TOEIC_PART_1";
 };
@@ -80,10 +76,8 @@ const mapEditorKeyToCategoryId = (key: EditorKey, categories: Array<{ id: string
     TOEIC_PART_5: ["part 5"],
     TOEIC_PART_6: ["part 6"],
     TOEIC_PART_7: ["part 7"],
-    TOEIC_WRITING: ["viết", "writing"],
-    TOEIC_SPEAKING: ["nói", "speaking"],
-    IELTS_LISTENING: ["section 1"],  // default Section 1
-    IELTS_READING: ["passage 1"],  // default Passage 1
+    IELTS_LISTENING_PART_1: ["section 1"],  // default Section 1
+    IELTS_READING_PASSAGE_1: ["passage 1"],  // default Passage 1
   };
   const keywords = nameMap[key] ?? [];
   const found = categories.find(c =>

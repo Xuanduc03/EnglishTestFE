@@ -28,23 +28,35 @@ type IeltsQuestion = {
 };
 
 const IELTS_QUESTION_TYPES = [
-    { value: 1,  label: "Multiple Choice",         hasFreeAnswer: false, defaultAnswerCount: 4 },
-    { value: 12, label: "True / False / Not Given", hasFreeAnswer: false, defaultAnswerCount: 3 },
-    { value: 13, label: "Yes / No / Not Given",     hasFreeAnswer: false, defaultAnswerCount: 3 },
-    { value: 5,  label: "Matching Heading",         hasFreeAnswer: false, defaultAnswerCount: 4 },
-    { value: 6,  label: "Matching Information",     hasFreeAnswer: false, defaultAnswerCount: 4 },
-    { value: 4,  label: "Matching",                 hasFreeAnswer: false, defaultAnswerCount: 4 },
-    { value: 7,  label: "Short Answer",             hasFreeAnswer: true,  defaultAnswerCount: 1 },
-    { value: 8,  label: "Note Completion",          hasFreeAnswer: true,  defaultAnswerCount: 1 },
-    { value: 9,  label: "Form Completion",          hasFreeAnswer: true,  defaultAnswerCount: 1 },
-    { value: 11, label: "Sentence Completion",      hasFreeAnswer: true,  defaultAnswerCount: 1 },
-    { value: 10, label: "Map Labeling",             hasFreeAnswer: true,  defaultAnswerCount: 1 },
+    // ── Fill-in ──
+    { value: 1,  label: "Form Completion",          hasFreeAnswer: true,  defaultAnswerCount: 1 },
+    { value: 2,  label: "Note Completion",          hasFreeAnswer: true,  defaultAnswerCount: 1 },
+    { value: 3,  label: "Sentence Completion",      hasFreeAnswer: true,  defaultAnswerCount: 1 },
+    { value: 4,  label: "Short Answer",             hasFreeAnswer: true,  defaultAnswerCount: 1 },
+    { value: 5,  label: "Map Labeling",             hasFreeAnswer: true,  defaultAnswerCount: 1 },
+    { value: 13, label: "Summary Completion",       hasFreeAnswer: true,  defaultAnswerCount: 1 },
+    { value: 14, label: "Table Completion",         hasFreeAnswer: true,  defaultAnswerCount: 1 },
+    { value: 15, label: "Fill in the Blank",        hasFreeAnswer: true,  defaultAnswerCount: 1 },
+
+    // ── Choice ──
+    { value: 6,  label: "Single Choice",            hasFreeAnswer: false, defaultAnswerCount: 4 },
+    { value: 7,  label: "Multiple Choice",          hasFreeAnswer: false, defaultAnswerCount: 4 },
+
+    // ── True/False ──
+    { value: 8,  label: "True / False / Not Given", hasFreeAnswer: false, defaultAnswerCount: 3 },
+    { value: 9,  label: "Yes / No / Not Given",     hasFreeAnswer: false, defaultAnswerCount: 3 },
+
+    // ── Matching ──
+    { value: 10, label: "Matching Heading",         hasFreeAnswer: false, defaultAnswerCount: 4 },
+    { value: 11, label: "Matching Information",     hasFreeAnswer: false, defaultAnswerCount: 4 },
+    { value: 12, label: "Matching",                 hasFreeAnswer: false, defaultAnswerCount: 4 },
+    { value: 16, label: "Matching Sentence Ends",   hasFreeAnswer: false, defaultAnswerCount: 4 },
 ];
 
-const TFNGAnswers = (prefix: string) => [
-    { Content: `${prefix} True`,      IsCorrect: false, OrderIndex: 1, Feedback: "" },
-    { Content: `${prefix} False`,     IsCorrect: false, OrderIndex: 2, Feedback: "" },
-    { Content: `${prefix} Not Given`, IsCorrect: false, OrderIndex: 3, Feedback: "" },
+const TFNGAnswers = (isYesNo: boolean) => [
+    { Content: isYesNo ? "YES" : "TRUE",      IsCorrect: false, OrderIndex: 1, Feedback: "" },
+    { Content: isYesNo ? "NO"  : "FALSE",     IsCorrect: false, OrderIndex: 2, Feedback: "" },
+    { Content: "NOT GIVEN",                   IsCorrect: false, OrderIndex: 3, Feedback: "" },
 ];
 
 const MCQAnswers = () => [
@@ -64,8 +76,8 @@ function createEmptyQuestion(orderIndex: number, questionType = 1): IeltsQuestio
         isAiGraded: typeConfig.hasFreeAnswer,
         sampleAnswer: "",
         maxWords: typeConfig.hasFreeAnswer ? 3 : 0,
-        answers: questionType === 12 || questionType === 13
-            ? TFNGAnswers(questionType === 13 ? "Yes /" : "")
+        answers: questionType === 8 || questionType === 9
+            ? TFNGAnswers(questionType === 9)
             : typeConfig.hasFreeAnswer
                 ? [{ Content: "", IsCorrect: true, OrderIndex: 1, Feedback: "" }]
                 : MCQAnswers(),
@@ -160,12 +172,36 @@ export const IeltsGroupEditor: React.FC<Props> = ({
                 questionType: typeValue,
                 isAiGraded:   typeConfig.hasFreeAnswer,
                 maxWords:     typeConfig.hasFreeAnswer ? 3 : 0,
-                answers: typeValue === 12 || typeValue === 13
-                    ? TFNGAnswers(typeValue === 13 ? "Yes /" : "")
+                sampleAnswer: "",
+                answers: typeValue === 8 || typeValue === 9
+                    ? TFNGAnswers(typeValue === 9)
                     : typeConfig.hasFreeAnswer
                         ? [{ Content: "", IsCorrect: true, OrderIndex: 1, Feedback: "" }]
                         : MCQAnswers(),
             };
+            return next;
+        });
+    };
+
+    const addAnswer = (qIdx: number) => {
+        setQuestions(prev => {
+            const next = [...prev];
+            const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const newIndex = next[qIdx].answers.length;
+            next[qIdx].answers.push({
+                Content: `${letters[newIndex % 26]}. `,
+                IsCorrect: false,
+                OrderIndex: newIndex + 1,
+                Feedback: ""
+            });
+            return next;
+        });
+    };
+
+    const removeAnswer = (qIdx: number, aIdx: number) => {
+        setQuestions(prev => {
+            const next = [...prev];
+            next[qIdx].answers = next[qIdx].answers.filter((_, i) => i !== aIdx);
             return next;
         });
     };
@@ -461,11 +497,22 @@ export const IeltsGroupEditor: React.FC<Props> = ({
                                                     isSelected={a.IsCorrect}
                                                     onChange={updated => updateAnswer(qIdx, aIdx, updated)}
                                                     onSelect={() => selectCorrectAnswer(qIdx, aIdx)}
-                                                    canRemove={false}
+                                                    onRemove={() => removeAnswer(qIdx, aIdx)}
+                                                    canRemove={typeConfig.value !== 8 && typeConfig.value !== 9 && q.answers.length > 2}
                                                 />
                                             ))}
                                         </tbody>
                                     </table>
+                                    {typeConfig.value !== 8 && typeConfig.value !== 9 && (
+                                        <div className="text-end">
+                                            <button 
+                                                className="btn btn-sm btn-outline-secondary" 
+                                                onClick={() => addAnswer(qIdx)}
+                                            >
+                                                <i className="fa-solid fa-plus"></i> Thêm đáp án
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>

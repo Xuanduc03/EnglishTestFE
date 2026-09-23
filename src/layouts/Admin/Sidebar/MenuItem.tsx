@@ -54,21 +54,15 @@ export const menuItems: MenuItem[] = [
       <FileTextOutlined />,
       undefined,
     ),
-    getItem(
-      'Cấu trúc điểm',
-      '/admin/exams/score',
-      <EditOutlined />,
-      undefined,
-    ),
-    getItem(
-      'Đề thi theo kỳ',
-      '/admin/exams/type',
-      <GlobalOutlined />,
-      [
-        getItem('TOEIC Tests', '/admin/exams/type/toeic', <SoundOutlined />),
-        getItem('IELTS Tests', '/admin/exams/type/ielts', <ReadOutlined />),
-      ],
-    ),
+    // getItem(
+    //   'Đề thi theo kỳ',
+    //   '/admin/exams/type',
+    //   <GlobalOutlined />,
+    //   [
+    //     getItem('TOEIC Tests', '/admin/exams/type/toeic', <SoundOutlined />),
+    //     getItem('IELTS Tests', '/admin/exams/type/ielts', <ReadOutlined />),
+    //   ],
+    // ),
   ]),
 
   // ========== NGÂN HÀNG CÂU HỎI ==========

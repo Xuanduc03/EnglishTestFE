@@ -1,0 +1,115 @@
+/* =========================================================
+   MAP LABELING (Chuẩn Study4 - No Variables)
+   ========================================================= */
+
+.idp-map-labeling-container {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    /* Cột trái linh hoạt, cột phải cố định 320px */
+    gap: 24px;
+    background: #fff;
+    padding: 24px;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    align-items: start;
+
+    /* --- CỘT TRÁI: KHUNG CHỨA BẢN ĐỒ --- */
+    .map-image-panel {
+        width: 100%;
+        border: 1px solid #e8e8e8;
+        border-radius: 8px;
+        padding: 12px;
+        background: #f8f9fa;
+        /* Màu nền xám nhạt để làm nổi bật ảnh */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        .map-image {
+            max-width: 100%;
+            height: auto;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+    }
+
+    /* --- CỘT PHẢI: DANH SÁCH Ô ĐIỀN ĐÁP ÁN --- */
+    .map-inputs-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+
+        /* Từng cục câu hỏi nhỏ */
+        .ielts-map-q-card {
+            display: flex;
+            align-items: flex-start;
+            background: #fff;
+            border: 1px solid #e8e8e8;
+            border-radius: 6px;
+            padding: 16px;
+            transition: border-color 0.2s;
+
+            &:hover {
+                border-color: #b3d4ff;
+                /* Xanh lơ nhạt khi di chuột */
+            }
+
+            /* Cục vuông số thứ tự */
+            .q-card-badge {
+                flex-shrink: 0;
+                width: 44px;
+
+                .badge-number {
+                    width: 30px;
+                    height: 30px;
+                    background: #0050A0;
+                    /* Xanh dương Study4 */
+                    color: #fff;
+                    font-weight: bold;
+                    font-size: 14px;
+                    border-radius: 4px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+            }
+
+            /* Khung nhập liệu */
+            .q-card-content {
+                flex: 1;
+
+                .q-text {
+                    font-size: 14.5px;
+                    color: #333;
+                    line-height: 1.5;
+                    margin-bottom: 8px;
+                }
+
+                .idp-standard-input {
+                    width: 100%;
+                    height: 38px;
+                    padding: 0 12px;
+                    border: 2px solid #d9d9d9;
+                    border-radius: 4px;
+                    font-size: 15px;
+                    outline: none;
+                    transition: border-color 0.2s;
+
+                    &:focus {
+                        border-color: #0050A0;
+                        /* Highlight xanh viền khi click */
+                        box-shadow: 0 0 0 3px rgba(0, 80, 160, 0.1);
+                    }
+                }
+            }
+        }
+    }
+}
+
+@media (max-width: 900px) {
+    .idp-map-labeling-container {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+}

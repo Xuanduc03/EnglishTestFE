@@ -47,8 +47,7 @@ import type { PreviewZipResponse } from '../../../components/admin/questions/imp
 import PreviewImportModal from '../../../components/admin/questions/import/components/steps/PreviewImport/PreviewImportModal';
 import { ImportQuestionService } from '../../../components/admin/questions/import/services/ImportQuestion.service';
 import ConfirmModal from '../../../components/shared/modal/ConfirmModal';
-import OcrUploadModal from '../../../components/admin/questions/OcrQuestions/components/OcrUploadModal';
-import ExamDigitizeModal from '../../../components/admin/questions/OcrQuestions/components/OcrUploadModal';
+import ExamDigitizeModal from '../../../components/admin/questions/OcrQuestions/components/ExamDigitizeModal';
 
 
 const { Search } = Input;
@@ -331,15 +330,47 @@ const QuestionManager = () => {
 
   // Handle export
   const handleExport = async () => {
+    const msgKey = "export";
+
     try {
-      message.loading({ content: 'Đang xuất dữ liệu...', key: 'export' });
-      // await questionService.export({
-      //   categoryId: selectedPartKey || undefined,
-      //   difficultyId: difficultyFilter !== 'all' ? difficultyFilter : undefined,
-      // });
-      message.success({ content: 'Xuất dữ liệu thành công', key: 'export' });
+      message.loading({ content: "Đang xuất Excel...", key: msgKey });
+
+      const res = await questionService.exportExcel({
+        categoryId: selectedPartKey || undefined,
+        difficultyId:
+          difficultyFilter !== "all" ? difficultyFilter : undefined,
+      });
+
+      // Tạo URL download
+      const blob = new Blob([res.data], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+
+      // Lấy filename từ header nếu có
+      const contentDisposition = res.headers["content-disposition"];
+      let fileName = "questions.xlsx";
+
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename="?(.+)"?/);
+        if (match?.[1]) fileName = match[1];
+      }
+
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      toast.success("Xuất Excel thành công");
     } catch (error) {
-      message.error({ content: 'Xuất dữ liệu thất bại', key: 'export' });
+      console.error(error);
+      message.error({ content: "Xuất Excel thất bại", key: msgKey });
     }
   };
 

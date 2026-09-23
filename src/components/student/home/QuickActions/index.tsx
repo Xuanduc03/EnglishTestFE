@@ -12,8 +12,8 @@ const QuickActions: React.FC<QuickActionsProps> = ({ vocabularyLearned = 1250 })
     return (
         <section className="quick-actions-wrapper">
             <div className="section-header">
-                <h2>⚡ Ôn luyện nhanh</h2>
-                <p>Chọn hình thức phù hợp với mục tiêu của bạn hôm nay</p>
+            <h2>⚡ Quick Practice</h2>
+                <p>Choose the format that fits your goals today</p>
             </div>
 
             <div className="action-grid">
@@ -23,17 +23,17 @@ const QuickActions: React.FC<QuickActionsProps> = ({ vocabularyLearned = 1250 })
                     onClick={() => navigate('/full-test')}
                 >
                     <div className="card-icon blue">🎯</div>
-                    <h3>Thi thử TOEIC/IELTS</h3>
+                    <h3>Mock TOEIC/IELTS Test</h3>
                     <p className="desc">
-                        Mô phỏng kỳ thi thật với áp lực thời gian. Biết ngay điểm số và phân tích điểm mạnh yếu.
+                        Simulate the real exam with time pressure. Get your score and a detailed breakdown of strengths and weaknesses.
                     </p>
                     <div className="card-tags">
-                        <span className="tag tag-blue">120 phút</span>
-                        <span className="tag tag-green">200 câu</span>
-                        <span className="tag tag-red">Tính điểm</span>
+                        <span className="tag tag-blue">120 mins</span>
+                        <span className="tag tag-green">200 questions</span>
+                        <span className="tag tag-red">Scored</span>
                     </div>
                     <button className="btn-action primary">
-                        Vào phòng thi
+                        Enter Exam Room
                     </button>
                 </div>
 
@@ -43,16 +43,16 @@ const QuickActions: React.FC<QuickActionsProps> = ({ vocabularyLearned = 1250 })
                     onClick={() => navigate('/practice/list')}
                 >
                     <div className="card-icon green">📚</div>
-                    <h3>Luyện tập theo phần</h3>
+                    <h3>Section Practice</h3>
                     <p className="desc">
-                        Tập trung "cày" vào từng kỹ năng yếu (Part 1 - Part 7) có kèm giải thích đáp án cực kỳ chi tiết.
+                        Focus on drilling each weak skill (Part 1 – Part 7) with detailed answer explanations.
                     </p>
                     <div className="card-tags">
-                        <span className="tag tag-green">Không giới hạn</span>
-                        <span className="tag tag-blue">Giải thích đáp án</span>
+                        <span className="tag tag-green">Unlimited</span>
+                        <span className="tag tag-blue">With Explanations</span>
                     </div>
                     <button className="btn-action outline">
-                        Bắt đầu luyện tập
+                        Start Practicing
                     </button>
                 </div>
 
@@ -62,16 +62,16 @@ const QuickActions: React.FC<QuickActionsProps> = ({ vocabularyLearned = 1250 })
                     onClick={() => navigate('/vocabulary/flash-card')}
                 >
                     <div className="card-icon purple">🃏</div>
-                    <h3>Học từ vựng</h3>
+                    <h3>Vocabulary Flashcards</h3>
                     <p className="desc">
-                        Hệ thống Flashcard thông minh lặp lại ngắt quãng, kèm Audio phát âm giúp nhớ lâu gấp 3 lần.
+                        Smart spaced-repetition Flashcard system with audio pronunciation — remember 3x longer.
                     </p>
                     <div className="card-tags">
-                        <span className="tag tag-orange">Lật thẻ & Nghe</span>
-                        <span className="tag tag-blue">{vocabularyLearned} từ đã thuộc</span>
+                        <span className="tag tag-orange">Flip &amp; Listen</span>
+                        <span className="tag tag-blue">{vocabularyLearned} words learned</span>
                     </div>
                     <button className="btn-action outline">
-                        Mở bộ từ vựng
+                        Open Vocabulary
                     </button>
                 </div>
             </div>

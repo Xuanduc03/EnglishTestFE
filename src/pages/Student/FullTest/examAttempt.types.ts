@@ -211,6 +211,7 @@ export interface ExamHistoryItem {
   examId: string;
   examTitle: string;
   examCode: string;
+  accuracyPercent: number;
   status: AttemptStatus;
   startedAt: string;
   submittedAt: string | null;
@@ -240,42 +241,67 @@ export interface ExamHistoryResponse {
 // GET /api/exam-attempts/{attemptId}/review
 // ============================================
 export interface ReviewAnswerDto {
-  examQuestionId: string;
+  examAnswerId: string;
   questionId: string;
   orderIndex: number;
+  point: number;
   content?: string;
+  questionType: string;
+  explanation?: string;
+  audioUrl?: string;
+  imageUrl?: string;
+
+  // Dành cho trắc nghiệm
   selectedAnswerId: string | null;
   correctAnswerId: string | null;
   isCorrect: boolean;
   isAnswered: boolean;
-  point: number;
   answers: AnswerOption[];
-  groupContent?: string;
-  groupAudioUrl?: string;
-  explanation?: string;
+
+  // Dành cho điền từ / tự luận
+  textAnswer?: string | null;
+  aiFeedback?: string | null;
+  aiScoreDetailJson?: string | null;
+  isAiGraded?: boolean;
+  gradingStatus?: string | null;
 }
 
-export interface ReviewSectionDto {
-  sectionId: string;
-  sectionName: string;
-  skillCode: string;
-  skillName: string;
-  totalQuestions: number;
-  correctAnswers: number;
+// Tầng 2: Nhóm câu hỏi (MỚI THÊM - Chứa bài đọc / bài nghe chung)
+export interface ReviewGroupDto {
+  groupId: string;
+  passageHtml?: string | null;
+  transcript?: string | null;
+  audioUrl?: string | null;
+  imageUrl?: string | null;
   questions: ReviewAnswerDto[];
 }
 
+// Tầng 1: Phần thi (Part/Section)
+export interface ReviewSectionDto {
+  sectionId: string;
+  sectionName: string;
+  orderIndex: number;
+  // skillCode và skillName có thể không có từ BE mới, mình sẽ tự suy luận ở Frontend
+  groups: ReviewGroupDto[]; // Đã thay mảng questions thành mảng groups
+}
+
+// Tầng 0: Tổng quan bài thi
 export interface ExamReviewDto {
   attemptId: string;
+  examId: string;
   examTitle: string;
   examCode: string;
   submittedAt: string;
   totalScore: number | null;
-  listeningScore: number | null;
-  readingScore: number | null;
+  totalQuestions: number;
+  correctAnswers: number;
+  
+  // TOEIC specfic (có thể null nếu là IELTS)
+  listeningScore?: number | null;
+  readingScore?: number | null;
+
   sections: ReviewSectionDto[];
 }
-
 export interface ExamReviewResponse {
   success: boolean;
   data: ExamReviewDto;

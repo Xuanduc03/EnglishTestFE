@@ -1,318 +1,260 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
+} from 'recharts';
 import './LearningAnalysis.scss';
+import { examAnalyticsService } from './examAnalytics.service';
+import type { ExamAnalyticsDto } from './examAnalytics.types';
+import { useAuthStore } from '../../../stores/store';
+import { jwtDecode } from 'jwt-decode';
+
+// ── Component ────────────────────────────────────────────────────
 
 const LearningAnalysis = () => {
-  const [selectedPeriod, setSelectedPeriod] = useState('week');
+  const { user, accessToken } = useAuthStore();
+  
+  let userId = user?.id;
 
-  // Dữ liệu completion rate
-  const completionData = [
-    { skill: 'Grammar', value: 34, color: '#6366f1' },
-    { skill: 'Listening', value: 26, color: '#06b6d4' },
-    { skill: 'Vocabulary', value: 5, color: '#10b981' },
-    { skill: 'Reading', value: 16, color: '#f59e0b' },
-    { skill: 'Speaking', value: 2, color: '#ef4444' },
-    { skill: 'Writing', value: 2, color: '#8b5cf6' },
-  ];
+  if (!userId) {
+    try {
+      const storedUserBase = localStorage.getItem('user');
+      if (storedUserBase) {
+        const parsed = JSON.parse(storedUserBase);
+        userId = parsed.userId || parsed.id;
+      }
+    } catch (e) {
+      console.warn('Failed to parse user from localStorage', e);
+    }
+  }
 
-  // Dữ liệu learning time
-  const learningTimeData = [
-    { day: '25 Dec', minutes: 8 },
-    { day: '26 Dec', minutes: 15 },
-    { day: '27 Dec', minutes: 12 },
-    { day: '28 Dec', minutes: 20 },
-    { day: '29 Dec', minutes: 25 },
-    { day: '30 Dec', minutes: 18 },
-    { day: '31 Dec', minutes: 22 },
-    { day: '01 Jan', minutes: 30 },
-  ];
+  // Fallback: Lấy userId từ accessToken nếu Zustand chưa kịp fetch profile (ví dụ khi F5 trang)
+  if (!userId && accessToken) {
+    try {
+      const decoded: any = jwtDecode(accessToken);
+      // userId thường nằm ở 1 trong các key này tuỳ thuộc Backend config ClaimTypes
+      userId = decoded.nameid || 
+               decoded.sub || 
+               decoded.id || 
+               decoded.userId || 
+               decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+    } catch (e) {
+      console.warn('Failed to decode token for userId');
+    }
+  }
 
-  // Chi tiết kỹ năng
-  const skillDetails = [
-    { name: 'Listening', answered: 575, total: 2242, percentage: 21, color: '#3b82f6' },
-    { name: 'Reading', answered: 340, total: 2200, percentage: 12, color: '#10b981' },
-    { name: 'Writing', answered: 1, total: 80, percentage: 0, color: '#8b5cf6' },
-    { name: 'Speaking', answered: 1, total: 82, percentage: 0, color: '#ef4444' },
-    { name: 'Vocabulary', answered: 83, total: 1870, percentage: 4, color: '#f59e0b' },
-    { name: 'Grammar', answered: 1213, total: 3661, percentage: 29, color: '#6366f1' },
-  ];
+  // State quản lý dữ liệu
+  const [data, setData] = useState<ExamAnalyticsDto | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Kết quả bài thi
-  const examResults = [
-    { type: 'MINI TEST', completed: 3, total: 5 },
-    { type: 'FULL TEST', completed: 2, total: 13 },
-  ];
+  // Hook gọi API
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        setLoading(true);
+        // Gọi service lấy dữ liệu thật từ Backend (phân tích 5 lần gần nhất)
+        const result = await examAnalyticsService.getAnalytics(userId!, 5);
+        setData(result);
+      } catch (err) {
+        setError('Không thể tải dữ liệu phân tích. Vui lòng thử lại.');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Tính overall completion
-  const overallCompletion = completionData.reduce((sum, item) => sum + item.value, 0) / completionData.length;
+    if (userId) {
+      fetchAnalytics();
+    } else {
+      setLoading(false);
+    }
+  }, [userId]);
+
+  const getLevelColorClass = (level: string) => {
+    if (level === 'Strong') return 'lvl-strong';
+    if (level === 'Average') return 'lvl-average';
+    return 'lvl-weak';
+  };
+
+  // Hiển thị trạng thái loading hoặc lỗi
+  if (loading) return <div className="la-loading">Đang phân tích dữ liệu học tập...</div>;
+  if (error) return <div className="la-error">{error}</div>;
+  if (!data) return <div className="la-empty">Chưa có dữ liệu bài thi.</div>;
+
+  // Chuẩn bị data cho biểu đồ (recharts yêu cầu format date đẹp chút)
+  const chartData = data.scoreHistory.map(history => {
+    const date = new Date(history.attemptDate);
+    return {
+      attemptDate: `${date.getDate()}/${date.getMonth() + 1}`, // Format ngày: dd/mm
+      percent: history.percent,
+      score: history.score
+    };
+  });
 
   return (
-    <div className="learning-analysis-modern">
-      {/* Header */}
-      <div className="modern-header">
-        <div className="header-content">
-          <h1>Performance Statistics</h1>
-          <p className="subtitle">Track your goals to see how far you've come and how close you are to reaching your goal.</p>
+    <div className="learning-analysis-page">
+      <div className="la-header">
+        <h1>Learning Analysis Dashboard</h1>
+        <p>Báo cáo hiệu suất học tập và phân tích điểm yếu</p>
+      </div>
+
+      {/* 🟢 BLOCK 1: Overview Cards */}
+      <div className="la-overview-cards">
+        <div className="la-card">
+          <div className="card-title">Tổng số bài đã làm</div>
+          <div className="card-value">{data.totalAttempts}</div>
         </div>
-        <div className="header-actions">
-          <div className="period-selector">
-            <button 
-              className={selectedPeriod === 'week' ? 'active' : ''}
-              onClick={() => setSelectedPeriod('week')}
-            >
-              7 Days
-            </button>
-            <button 
-              className={selectedPeriod === 'month' ? 'active' : ''}
-              onClick={() => setSelectedPeriod('month')}
-            >
-              This Month
-            </button>
-            <button 
-              className={selectedPeriod === 'quarter' ? 'active' : ''}
-              onClick={() => setSelectedPeriod('quarter')}
-            >
-              This Quarter
-            </button>
+
+        <div className="la-card">
+          <div className="card-title">Điểm cao nhất</div>
+          <div className="card-value text-success">{data.bestScore}%</div>
+        </div>
+
+        <div className="la-card">
+          <div className="card-title">Điểm trung bình</div>
+          <div className="card-value text-warning">{data.averageScore}%</div>
+        </div>
+
+        <div className="la-card highlight-card">
+          <div className="card-title">Điểm thi gần nhất</div>
+          <div className="card-value">{data.latestScore}%</div>
+          <div className={`card-trend ${data.scoreTrend > 0 ? 'trend-up' : 'trend-down'}`}>
+            {data.scoreTrend > 0 ? '🟢 +' : '🔴 '}{data.scoreTrend}%
           </div>
         </div>
       </div>
 
-      <div className="modern-content">
-        {/* Main Stats Cards */}
-        <div className="stats-grid">
-          <div className="stat-card primary">
-            <div className="stat-icon">📈</div>
-            <div className="stat-content">
-              <h3>Overall Completion</h3>
-              <div className="stat-value">{overallCompletion.toFixed(0)}%</div>
-              <div className="stat-change">+2.5% from last week</div>
-            </div>
+      {/* 🟢 BLOCK 2: Score History Chart */}
+      <div className="la-chart-section">
+        <h2>📊 Lịch sử điểm số (Score History)</h2>
+        <div className="chart-container">
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
+              <XAxis dataKey="attemptDate" tickLine={false} axisLine={false} dy={10} />
+              <YAxis
+                domain={[0, 100]}
+                tickLine={false}
+                axisLine={false}
+                tickFormatter={(val) => `${val}%`}
+                dx={-10}
+              />
+              <Tooltip
+                formatter={(value: number) => [`${value}%`, 'Score']}
+                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+              />
+              <Line
+                type="monotone"
+                dataKey="percent"
+                stroke="#6366f1"
+                strokeWidth={3}
+                dot={{ r: 4, strokeWidth: 2, fill: '#fff' }}
+                activeDot={{ r: 6, fill: '#6366f1', stroke: '#fff', strokeWidth: 2 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* 🟢 BLOCK 3: Bắt bệnh & Bốc thuốc (Split 50/50) */}
+      <div className="la-diagnosis-split">
+        {/* Left: Strengths & Weaknesses */}
+        <div className="diagnosis-left">
+          <h2>🩺 Phân tích điểm mạnh / yếu</h2>
+
+          <div className="sw-box box-strengths">
+            <h3>✅ Điểm mạnh (Strengths)</h3>
+            <ul>
+              {data.strengths.length > 0
+                ? data.strengths.map((st, i) => <li key={i}>{st}</li>)
+                : <li>Chưa có đủ dữ liệu để đánh giá điểm mạnh.</li>
+              }
+            </ul>
           </div>
-          
-          <div className="stat-card secondary">
-            <div className="stat-icon">⏱️</div>
-            <div className="stat-content">
-              <h3>Avg. Learning Time</h3>
-              <div className="stat-value">5m 37s</div>
-              <div className="stat-change">per day</div>
-            </div>
-          </div>
-          
-          <div className="stat-card tertiary">
-            <div className="stat-icon">🎯</div>
-            <div className="stat-content">
-              <h3>Avg. Accuracy</h3>
-              <div className="stat-value">34.8%</div>
-              <div className="stat-change">+1.2% this week</div>
-            </div>
-          </div>
-          
-          <div className="stat-card quaternary">
-            <div className="stat-icon">🔥</div>
-            <div className="stat-content">
-              <h3>Study Streak</h3>
-              <div className="stat-value">7 days</div>
-              <div className="stat-change">Keep it up!</div>
-            </div>
+
+          <div className="sw-box box-weaknesses">
+            <h3>⚠️ Điểm yếu (Weaknesses)</h3>
+            <ul>
+              {data.weaknesses.length > 0
+                ? data.weaknesses.map((wk, i) => <li key={i}>{wk}</li>)
+                : <li>Chưa có đủ dữ liệu để đánh giá điểm yếu.</li>
+              }
+            </ul>
           </div>
         </div>
 
-        {/* Main Content Grid */}
-        <div className="content-grid">
-          {/* Left Column */}
-          <div className="content-column">
-            {/* Completion Rate Card */}
-            <div className="modern-card">
-              <div className="card-header">
-                <h2>Completion Rate</h2>
-                <p className="card-subtitle">The chart reflects your completion progress by skills</p>
-              </div>
-              
-              <div className="completion-overview">
-                <div className="overall-progress">
-                  <div className="progress-circle">
-                    <svg width="120" height="120" viewBox="0 0 120 120">
-                      <circle 
-                        cx="60" 
-                        cy="60" 
-                        r="54" 
-                        fill="none" 
-                        stroke="#e5e7eb" 
-                        strokeWidth="12"
-                      />
-                      <circle 
-                        cx="60" 
-                        cy="60" 
-                        r="54" 
-                        fill="none" 
-                        stroke="url(#gradient)" 
-                        strokeWidth="12"
-                        strokeDasharray={`${overallCompletion * 3.6} 360`}
-                        strokeLinecap="round"
-                        transform="rotate(-90 60 60)"
-                      />
-                      <defs>
-                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" stopColor="#6366f1" />
-                          <stop offset="100%" stopColor="#8b5cf6" />
-                        </linearGradient>
-                      </defs>
-                    </svg>
-                    <div className="progress-text">
-                      <div className="progress-value">{overallCompletion.toFixed(0)}%</div>
-                      <div className="progress-label">Overall</div>
-                    </div>
+        {/* Right: Suggestions Roadmap */}
+        <div className="diagnosis-right">
+          <h2>💊 Lộ trình khắc phục (Suggestions)</h2>
+          <div className="suggestions-list">
+            {data.suggestions.length > 0 ? (
+              data.suggestions.map((sugg, index) => (
+                <div key={index} className="suggestion-card">
+                  <div className="sugg-icon">💡</div>
+                  <div className="sugg-content">
+                    <p>{sugg.message}</p>
+                    <button
+                      className="btn-study-now"
+                      onClick={() => console.log('Navigate to:', sugg.actionUrl)}
+                    >
+                      Ôn luyện {sugg.partName} ngay 🚀
+                    </button>
                   </div>
                 </div>
-                
-                <div className="skills-breakdown">
-                  {completionData.map((skill, index) => (
-                    <div key={index} className="skill-item">
-                      <div className="skill-info">
-                        <div className="skill-color" style={{ backgroundColor: skill.color }}></div>
-                        <span className="skill-name">{skill.skill}</span>
-                      </div>
-                      <div className="skill-percentage">{skill.value}%</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              <div className="card-footer">
-                <p className="encouragement">Let's study hard to make excellent progress today!</p>
-                <button className="action-button">
-                  <span>Continue Studying</span>
-                  <span className="arrow">→</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Learning Time Card */}
-            <div className="modern-card">
-              <div className="card-header">
-                <h2>Learning Time</h2>
-                <p className="card-subtitle">Avr. Per day: 5m 37s</p>
-              </div>
-              
-              <div className="learning-time-chart">
-                <div className="chart-container">
-                  <div className="y-axis">
-                    <span>40</span>
-                    <span>32</span>
-                    <span>24</span>
-                    <span>16</span>
-                    <span>8</span>
-                    <span>0</span>
-                  </div>
-                  <div className="bars-container">
-                    {learningTimeData.map((item, index) => (
-                      <div key={index} className="chart-bar-group">
-                        <div className="chart-bar-wrapper">
-                          <div 
-                            className="chart-bar"
-                            style={{ height: `${(item.minutes / 40) * 100}%` }}
-                          ></div>
-                        </div>
-                        <div className="chart-label">{item.day}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div className="chart-legend">
-                  <span className="legend-item">7 days ago</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column */}
-          <div className="content-column">
-            {/* Progress Details Card */}
-            <div className="modern-card">
-              <div className="card-header">
-                <h2>Progress Details</h2>
-                <p className="card-subtitle">Help you track your learning performance and analyze progress through each skill easily</p>
-              </div>
-              
-              <div className="skills-details">
-                {skillDetails.map((skill, index) => (
-                  <div key={index} className="skill-detail-item">
-                    <div className="skill-header">
-                      <span className="skill-title">{skill.name}</span>
-                      <div className="skill-numbers">
-                        <span className="answered">{skill.answered}</span>
-                        <span className="separator">/</span>
-                        <span className="total">{skill.total} Answered</span>
-                      </div>
-                    </div>
-                    <div className="skill-progress">
-                      <div className="progress-bar">
-                        <div 
-                          className="progress-fill"
-                          style={{ 
-                            width: `${skill.percentage}%`,
-                            backgroundColor: skill.color
-                          }}
-                        ></div>
-                      </div>
-                      <div className="progress-percentage">{skill.percentage}% Correct</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Exam Results Card */}
-            <div className="modern-card">
-              <div className="card-header">
-                <h2>Exam Results</h2>
-                <p className="card-subtitle">Help you determine what you know and what you still need to work on.</p>
-              </div>
-              
-              <div className="exam-results">
-                {examResults.map((exam, index) => (
-                  <div key={index} className="exam-item">
-                    <div className="exam-type">{exam.type}</div>
-                    <div className="exam-progress">
-                      <div className="exam-numbers">
-                        <span className="completed">{exam.completed}</span>
-                        <span className="separator">/</span>
-                        <span className="total">{exam.total}</span>
-                        <span className="label">Test Completed</span>
-                      </div>
-                      <div className="exam-bar">
-                        <div 
-                          className="exam-bar-fill"
-                          style={{ width: `${(exam.completed / exam.total) * 100}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                
-                <div className="exam-stats-grid">
-                  <div className="exam-stat">
-                    <div className="stat-value">34.8%</div>
-                    <div className="stat-label">Avg. Accuracy</div>
-                  </div>
-                  <div className="exam-stat">
-                    <div className="stat-value">350</div>
-                    <div className="stat-label">Avg. Score</div>
-                  </div>
-                  <div className="exam-stat">
-                    <div className="stat-value">42m 13s</div>
-                    <div className="stat-label">Avg. Time Taken</div>
-                  </div>
-                  <div className="exam-stat">
-                    <div className="stat-value">5/18</div>
-                    <div className="stat-label">Tests Completed</div>
-                  </div>
-                </div>
-              </div>
-            </div>
+              ))
+            ) : (
+              <p>Tuyệt vời! Bạn đang duy trì phong độ rất tốt.</p>
+            )}
           </div>
         </div>
       </div>
+
+      {/* 🟢 BLOCK 4: Detailed Table */}
+      <div className="la-detailed-table-section">
+        <h2>🔬 Bảng phân tích nội soi (Detailed Analytics)</h2>
+        <div className="table-responsive">
+          <table className="la-table">
+            <thead>
+              <tr>
+                <th>Kỹ năng (Skill)</th>
+                <th>Tên phần thi (Part)</th>
+                <th>Độ chính xác (Accuracy)</th>
+                <th>Đánh giá (Level)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.partAnalytics.map((row, index) => (
+                <tr key={index}>
+                  <td>
+                    <span className={`skill-badge ${row.skill.toLowerCase()}`}>
+                      {row.skill === 'Listening' ? '🎧 ' : '📖 '}{row.skill}
+                    </span>
+                  </td>
+                  <td className="fw-500">{row.partName}</td>
+                  <td className="td-progress">
+                    <div className="progress-bar-wrapper">
+                      <div className="progress-info">
+                        <span>{row.accuracyPercent}%</span>
+                      </div>
+                      <div className="progress-track">
+                        <div
+                          className={`progress-fill ${getLevelColorClass(row.level)}`}
+                          style={{ width: `${row.accuracyPercent}%` }}
+                        />
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span className={`level-pill ${getLevelColorClass(row.level)}`}>
+                      {row.level}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
   );
 };

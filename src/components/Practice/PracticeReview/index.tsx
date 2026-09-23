@@ -78,7 +78,7 @@ function buildFakeSession(questions: ReviewQuestionDto[]): PracticeSessionDto {
 
   return {
     sessionId: '',
-    title: 'Xem lại đáp án',
+    title: 'Review Answers',
     totalQuestions: questions.length,
     duration: 0,
     parts,
@@ -158,7 +158,7 @@ const PracticeReview: React.FC = () => {
     return (
       <div className="practice-review__loading">
         <Spin size="large" />
-        <p>Đang tải bài xem lại...</p>
+        <p>Loading review...</p>
       </div>
     );
   }
@@ -172,10 +172,10 @@ const PracticeReview: React.FC = () => {
           icon={<ArrowLeftOutlined />}
           onClick={() => navigate(`/practice/result/${sessionId}`)}
         >
-          Quay lại kết quả
+          Back to Results
         </Button>
-        <h1>Xem lại đáp án</h1>
-        <Button onClick={() => navigate('/practice/list')}>Về trang luyện tập</Button>
+        <h1>Review Answers</h1>
+        <Button onClick={() => navigate('/practice/list')}>Back to Practice</Button>
       </div>
 
       {/* Summary */}
@@ -183,17 +183,17 @@ const PracticeReview: React.FC = () => {
         <div className="summary-stat summary-stat--correct">
           <CheckCircleFilled />
           <span className="val">{stats.correct}</span>
-          <span className="lbl">Đúng</span>
+          <span className="lbl">Correct</span>
         </div>
         <div className="summary-stat summary-stat--wrong">
           <CloseCircleFilled />
           <span className="val">{stats.wrong}</span>
-          <span className="lbl">Sai</span>
+          <span className="lbl">Incorrect</span>
         </div>
         <div className="summary-stat summary-stat--unanswered">
           <MinusCircleFilled />
           <span className="val">{stats.unanswered}</span>
-          <span className="lbl">Bỏ qua</span>
+          <span className="lbl">Unanswered</span>
         </div>
       </div>
 
@@ -207,12 +207,12 @@ const PracticeReview: React.FC = () => {
           buttonStyle="solid"
           size="small"
         >
-          <Radio.Button value="all">Tất cả ({stats.total})</Radio.Button>
-          <Radio.Button value="correct">Đúng ({stats.correct})</Radio.Button>
-          <Radio.Button value="wrong">Sai ({stats.wrong})</Radio.Button>
-          <Radio.Button value="unanswered">Bỏ qua ({stats.unanswered})</Radio.Button>
+          <Radio.Button value="all">All ({stats.total})</Radio.Button>
+          <Radio.Button value="correct">Correct ({stats.correct})</Radio.Button>
+          <Radio.Button value="wrong">Incorrect ({stats.wrong})</Radio.Button>
+          <Radio.Button value="unanswered">Unanswered ({stats.unanswered})</Radio.Button>
           {stats.marked > 0 && (
-            <Radio.Button value="marked">Đánh dấu ({stats.marked})</Radio.Button>
+            <Radio.Button value="marked">Marked ({stats.marked})</Radio.Button>
           )}
         </Radio.Group>
 
@@ -223,20 +223,20 @@ const PracticeReview: React.FC = () => {
             size="small"
             style={{ minWidth: 130 }}
           >
-            <Option value="all">Tất cả Part</Option>
+            <Option value="all">All Parts</Option>
             {partOptions.map((p) => <Option key={p} value={p}>{p}</Option>)}
           </Select>
         )}
 
         <Tag style={{ marginLeft: 'auto' }}>
-          {filteredQuestions.length > 0 ? safeIndex + 1 : 0} / {filteredQuestions.length} câu
+          {filteredQuestions.length > 0 ? safeIndex + 1 : 0} / {filteredQuestions.length} questions
         </Tag>
       </div>
 
       {/* Body */}
       {filteredQuestions.length === 0 ? (
         <div className="practice-review__empty">
-          Không có câu hỏi nào phù hợp bộ lọc.
+          No questions match the filter.
         </div>
       ) : (
         <div className="practice-review__body">
@@ -249,26 +249,16 @@ const PracticeReview: React.FC = () => {
               answers={answersMap}
               markedForReview={markedSet}
               onNavigate={(idx) => setCurrentIndex(idx)}
+              onPrevPage={() => setCurrentIndex((i) => Math.max(0, i - 1))}
+              onNextPage={() => setCurrentIndex((i) => Math.min(filteredQuestions.length - 1, i + 1))}
+              isFirstPage={safeIndex === 0}
+              isLastPage={safeIndex >= filteredQuestions.length - 1}
+              onMarkReview={() => {}}
+              isMarked={currentQ ? markedSet.has(currentQ.questionId) : false}
             />
           </div>
 
           <div className="practice-review__content">
-            <div className="review-nav-btns">
-              <Button
-                disabled={safeIndex === 0}
-                onClick={() => setCurrentIndex((i) => Math.max(0, i - 1))}
-              >
-                ← Câu trước
-              </Button>
-              <Button
-                type="primary"
-                disabled={safeIndex >= filteredQuestions.length - 1}
-                onClick={() => setCurrentIndex((i) => Math.min(filteredQuestions.length - 1, i + 1))}
-              >
-                Câu tiếp →
-              </Button>
-            </div>
-
             {/* Tái dụng QuestionDisplay — read-only */}
             <QuestionDisplay
               questions={currentMapped}
@@ -277,6 +267,7 @@ const PracticeReview: React.FC = () => {
               markedSet={markedSet}
               onSelectAnswer={() => {}}
               onMarkForReview={() => {}}
+              isReviewMode={true}
             />
           </div>
         </div>

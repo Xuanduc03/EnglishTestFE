@@ -7,7 +7,9 @@ import {
   SyncOutlined,
   CheckCircleOutlined,
   CopyOutlined,
-  EyeOutlined
+  EyeOutlined,
+  DeleteOutlined,
+  EditOutlined
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { CrudPage } from "../../../components/shared/crud/components/page/CrudPage";
@@ -23,8 +25,6 @@ const ExamPage = () => {
 
   // Chuyển sang màn soạn cấu trúc
   const handleConfigureStructure = (record: any) => {
-    console.log('Navigating to:', `/admin/exams/${record.id}/structure`);
-    console.log('Record ID:', record.id);
     navigate(`/admin/exams/${record.id}/structure`);
   };
 
@@ -326,6 +326,42 @@ const ExamPage = () => {
                         handlePreview(record);
                       }}
                     />
+                  </Tooltip>
+                  {/* FIX: Sửa — trigger CrudPage mở form edit */}
+                  <Tooltip title="Sửa thông tin">
+                    <Button size="small" icon={<EditOutlined />}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // CrudPage expose onEdit qua ref hoặc context
+                        // Nếu CrudPage dùng row click để edit thì bỏ nút này
+                        // và set onRow={() => ({ onClick: () => openEdit(record) })}
+                        record.__triggerEdit?.();
+                      }} />
+                  </Tooltip>
+
+                  {/* FIX: Xóa — có confirm trước khi gọi service.delete */}
+                  <Tooltip title="Xóa đề thi">
+                    <Popconfirm
+                      title="Xóa đề thi?"
+                      description={
+                        <span>
+                          Đề thi <strong>{record.title}</strong> sẽ bị xóa vĩnh viễn.<br />
+                          Tất cả lượt thi liên quan cũng sẽ bị xóa.
+                        </span>
+                      }
+                      onConfirm={(e) => {
+                        e?.stopPropagation();
+                        // CrudPage sẽ tự gọi service.delete(record.id) và reload list
+                        record.__triggerDelete?.();
+                      }}
+                      okText="Xóa"
+                      okButtonProps={{ danger: true }}
+                      cancelText="Hủy"
+                      placement="topRight"
+                    >
+                      <Button size="small" danger icon={<DeleteOutlined />}
+                        onClick={(e) => e.stopPropagation()} />
+                    </Popconfirm>
                   </Tooltip>
                 </Space>
               )

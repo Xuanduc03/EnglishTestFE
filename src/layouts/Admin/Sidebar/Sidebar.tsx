@@ -20,8 +20,8 @@ interface SidebarProps {
  * @returns 
  */
 
-export const SideBar: React.FC<SidebarProps> = ({ 
-  selectedMenu, 
+export const SideBar: React.FC<SidebarProps> = ({
+  selectedMenu,
   collapsed = false,
   onCollapse,
   mobile = false
@@ -86,7 +86,7 @@ export const SideBar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Quick Stats (only when expanded) */}
-      {!collapsed && (
+      {/* {!collapsed && (
         <div className="sidebar-stats">
           <div className="stat-item">
             <div className="stat-value">1,245</div>
@@ -101,7 +101,7 @@ export const SideBar: React.FC<SidebarProps> = ({
             <div className="stat-label">Hoạt động</div>
           </div>
         </div>
-      )}
+      )} */}
 
       <Divider className="sidebar-divider" />
 
